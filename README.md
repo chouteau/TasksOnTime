@@ -5,4 +5,4 @@ Schedule any c# workflow as you want
 
 First, [install Nuget](http://docs.nuget.org/docs/start-here/installing-nuget) then, install [TasksOnTime](http://www.nuget.org/packages/tasksontime) from the package manager console.
 
-> PM> Install-Package Aquila 
+> PM> Install-Package TasksOnTime 
