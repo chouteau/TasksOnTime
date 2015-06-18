@@ -21,6 +21,5 @@ namespace TasksOnTime
 		bool Contains(string taskName);
 		// IDictionary<string, object> ExecuteScheduledTask(string taskName);
 		void ForceTask(string taskName);
-		void ReplaceActivityHoster(IActivityHoster hoster);
 	}
 }

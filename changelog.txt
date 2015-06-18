@@ -1,0 +1,14 @@
+﻿2.2.4
+Add SyncActivityHoster for synchronized tests (enabled with global option SynchronizedMode = true)
+
+2.1.3 
+Migrate from codeplex to github
+
+1.2.1 
+Add ManualExecuteTask with task name
+
+1.1.0.0 
+Support fluent tasks registration
+
+
+

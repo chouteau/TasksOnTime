@@ -15,6 +15,7 @@ namespace TasksOnTime
 			IntervalInSeconds = intervalInSecond;
 			DisabledByDefault = true;
 			CleanupTimeoutInSeconds = 60 * 10; // 10 minutes
+			SynchronizedMode = false;
 		}
 
 		public string this[string taskName]
@@ -28,5 +29,7 @@ namespace TasksOnTime
 		public int IntervalInSeconds { get; set; }
 		public bool DisabledByDefault { get; set; }
 		public int CleanupTimeoutInSeconds { get; set; }
+
+		public bool SynchronizedMode { get; set; }
 	}
 }

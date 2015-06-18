@@ -11,19 +11,32 @@ namespace TasksOnTime
 {
 	public class ActivityHoster : IActivityHoster
 	{
-		protected SynchronizedCollection<ActivityInstance> m_WFInstances;
-
-		static ActivityHoster()
+		private static Lazy<IActivityHoster> m_LazyActivityHoster = new Lazy<IActivityHoster>(() =>
 		{
-			Current = new ActivityHoster();
-		}
+			if (GlobalConfiguration.Settings.SynchronizedMode)
+			{
+				return new SyncActivityHoster();
+			}
+			else
+			{
+				return new ActivityHoster();
+			}
+		}, true);
+
+		protected SynchronizedCollection<ActivityInstance> m_WFInstances;
 
 		protected ActivityHoster()
 		{
 			m_WFInstances = new SynchronizedCollection<ActivityInstance>();
 		}
 
-		public static IActivityHoster Current { get; internal set; }
+		public static IActivityHoster Current 
+		{
+			get
+			{
+				return m_LazyActivityHoster.Value;
+			}
+		}
 
 		public event EventHandler<EventArgs<string>> ActivityCompleted;
 

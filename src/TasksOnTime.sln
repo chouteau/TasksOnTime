@@ -1,14 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime", "TasksOnTime\TasksOnTime.csproj", "{E9D8BCC7-0FB5-4AE1-99B2-A9A07DCE5C83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.Tests", "TasksOnTime.Tests\TasksOnTime.Tests.csproj", "{08DF6BC7-C6C1-46CA-9E10-207EF7D581EC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{1B854F6B-60FA-4B48-8BB7-BCF04D217485}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{391758F3-0B6A-4CDC-8C11-CCFC24C431D2}"
 	ProjectSection(SolutionItems) = preProject
+		..\changelog.txt = ..\changelog.txt
+		..\license.md = ..\license.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

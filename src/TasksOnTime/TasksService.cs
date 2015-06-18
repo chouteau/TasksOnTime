@@ -104,11 +104,6 @@ namespace TasksOnTime
 			m_ScheduledTaskList.Add(task);
 		}
 
-		public void ReplaceActivityHoster(IActivityHoster hoster)
-		{
-			ActivityHoster.Current = hoster;
-		}
-
 		/*
 		public virtual IDictionary<string, object> ExecuteScheduledTask(string taskName)
 		{
