@@ -6,13 +6,8 @@ using System.Threading.Tasks;
 
 namespace TasksOnTime
 {
-	public enum ScheduledTaskTimePeriod
-	{
-		Month,
-		Day,
-		WorkingDay,
-		Hour,
-		Minute,
-        Second,
-	}
+    public interface ITask 
+    {
+        void Execute(ExecutionContext context);
+    }
 }

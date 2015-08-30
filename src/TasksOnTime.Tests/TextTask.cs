@@ -7,21 +7,17 @@ using System.Activities;
 namespace TasksOnTime.Tests
 {
 
-	public sealed class ActivityTest : CodeActivity
+	public sealed class TextTask : ITask
 	{
 		// Define an activity input argument of type string
-		public InOutArgument<string> Text { get; set; }
+		public string Text { get; set; }
 
 		// If your activity returns a value, derive from CodeActivity<TResult>
 		// and return the value from the Execute method.
-		protected override void Execute(CodeActivityContext context)
+		public void Execute(ExecutionContext context)
 		{
-			// Obtain the runtime value of the Text input argument
-			string text = context.GetValue(this.Text);
-
-			text = text + " tested !";
-
-			context.SetValue(Text, text);
+            // Obtain the runtime value of the Text input argument
+            Text += " tested !";
 		}
 	}
 }

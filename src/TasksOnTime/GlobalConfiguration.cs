@@ -18,7 +18,7 @@ namespace TasksOnTime
 
 		static GlobalConfiguration()
 		{
-			Logger = new DiagnosticsLogger();
+			Logger = new DebugLogger();
 			DependencyResolver = new DefaultDependencyResolver();
 		}
 
