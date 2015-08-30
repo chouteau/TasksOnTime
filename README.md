@@ -1,10 +1,7 @@
 # TasksOnTime (3.0.5)
-Simply enqueue (with delay) or schedule any c# task as you want and monitor it
 
 **TasksOnTime** require only .Net 4.5 (minimum) no other dependance
-
 **TasksOnTime** can be used in service , console, website or wpf/winforms applications
-
 **TasksOnTime** only use standard *ThreadPool*
 
 ## Where can I get it ?
