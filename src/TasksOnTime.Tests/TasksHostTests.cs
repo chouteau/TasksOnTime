@@ -1,8 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Activities;
-using System.Activities.Expressions;
-using System.Activities.Statements;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,8 +17,6 @@ namespace TasksOnTime.Tests
 		[TestMethod]
 		public void Enqueue()
 		{
-			var message = new Variable<string>();
-
 			var task = new MyTask();
 
 			var mre = new ManualResetEvent(false);
@@ -80,8 +75,6 @@ namespace TasksOnTime.Tests
         [TestMethod]
         public void Enqueue_With_Delay()
         {
-            var message = new Variable<string>();
-
             var task = new MyTask();
 
             var mre = new ManualResetEvent(false);
