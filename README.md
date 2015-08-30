@@ -1,8 +1,8 @@
 # TasksOnTime (3.0.5)
 
-**TasksOnTime** require only .Net 4.5 (minimum) no other dependance
-**TasksOnTime** can be used in service , console, website or wpf/winforms applications
-**TasksOnTime** only use standard *ThreadPool*
+Require only .Net 4.5 (minimum) no other dependance
+Can be used in service , console, website or wpf/winforms applications
+Use only standard ThreadPool
 
 ## Where can I get it ?
 
