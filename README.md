@@ -13,7 +13,7 @@ First, [install Nuget](http://docs.nuget.org/docs/start-here/installing-nuget) t
 
 > PM> Install-Package TasksOnTime 
 
-## Usage :
+## Usage with enqueue :
 
 Each *Task* type must implement *ITask* interface
 
@@ -88,9 +88,14 @@ public class LongTask : ITask
 {
     public void Execute(ExecutionContext context)
 	{
+        if (context.IsCancelRequested) // Break on start
+        {
+            break;
+        }
+
 		for (int i = 0; i < 10; i++)
 		{
-            if (context.IsCancelRequested)
+            if (context.IsCancelRequested) // Break on each loop
             {
                 break;
             }
@@ -103,11 +108,7 @@ public class LongTask : ITask
 var mre = new ManualResetEvent(false);
 var key = Guid.NewGuid();
 
-var parameter = new Dictionary<string, object>();
-parameter.Add("count", 0);
-
 TasksHost.Enqueue<LongTask>(key,
-    parameter,
 	completed: (dic) =>
 	{
 		mre.Set();
@@ -121,3 +122,4 @@ mre.WaitOne();
 var history = TasksHost.GetHistory(key);
 ```
 
+## Usage with scheduled tasks :
