@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TasksOnTime
+namespace TasksOnTime.Scheduling
 {
 	public class ScheduledTask : IDisposable
 	{
@@ -11,7 +11,7 @@ namespace TasksOnTime
 		{
 		}
 
-        internal string Name { get; set; }
+        public string Name { get; set; }
 
         internal DateTime NextRunningDate { get; set; }
 		public ScheduledTaskTimePeriod Period { get; set; }

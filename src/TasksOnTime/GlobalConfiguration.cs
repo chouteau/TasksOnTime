@@ -8,12 +8,11 @@ namespace TasksOnTime
 {
 	public class GlobalConfiguration
 	{
-		private static Settings m_Settings;
 		private static Lazy<Settings> m_LazyConfig =
 			new Lazy<Settings>(() =>
 				{
-					m_Settings = new Settings();
-					return m_Settings;
+					var settings = new Settings();
+					return settings;
 				}, true);
 
 		static GlobalConfiguration()

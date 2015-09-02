@@ -4,31 +4,45 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using NFluent;
 
+using TasksOnTime.Scheduling;
+
 namespace TasksOnTime.Tests
 {
 	[TestClass]
 	public class ScheduletdTasksTests
 	{
-		[TestInitialize]
+        [ClassInitialize()]
+        public static void ClassInit(TestContext context)
+        {
+            GlobalConfiguration.Settings.DisabledByDefault = false;
+            Scheduler.Start();
+        }
+
+        [ClassCleanup()]
+        public static void ClassCleanup()
+        {
+            Scheduler.Stop();
+        }
+
+        [TestInitialize]
 		public void Initialize()
 		{
-			GlobalConfiguration.Settings.DisabledByDefault = false;
 		}
 
         [TestCleanup]
-        public void Init()
+        public void Cleanup()
         {
-            TasksHost.ResetScheduledTaskList();
+            Scheduler.ResetScheduledTaskList();
         }
 
         [TestMethod]
 		public void Add_Sheduled_Task()
 		{
-            var task = TasksHost.CreateScheduledTask<MyTask>("TestAdd")
+            var task = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
                             .EveryDay();
 
-            TasksHost.ScheduleTask(task);
-            var taskList = TasksHost.GetScheduledTaskList();
+            Scheduler.Add(task);
+            var taskList = Scheduler.GetList();
 			Check.That(taskList.Any(i => i.Name == "TestAdd")).IsTrue();
 		}
 
@@ -36,29 +50,26 @@ namespace TasksOnTime.Tests
         [ExpectedException(typeof(Exception))]
         public void Add_Sheduled_Task_With_Same_Name()
         {
-            var t1 = TasksHost.CreateScheduledTask<MyTask>("TestAdd")
+            var t1 = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
                         .EveryDay();
 
-            TasksHost.ScheduleTask(t1);
+            Scheduler.Add(t1);
 
-            var t2 = TasksHost.CreateScheduledTask<MyTask>("TestAdd")
+            var t2 = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
                         .EveryDay();
 
-            TasksHost.ScheduleTask(t2);
+            Scheduler.Add(t2);
         }
 
         [TestMethod]
-		public void Schedule_Task()
+		public void Schedule_Task_And_Start()
 		{
-            var task = TasksHost.CreateScheduledTask<TextTask>("Test")
+            var task = Scheduler.CreateScheduledTask<TextTask>("SimpleTest")
                                 .EveryMinute();
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
 			System.Threading.Thread.Sleep(4 * 1000);
-
-            TasksHost.Stop();
 
             Check.That(task.StartedCount).IsGreaterThan(0);
 		}
@@ -66,34 +77,28 @@ namespace TasksOnTime.Tests
         [TestMethod]
         public void Restart_Long_Task_With_Only_Instance_Allowed()
         {
-            var task = TasksHost.CreateScheduledTask<LongTask>("Test")
+            var task = Scheduler.CreateScheduledTask<LongTask>("OneInstanceTest")
                             .AllowMultipleInstance(false)
                             .EverySecond(3);
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
             System.Threading.Thread.Sleep(9 * 1000);
-
-            TasksHost.Stop();
 
             Check.That(task.StartedCount).Equals(1);
         }
 
         [TestMethod]
-        public void Start_Long_Task_With_Delay()
+        public void Try_Start_Long_Task_With_Delay()
         {
-            var task = TasksHost.CreateScheduledTask<LongTask>("Test")
+            var task = Scheduler.CreateScheduledTask<LongTask>("LongTestWithDelay")
                             .AllowMultipleInstance(false)
                             .StartWithDelay(60)
                             .EveryMinute();
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
             System.Threading.Thread.Sleep(5 * 1000);
-
-            TasksHost.Stop();
 
             Check.That(task.StartedCount).Equals(0);
         }
@@ -101,21 +106,18 @@ namespace TasksOnTime.Tests
         [TestMethod]
         public void Force_Schedule_Task()
         {
-            var task = TasksHost.CreateScheduledTask<TextTask>("Test")
+            var task = Scheduler.CreateScheduledTask<TextTask>("ForceTaskTest")
                                 .StartWithDelay(60)
                                 .EverySecond(3);
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
             System.Threading.Thread.Sleep(4 * 1000);
             Check.That(task.StartedCount).Equals(0);
 
-            TasksHost.ForceScheduledTask("Test");
+            Scheduler.ForceTask("ForceTaskTest");
 
             System.Threading.Thread.Sleep(4 * 1000);
-
-            TasksHost.Stop();
 
             Check.That(task.StartedCount).IsGreaterThan(0);
         }
@@ -123,76 +125,70 @@ namespace TasksOnTime.Tests
         [TestMethod]
         public void Remove_Task()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("Test")
+            var task = Scheduler.CreateScheduledTask<MyTask>("RemoveTest")
                                 .EverySecond(2);
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
             System.Threading.Thread.Sleep(1 * 1000);
 
-            TasksHost.RemoveScheduledTask("Test");
+            Scheduler.Remove("RemoveTest");
 
             System.Threading.Thread.Sleep(4 * 1000);
 
-            var count = TasksHost.GetScheduledTaskList().Count();
+            var count = Scheduler.GetList().Count(i => i.Name == "RemoveTest");
             Check.That(count).Equals(0);
-
-            TasksHost.Stop();
         }
 
         [TestMethod]
         public void Add_Scheduled_Task_Disabled_By_Config()
         {
             TasksOnTime.GlobalConfiguration.Settings.DisabledByDefault = true;
-            var task = TasksHost.CreateScheduledTask<MyTask>("configTask")
+            var task = Scheduler.CreateScheduledTask<MyTask>("configTask")
                                 .EveryMinute();
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
             System.Threading.Thread.Sleep(1 * 1000);
 
-            var t = TasksHost.GetScheduledTaskList().SingleOrDefault(i => i.Name == "configTask");
+            var t = Scheduler.GetList().SingleOrDefault(i => i.Name == "configTask");
             Check.That(t).IsNull();
-
-            TasksHost.Stop();
         }
 
         [TestMethod]
         public void Can_Run_By_Month()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("canRunMonth")
+            var task = Scheduler.CreateScheduledTask<MyTask>("canRunMonth")
                             .EveryMonth();
 
-            bool canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            bool canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
             task.StartedCount = 1;
             task.NextRunningDate = DateTime.Now.AddHours(1);
-            canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
         [TestMethod]
         public void Can_Run_By_Day()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("canRunDay")
+            var task = Scheduler.CreateScheduledTask<MyTask>("canRunDay")
                             .EveryDay();
 
-            var canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
             task.StartedCount = 1;
             task.NextRunningDate = DateTime.Now.AddHours(1);
-            canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
         [TestMethod]
         public void Can_Run_By_WorkingDay()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("canRunWorkingDay")
+            var task = Scheduler.CreateScheduledTask<MyTask>("canRunWorkingDay")
                             .EveryWorkingDay();
 
             var startDate = DateTime.Now;
@@ -208,7 +204,7 @@ namespace TasksOnTime.Tests
                     break;
                 }
             }
-            var canRun = TasksHost.Current.SchedulerService.CanRun(startDate, task);
+            var canRun = Scheduler.Current.CanRun(startDate, task);
             Check.That(canRun).IsTrue();
 
             startDate = DateTime.Now;
@@ -225,7 +221,7 @@ namespace TasksOnTime.Tests
                 }
             }
             task.NextRunningDate = startDate;
-            canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
@@ -233,64 +229,61 @@ namespace TasksOnTime.Tests
         [TestMethod]
         public void Can_Run_By_Hour()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("canRunHour")
+            var task = Scheduler.CreateScheduledTask<MyTask>("canRunHour")
                             .EveryHour();
 
-            var canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
             task.StartedCount = 1;
             task.NextRunningDate = DateTime.Now.AddMinutes(1);
-            canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
         [TestMethod]
         public void Can_Run_By_Minute()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("canRunMinute")
+            var task = Scheduler.CreateScheduledTask<MyTask>("canRunMinute")
                             .EveryMinute();
 
-            var canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
             task.StartedCount = 1;
             task.NextRunningDate = DateTime.Now.AddSeconds(1);
-            canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
         [TestMethod]
         public void Can_Run_By_Second()
         {
-            var task = TasksHost.CreateScheduledTask<MyTask>("canRunSecond")
+            var task = Scheduler.CreateScheduledTask<MyTask>("canRunSecond")
                             .EverySecond(2);
 
-            var canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
             task.StartedCount = 1;
             task.NextRunningDate = DateTime.Now.AddSeconds(1);
-            canRun = TasksHost.Current.SchedulerService.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
         [TestMethod]
         public void Schedule_Fail_Task()
         {
-            var task = TasksHost.CreateScheduledTask<FailedTask>("failTask")
+            var task = Scheduler.CreateScheduledTask<FailedTask>("failTask")
                             .EveryMinute();
 
-            TasksHost.ScheduleTask(task);
-            TasksHost.StartScheduling();
+            Scheduler.Add(task);
 
             System.Threading.Thread.Sleep(2 * 1000);
 
             var hList = TasksHost.GetHistory("failTask");
 
             Check.That(hList).IsNotNull();
-
-            TasksHost.Stop();
         }
     }
 }

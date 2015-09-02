@@ -17,8 +17,6 @@ namespace TasksOnTime.Tests
 		[TestMethod]
 		public void Enqueue()
 		{
-			var task = new MyTask();
-
 			var mre = new ManualResetEvent(false);
 			var key = Guid.NewGuid();
 			TasksHost.Enqueue<MyTask>(key,

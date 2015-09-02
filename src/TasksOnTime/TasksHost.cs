@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Activities;
-using System.Activities.Statements;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +15,6 @@ namespace TasksOnTime
 		private TasksHost()
 		{
             TaskHistoryList = new SynchronizedCollection<TaskHistory>();
-            SchedulerService = new SchedulerService();
         }
 
         internal static TasksHost Current 
@@ -29,7 +26,6 @@ namespace TasksOnTime
 		}
 
         internal SynchronizedCollection<TaskHistory> TaskHistoryList { get; set; }
-        internal SchedulerService SchedulerService { get; set; }
 
         public static void Enqueue<T>(
             Dictionary<string, object> inputParameters = null,
@@ -187,60 +183,6 @@ namespace TasksOnTime
             }
         }
 
-        #region Recurrent Tasks
-
-        public static ScheduledTask CreateScheduledTask<T>(string name)
-            where T : class
-        {
-            if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))
-            {
-                throw new Exception("task must implements ITask");
-            }
-            var task = new ScheduledTask();
-            task.Name = name;
-            task.Enabled = !GlobalConfiguration.Settings.DisabledByDefault;
-            task.TaskType = typeof(T);
-            task.NextRunningDate = DateTime.MinValue;
-            task.CreationDate = DateTime.Now;
-            task.StartedCount = 0;
-            task.Enabled = true;
-            task.AllowMultipleInstance = true;
-
-            return task;
-        }
-
-        public static void ScheduleTask(ScheduledTask scheduledTask)
-        {
-            Current.SchedulerService.Add(scheduledTask);
-        }
-
-        public static void RemoveScheduledTask(string taskName)
-        {
-            Current.SchedulerService.Remove(taskName);
-        }
-
-        public static void StartScheduling()
-        {
-            Current.SchedulerService.Start();
-        }
-
-        internal static void ResetScheduledTaskList()
-        {
-            Current.SchedulerService.ResetScheduledTaskList();
-        }
-
-        public static IEnumerable<ScheduledTask> GetScheduledTaskList()
-        {
-            return Current.SchedulerService.GetList();
-        }
-
-        public static void ForceScheduledTask(string taskName)
-        {
-            Current.SchedulerService.ForceTask(taskName);
-        }
-
-        #endregion
-
         #region Task Management
 
         public static bool IsRunning(Guid key)
@@ -353,7 +295,6 @@ namespace TasksOnTime
             return result;
         }
 
-
         #endregion
 
         public static void Stop()
@@ -371,8 +312,6 @@ namespace TasksOnTime
 					item.Dispose();
 				}
 			}
-
-            Current.SchedulerService.Stop();
         }
 
     }

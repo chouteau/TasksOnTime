@@ -2,89 +2,111 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Activities;
 using System.Threading;
 
-namespace TasksOnTime
+namespace TasksOnTime.Scheduling
 {
-	internal class SchedulerService 
+	public class Scheduler 
 	{
-		private ManualResetEvent m_EventStop;
-		private ManualResetEvent m_ForceTask;
-		private bool m_Terminated = false;
-		private Thread m_Thread;
+        public static Lazy<Scheduler> m_LazyInstance = new Lazy<Scheduler>(() =>
+        {
+            return new Scheduler();
+        }, true);
 
-		public SchedulerService()
+		private Scheduler()
 		{
 			ScheduledTaskList = new SynchronizedCollection<ScheduledTask>();
+            Terminated = false;
 		}
 
-		public event Action<string,Exception> TaskFailed;
-		public event Action<string> TaskStarted;
-		public event Action<string> TaskFinished;
+        internal static Scheduler Current
+        {
+            get
+            {
+                return m_LazyInstance.Value;
+            }
+        }
+
+        protected ManualResetEvent EventStop { get; set; }
+        protected ManualResetEvent EventForceTask { get; set; }
+        protected bool Terminated { get; set;}
+        protected Thread TimerThread { get; set; }
         protected SynchronizedCollection<ScheduledTask> ScheduledTaskList { get; set; }
 
-        public virtual void Stop()
+        public event Action<string,Exception> TaskFailed;
+		public event Action<string> TaskStarted;
+		public event Action<string> TaskFinished;
+
+        public static void Stop()
 		{
-            m_Terminated = true;
-            if (m_EventStop != null)
+            Current.Terminated = true;
+            if (Current.EventStop != null)
             {
-                m_EventStop.Set();
+                Current.EventStop.Set();
             }
 
 			// Waiting 5 secondes before kill process
-			if (m_Thread != null && !m_Thread.Join(TimeSpan.FromSeconds(5)))
+			if (Current.TimerThread != null && !Current.TimerThread.Join(TimeSpan.FromSeconds(5)))
 			{
-				m_Thread.Abort();
+                Current.TimerThread.Abort();
 			}
 
-            foreach (var item in ScheduledTaskList)
+            foreach (var item in Current.ScheduledTaskList)
             {
                 item.Dispose();
             }
 		}
 
-		public virtual void Start()
+		public static void Start()
 		{
-            m_EventStop = new ManualResetEvent(false);
-			m_ForceTask = new ManualResetEvent(false);
-			m_Thread = new Thread(new ThreadStart(ProcessNextTasks));
-			m_Thread.Name = "TasksOnTime.SchedulerService";
-			m_Thread.Start();
+            Current.EventStop = new ManualResetEvent(false);
+            Current.EventForceTask = new ManualResetEvent(false);
+            Current.TimerThread = new Thread(new ThreadStart(Current.ProcessNextTasks));
+            Current.TimerThread.Name = "TasksOnTime.SchedulerService";
+            Current.TimerThread.Start();
 		}
 
-		public bool Contains(string taskName)
-		{
-			bool result = false;
-			if (ScheduledTaskList == null || ScheduledTaskList.Count == 0)
-			{
-				return false;
-			}
-			lock (ScheduledTaskList.SyncRoot)
-			{
-				result = ScheduledTaskList.Where(i => i.Name != null).Any(i => i.Name.Equals(taskName));
-			}
-			return result;
-		}
-
-		public ScheduledTask CreateTask(string name)
-		{
-            if (name == null || name.Trim() == string.Empty)
+        public static ScheduledTask CreateScheduledTask<T>(string name)
+            where T : class
+        {
+            if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))
             {
-                throw new ArgumentException("the name of task does not be null");
+                throw new Exception("task must implements ITask");
             }
+            var task = new ScheduledTask();
+            task.Name = name;
+            task.Enabled = !GlobalConfiguration.Settings.DisabledByDefault;
+            task.TaskType = typeof(T);
+            task.NextRunningDate = DateTime.MinValue;
+            task.CreationDate = DateTime.Now;
+            task.StartedCount = 0;
+            task.Enabled = true;
+            task.AllowMultipleInstance = true;
 
-			var task = new ScheduledTask();
-			task.Name = name;
-			task.Enabled = !GlobalConfiguration.Settings.DisabledByDefault;
-			return task;
-		}
+            return task;
+        }
 
-		internal virtual void Add(ScheduledTask task)
-		{
-            lock (ScheduledTaskList.SyncRoot)
+        #region Static
+
+        public static bool Contains(string taskName)
+        {
+            bool result = false;
+            if (Current.ScheduledTaskList == null || Current.ScheduledTaskList.Count == 0)
             {
-                if (ScheduledTaskList.Any(i => i.Name.Equals(task.Name, StringComparison.InvariantCultureIgnoreCase)))
+                return false;
+            }
+            lock (Current.ScheduledTaskList.SyncRoot)
+            {
+                result = Current.ScheduledTaskList.Where(i => i.Name != null).Any(i => i.Name.Equals(taskName));
+            }
+            return result;
+        }
+
+        public static void Add(ScheduledTask task)
+		{
+            lock (Current.ScheduledTaskList.SyncRoot)
+            {
+                if (Current.ScheduledTaskList.Any(i => i.Name.Equals(task.Name, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     throw new Exception(string.Format("this task with name {0} is already registered", task.Name));
                 }
@@ -128,28 +150,29 @@ namespace TasksOnTime
                     GlobalConfiguration.Settings.IntervalInSeconds = Math.Min(GlobalConfiguration.Settings.IntervalInSeconds, task.Interval);
                 }
 
-                ScheduledTaskList.Add(task);
+                Current.ScheduledTaskList.Add(task);
+                Current.EventForceTask.Set();
             }
 		}
 
-        public void Remove(string taskName)
+        public static void Remove(string taskName)
         {
-            lock(ScheduledTaskList.SyncRoot)
+            lock(Current.ScheduledTaskList.SyncRoot)
             {
-                var task = ScheduledTaskList.SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+                var task = Current.ScheduledTaskList.SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
                 if (task != null)
                 {
-                    ScheduledTaskList.Remove(task);
+                    Current.ScheduledTaskList.Remove(task);
                 }
             }
         }
 
-		public virtual void ForceTask(string taskName)
+		public static void ForceTask(string taskName)
 		{
             ScheduledTask task = null;
-            lock(ScheduledTaskList.SyncRoot)
+            lock(Current.ScheduledTaskList.SyncRoot)
             {
-                task = ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
+                task = Current.ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
                 if (task == null)
                 {
                     return;
@@ -157,33 +180,45 @@ namespace TasksOnTime
             }
             task.DelayedStartInMillisecond = 0;
 			task.NextRunningDate = DateTime.MinValue;
-			if (m_ForceTask != null)
+			if (Current.EventForceTask != null)
 			{
-				m_ForceTask.Set();
+                Current.EventForceTask.Set();
 			}
 		}
 
-        public void ResetScheduledTaskList()
+        public static void ResetScheduledTaskList()
         {
-            lock(ScheduledTaskList.SyncRoot)
+            lock(Current.ScheduledTaskList.SyncRoot)
             {
-                ScheduledTaskList.Clear();
+                Current.ScheduledTaskList.Clear();
             }
         }
 
-		internal virtual void ProcessNextTasks()
+        public static int GetScheduledTaskCount()
+        {
+            return Current.ScheduledTaskList.Count;
+        }
+
+        public static IEnumerable<ScheduledTask> GetList()
+        {
+            return Current.ScheduledTaskList;
+        }
+
+        #endregion  
+
+        internal virtual void ProcessNextTasks()
 		{
-			while (!m_Terminated)
+			while (!Terminated)
 			{
 				ProcessNextTasks(DateTime.Now);
-				var waitHandles = new WaitHandle[] { m_EventStop, m_ForceTask };
+				var waitHandles = new WaitHandle[] { EventStop, EventForceTask };
 				int result = ManualResetEvent.WaitAny(waitHandles, GlobalConfiguration.Settings.IntervalInSeconds * 1000, true);
 				if (result == 0)
 				{
-					m_Terminated = true;
+					Terminated = true;
 					break;
 				}
-				m_ForceTask.Reset();
+				EventForceTask.Reset();
 			}
 		}
 
@@ -286,16 +321,6 @@ namespace TasksOnTime
                 });
 		}
 
-		public int GetScheduledTaskCount()
-		{
-			return ScheduledTaskList.Count;
-		}
-
-		public IEnumerable<ScheduledTask> GetList()
-		{
-			return ScheduledTaskList;
-		}
-
 		internal bool CanRun(DateTime now, ScheduledTask scheduledTask)
 		{
 			if (scheduledTask.IsQueued)
@@ -357,5 +382,6 @@ namespace TasksOnTime
 			}
 			return false;
 		}
-	}
+
+    }
 }

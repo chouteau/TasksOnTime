@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Activities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TasksOnTime
+namespace TasksOnTime.Scheduling
 {
 	public static class FluentExtensions
 	{

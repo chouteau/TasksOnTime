@@ -35,6 +35,10 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "TasksOnTime.wiki", "..\Task
 		SlnRelativePath = "..\TasksOnTime.wiki\"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.Notification", "src\TasksOnTime.Notification\TasksOnTime.Notification.csproj", "{FC356E16-D2DC-4088-B3A1-680B39F6709B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.Scheduling", "src\TasksOnTime.Scheduling\TasksOnTime.Scheduling.csproj", "{C05976F4-A687-4FD0-9B11-3601C7BF58F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,14 @@ Global
 		{23794AFB-EDC5-4487-8335-CFF21124061F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23794AFB-EDC5-4487-8335-CFF21124061F}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{23794AFB-EDC5-4487-8335-CFF21124061F}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C05976F4-A687-4FD0-9B11-3601C7BF58F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C05976F4-A687-4FD0-9B11-3601C7BF58F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C05976F4-A687-4FD0-9B11-3601C7BF58F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C05976F4-A687-4FD0-9B11-3601C7BF58F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
