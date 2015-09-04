@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TasksOnTime
 {
 	public class GlobalConfiguration
 	{
-		private static Settings m_Settings;
 		private static Lazy<Settings> m_LazyConfig =
 			new Lazy<Settings>(() =>
 				{
-					m_Settings = new Settings();
-					return m_Settings;
-				}, true);
+					var settings = new Settings();
+					return settings;
+				});
 
 		static GlobalConfiguration()
 		{
-			Logger = new DiagnosticsLogger();
+			Logger = new VoidLogger();
 			DependencyResolver = new DefaultDependencyResolver();
 		}
 

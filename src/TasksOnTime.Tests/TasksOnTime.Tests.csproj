@@ -39,12 +39,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1507.118, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NFluent, Version=1.3.1.0, Culture=neutral, PublicKeyToken=18828b37b84b1437, processorArchitecture=MSIL">
-      <HintPath>..\packages\NFluent.1.3.1.0\lib\net40\NFluent.dll</HintPath>
+      <HintPath>..\..\packages\NFluent.1.3.1.0\lib\net40\NFluent.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Activities" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -56,27 +62,40 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-      </ItemGroup>
-    </Otherwise>
+    <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="ActivityHosterTests.cs" />
-    <Compile Include="ActivityTest.cs" />
-    <Compile Include="HostedActivityTest.cs" />
-    <Compile Include="LongActivity.cs" />
-    <Compile Include="TasksServiceTests.cs" />
+    <Compile Include="BadTask.cs" />
+    <Compile Include="DebugLogger.cs" />
+    <Compile Include="FailedTask.cs" />
+    <Compile Include="MockTaskProgress.cs" />
+    <Compile Include="ParameterizedTask.cs" />
+    <Compile Include="ProgressTask.cs" />
+    <Compile Include="ProgressTaskTests.cs" />
+    <Compile Include="StressTask.cs" />
+    <Compile Include="TasksHostTests.cs" />
+    <Compile Include="TextTask.cs" />
+    <Compile Include="LongTask.cs" />
+    <Compile Include="MyTask.cs" />
+    <Compile Include="ScheduletdTasksTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TasksOnTime.Notification\TasksOnTime.Notification.csproj">
+      <Project>{fc356e16-d2dc-4088-b3a1-680b39f6709b}</Project>
+      <Name>TasksOnTime.Notification</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TasksOnTime.Scheduling\TasksOnTime.Scheduling.csproj">
+      <Project>{c05976f4-a687-4fd0-9b11-3601c7bf58f6}</Project>
+      <Name>TasksOnTime.Scheduling</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TasksOnTime\TasksOnTime.csproj">
       <Project>{e9d8bcc7-0fb5-4ae1-99b2-a9a07dce5c83}</Project>
       <Name>TasksOnTime</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

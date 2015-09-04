@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace TasksOnTime
+namespace TasksOnTime.Scheduling
 {
 	public enum ScheduledTaskTimePeriod
 	{
@@ -13,5 +12,6 @@ namespace TasksOnTime
 		WorkingDay,
 		Hour,
 		Minute,
+        Second,
 	}
 }

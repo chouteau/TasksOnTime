@@ -1,4 +1,8 @@
-﻿2.2.4
+﻿3.0.5
+Global refacto
+Remove support for workflow
+
+2.2.4
 Add SyncActivityHoster for synchronized tests (enabled with global option SynchronizedMode = true)
 
 2.1.3 
