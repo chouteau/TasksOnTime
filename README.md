@@ -12,7 +12,7 @@ First, [install Nuget](http://docs.nuget.org/docs/start-here/installing-nuget) t
 
 ## Usage with enqueue :
 
-Each *Task* type must implement *ITask* interface
+Each *Task* must implement *ITask* interface
 
 ```c#
 public interface ITask 
@@ -40,7 +40,7 @@ TasksHost.Enqueue<MyTask>();
 TasksHost.Enqueue<MyTask>(delayInMillisecond: 5 * 1000);
 ```
 
-See others examples : [/enqueue.md]
+See others examples : [Examples(/enqueue.md)]
 
 ## Scheduled tasks :
 

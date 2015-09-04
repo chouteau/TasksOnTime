@@ -1,4 +1,8 @@
-﻿3.0.5
+﻿3.0.6.1
+Add package TasksOnTime.Scheduling (Schedule tasks)
+Add package TasksOnTime.Notification (Notification of progress task)
+
+3.0.5
 Global refacto
 Remove support for workflow
 
