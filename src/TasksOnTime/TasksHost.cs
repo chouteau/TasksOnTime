@@ -10,7 +10,7 @@ namespace TasksOnTime
         private static Lazy<TasksHost> m_LazyActivityHoster = new Lazy<TasksHost>(() =>
 		{
 			return new TasksHost();
-		}, true);
+		});
 
 		private TasksHost()
 		{
@@ -100,8 +100,11 @@ namespace TasksOnTime
                 ITask taskInstance = null;
                 try
                 {
-                    taskInstance = (ITask) GlobalConfiguration.DependencyResolver.GetService(ctx.TaskType);
-                }
+					if (ctx.TaskType != null)
+					{
+						taskInstance = (ITask)GlobalConfiguration.DependencyResolver.GetService(ctx.TaskType);
+					}
+				}
                 catch(Exception ex)
                 {
                     GlobalConfiguration.Logger.Error(ex);

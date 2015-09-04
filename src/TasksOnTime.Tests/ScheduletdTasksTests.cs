@@ -14,7 +14,7 @@ namespace TasksOnTime.Tests
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
         {
-            GlobalConfiguration.Settings.DisabledByDefault = false;
+            GlobalConfiguration.Settings.ScheduledTaskDisabledByDefault = false;
             Scheduler.Start();
         }
 
@@ -140,10 +140,26 @@ namespace TasksOnTime.Tests
             Check.That(count).Equals(0);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void Remove_Running_Task()
+		{
+			var id = Guid.NewGuid();
+			var task = Scheduler.CreateScheduledTask<LongTask>("runningTask")
+							.EverySecond(10);
+
+			Scheduler.Add(task);
+			System.Threading.Thread.Sleep(1 * 1000);
+			Scheduler.Remove("runningTask");
+			System.Threading.Thread.Sleep(10 * 1000);
+			var result = Scheduler.GetList().Any(t => t.Name == "runningTask");
+			Check.That(result).IsFalse();
+		}
+
+
+		[TestMethod]
         public void Add_Scheduled_Task_Disabled_By_Config()
         {
-            TasksOnTime.GlobalConfiguration.Settings.DisabledByDefault = true;
+            TasksOnTime.GlobalConfiguration.Settings.ScheduledTaskDisabledByDefault = true;
             var task = Scheduler.CreateScheduledTask<MyTask>("configTask")
                                 .EveryMinute();
 
@@ -285,5 +301,21 @@ namespace TasksOnTime.Tests
 
             Check.That(hList).IsNotNull();
         }
-    }
+
+		[TestMethod]
+		public void Scheduled_Task_Is_Running()
+		{
+			var id = Guid.NewGuid();
+			var task = Scheduler.CreateScheduledTask<LongTask>("runningTask")
+							.EverySecond(10);
+
+			Scheduler.Add(task);
+			System.Threading.Thread.Sleep(1 * 1000);
+			var result = TasksHost.IsRunning("runningTask");
+			System.Threading.Thread.Sleep(10 * 1000);
+			Check.That(result).IsTrue();
+		}
+
+
+	}
 }

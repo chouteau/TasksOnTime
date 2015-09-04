@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TasksOnTime.Notification
 {
@@ -15,7 +14,7 @@ namespace TasksOnTime.Notification
             return m_TaskProgress
                     ?? GlobalConfiguration.DependencyResolver.GetService(typeof(ITaskProgress)) as ITaskProgress
                     ?? new VoidTaskProgress();
-        }, true);
+        });
 
         public static ITaskProgress Progress
         {

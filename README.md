@@ -1,7 +1,7 @@
 # TasksOnTime (3.0.5)
 
-Require only .Net 4.5 (minimum) no other dependance
-Can be used in service , console, website or wpf/winforms applications
+Require only *.Net 3.5* (minimum) with no other dependance
+*TasksOnTime* Can be used in service , console, website or wpf/winforms applications
 Use only standard ThreadPool
 
 ## Where can I get it ?
@@ -33,90 +33,37 @@ public class MyTask : ITask
     }
 }
 
-// Simple enqueing
+// Simple task enqueing
 TasksHost.Enqueue<MyTask>();
 
 // Enqueue task with delay (start after 5 seconds minimum)
 TasksHost.Enqueue<MyTask>(delayInMillisecond: 5 * 1000);
-
-// Enqueue with monitoring
-var id = Guid.NewGuiId()
-TasksHost.Enqueue<MyTask>(id);
-
-var history = TaskHost.GetHistory(id);
-
-Console.Writeline(history.TerminatedDate);
-
-// Start synchronized task
-var mre = new ManualResetEvent(false);
-TasksHost.Enqueue<MyTask>(completed: (dic) => mre.Set());
-mre.WaitAll();
 ```
 
-### Enqueue parameterized task
+See others examples : [/enqueue.md]
+
+## Scheduled tasks :
+
+for use scheduled tasks reference *"TasksOnTime.Scheduling"* in your project 
+each task can scheduled by month, day, hour, minute or second with interval as you like
+each scheduled task can be canceled, removed or forced , each task was executed in standard threadpool
+Single instance of scheduler was possible by application
+
+> PM> Install-Package TasksOnTime.Scheduling
+
+Task implements ITask
+
 ```c#
-public class ParameterizedTask : ITask
-{
-    public void Execute(ExecutionContext context)
-    {
-        var inputParameter = context.Parameters["input"];
-        context.Parameters.Add("output", "test");
-    }
-}
+var scheduledTask = TasksOnTime.Scheduler.CreateScheduledTask<MyTask>("MyTask")
+											.EveryMinute();
 
-var id = Guid.NewGuid();
-var mre = new ManualResetEvent(false);
-TasksHost.Enqueue<ParameterizedTask>(id,
-    new Dictionary<string, object>()
-    {
-        { "input", "test" }
-    }, completed: (dic) =>
-    {
-        var output = dic["output"];
-        mre.Set();
-    });
+TasksOnTime.Scheduler.Add(scheduledTask);
+TasksOnTime.Scheduler.Start();
 
-mre.WaitOne();
-```
+...
 
-### Enqueue long task and cancel it
-```c#
-public class LongTask : ITask
-{
-    public void Execute(ExecutionContext context)
-	{
-        if (context.IsCancelRequested) // Break on start
-        {
-            break;
-        }
+TasksOnTime.Scheduler.Stop();
+```		
 
-		for (int i = 0; i < 10; i++)
-		{
-            if (context.IsCancelRequested) // Break on each loop
-            {
-                break;
-            }
-            System.Diagnostics.Debug.Write(i);
-			System.Threading.Thread.Sleep(1 * 1000);
-        }
-	}
-}
+See others examples : [/scheduling.md]
 
-var mre = new ManualResetEvent(false);
-var key = Guid.NewGuid();
-
-TasksHost.Enqueue<LongTask>(key,
-	completed: (dic) =>
-	{
-		mre.Set();
-	});
-
-System.Threading.Thread.Sleep(2 * 1000);
-TasksHost.Cancel(key);
-
-mre.WaitOne();
-
-var history = TasksHost.GetHistory(key);
-```
-
-## Usage with scheduled tasks :

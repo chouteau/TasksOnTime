@@ -66,11 +66,13 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BadTask.cs" />
+    <Compile Include="DebugLogger.cs" />
     <Compile Include="FailedTask.cs" />
     <Compile Include="MockTaskProgress.cs" />
     <Compile Include="ParameterizedTask.cs" />
     <Compile Include="ProgressTask.cs" />
     <Compile Include="ProgressTaskTests.cs" />
+    <Compile Include="StressTask.cs" />
     <Compile Include="TasksHostTests.cs" />
     <Compile Include="TextTask.cs" />
     <Compile Include="LongTask.cs" />

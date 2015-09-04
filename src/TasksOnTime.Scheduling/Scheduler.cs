@@ -11,7 +11,7 @@ namespace TasksOnTime.Scheduling
         public static Lazy<Scheduler> m_LazyInstance = new Lazy<Scheduler>(() =>
         {
             return new Scheduler();
-        }, true);
+        });
 
 		private Scheduler()
 		{
@@ -46,7 +46,8 @@ namespace TasksOnTime.Scheduling
             }
 
 			// Waiting 5 secondes before kill process
-			if (Current.TimerThread != null && !Current.TimerThread.Join(TimeSpan.FromSeconds(5)))
+			if (Current.TimerThread != null 
+				&& !Current.TimerThread.Join(TimeSpan.FromSeconds(5)))
 			{
                 Current.TimerThread.Abort();
 			}
@@ -59,6 +60,10 @@ namespace TasksOnTime.Scheduling
 
 		public static void Start()
 		{
+			if (Current.TimerThread != null)
+			{
+				return;
+			}
             Current.EventStop = new ManualResetEvent(false);
             Current.EventForceTask = new ManualResetEvent(false);
             Current.TimerThread = new Thread(new ThreadStart(Current.ProcessNextTasks));
@@ -75,7 +80,7 @@ namespace TasksOnTime.Scheduling
             }
             var task = new ScheduledTask();
             task.Name = name;
-            task.Enabled = !GlobalConfiguration.Settings.DisabledByDefault;
+            task.Enabled = !GlobalConfiguration.Settings.ScheduledTaskDisabledByDefault;
             task.TaskType = typeof(T);
             task.NextRunningDate = DateTime.MinValue;
             task.CreationDate = DateTime.Now;
@@ -122,7 +127,7 @@ namespace TasksOnTime.Scheduling
                 }
 
                 var runnable = GlobalConfiguration.Settings[task.Name];
-			    if (GlobalConfiguration.Settings.DisabledByDefault)
+			    if (GlobalConfiguration.Settings.ScheduledTaskDisabledByDefault)
 			    {
 				    if (runnable == null)
 				    {
@@ -162,6 +167,14 @@ namespace TasksOnTime.Scheduling
                 var task = Current.ScheduledTaskList.SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
                 if (task != null)
                 {
+					if (TasksHost.IsRunning(task.Name))
+                    {
+						var h = TasksHost.GetHistory(task.Name).LastOrDefault();
+						if (h != null && h.Context != null)
+						{
+							h.Context.IsCancelRequested = true;
+						}
+					}
                     Current.ScheduledTaskList.Remove(task);
                 }
             }

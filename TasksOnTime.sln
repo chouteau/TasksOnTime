@@ -10,29 +10,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{391758F3-0B6A-4CDC-8C11-CCFC24C431D2}"
 	ProjectSection(SolutionItems) = preProject
 		changelog.txt = changelog.txt
+		Enqueue.md = Enqueue.md
 		license.md = license.md
 		README.md = README.md
-	EndProjectSection
-EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "TasksOnTime.wiki", "..\TasksOnTime.wiki\", "{23794AFB-EDC5-4487-8335-CFF21124061F}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_60677"
-		Debug.AspNetCompiler.PhysicalPath = "..\TasksOnTime.wiki\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60677\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_60677"
-		Release.AspNetCompiler.PhysicalPath = "..\TasksOnTime.wiki\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60677\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "60677"
-		SlnRelativePath = "..\TasksOnTime.wiki\"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.Notification", "src\TasksOnTime.Notification\TasksOnTime.Notification.csproj", "{FC356E16-D2DC-4088-B3A1-680B39F6709B}"
@@ -53,10 +33,6 @@ Global
 		{08DF6BC7-C6C1-46CA-9E10-207EF7D581EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08DF6BC7-C6C1-46CA-9E10-207EF7D581EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08DF6BC7-C6C1-46CA-9E10-207EF7D581EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23794AFB-EDC5-4487-8335-CFF21124061F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23794AFB-EDC5-4487-8335-CFF21124061F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23794AFB-EDC5-4487-8335-CFF21124061F}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{23794AFB-EDC5-4487-8335-CFF21124061F}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC356E16-D2DC-4088-B3A1-680B39F6709B}.Release|Any CPU.ActiveCfg = Release|Any CPU

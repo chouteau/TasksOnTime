@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TasksOnTime
 {
@@ -13,11 +12,11 @@ namespace TasksOnTime
 				{
 					var settings = new Settings();
 					return settings;
-				}, true);
+				});
 
 		static GlobalConfiguration()
 		{
-			Logger = new DebugLogger();
+			Logger = new VoidLogger();
 			DependencyResolver = new DefaultDependencyResolver();
 		}
 

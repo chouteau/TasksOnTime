@@ -14,6 +14,18 @@ namespace TasksOnTime.Tests
 	[TestClass]
 	public class TasksHostTests
 	{
+		[ClassInitialize()]
+		public static void ClassInit(TestContext context)
+		{
+			GlobalConfiguration.Logger = new DebugLogger();
+		}
+
+		[ClassCleanup()]
+		public static void ClassCleanup()
+		{
+			TasksHost.Stop();
+		}
+
 		[TestMethod]
 		public void Enqueue()
 		{
@@ -159,5 +171,119 @@ namespace TasksOnTime.Tests
             mre.WaitOne();
         }
 
-    }
+		[TestMethod]
+		public void Cancel_Not_Existing_Task()
+		{
+			TasksHost.Cancel(Guid.NewGuid());
+		}
+
+		[TestMethod]
+		public void Cancel_Terminated_Task()
+		{
+			var id = Guid.NewGuid();
+			var mre = new ManualResetEvent(false);
+			TasksHost.Enqueue<MyTask>(id,
+				completed: (dic) =>
+				{
+					mre.Set();
+				});
+			mre.WaitOne();
+			TasksHost.Cancel(id);
+		}
+
+		[TestMethod]
+		public void Task_Exists()
+		{
+			var id = Guid.NewGuid();
+			var mre = new ManualResetEvent(false);
+			TasksHost.Enqueue<MyTask>(id,
+				completed: (dic) =>
+				{
+					mre.Set();
+				});
+			mre.WaitOne();
+			var result = TasksHost.Exists(id);
+			Check.That(result).IsTrue();
+		}
+
+		[TestMethod]
+		public void Task_Is_Running()
+		{
+			var id = Guid.NewGuid();
+			var mre = new ManualResetEvent(false);
+			TasksHost.Enqueue<LongTask>(id,  completed : (dic) => mre.Set());
+			System.Threading.Thread.Sleep(1 * 1000);
+			var result = TasksHost.IsRunning(id);
+			mre.WaitOne();
+			Check.That(result).IsTrue();
+		}
+
+		[TestMethod]
+		public void Tasks_Cleanup()
+		{
+			var id = Guid.NewGuid();
+			var mre = new ManualResetEvent(false);
+			TasksHost.Enqueue<MyTask>(id,
+				completed: (dic) =>
+				{
+					mre.Set();
+				});
+			mre.WaitOne();
+			TasksHost.Cleanup();
+			var result = TasksHost.GetHistory(id);
+			Check.That(result).IsNull();
+		}
+
+		[TestMethod]
+		public void Get_Not_Exists_History()
+		{
+			var id = Guid.NewGuid();
+			var h = TasksHost.GetHistory(id);
+			Check.That(h).IsNull();
+		}
+
+		[TestMethod]
+		public void Stop_TasksHost()
+		{
+			TasksHost.Enqueue<MyTask>();
+			TasksHost.Enqueue<MyTask>();
+			TasksHost.Enqueue<MyTask>();
+			TasksHost.Enqueue<MyTask>();
+			TasksHost.Enqueue<StressTask>();
+
+			TasksHost.Stop();
+		}
+
+		[TestMethod]
+		public void Stress_Tasks()
+		{
+			int maxThreadPool = 0;
+			int completionPortThreads = 0;
+			System.Threading.ThreadPool.GetMaxThreads(out maxThreadPool, out completionPortThreads);
+			System.Threading.ThreadPool.SetMaxThreads(10, 10);
+			var mre = new ManualResetEvent(false);
+			int taskCountCompleted = 0;
+			List<int> threadIdList = new List<int>();
+			for (int i = 0; i < 50; i++)
+			{
+				TasksHost.Enqueue<StressTask>(completed: (dic) =>
+				{
+					var threadId = (int)dic["ThreadId"];
+					if (!threadIdList.Any(t => t == threadId))
+					{
+						threadIdList.Add(threadId);
+					}
+					taskCountCompleted++;
+					if( taskCountCompleted == 50)
+					{
+						mre.Set();
+					}
+				});
+			}
+			mre.WaitOne();
+			System.Threading.ThreadPool.SetMaxThreads(maxThreadPool, completionPortThreads);
+
+			Check.That(threadIdList.Count).IsGreaterThan(0);
+		}
+	}
 }
