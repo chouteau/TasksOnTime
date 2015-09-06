@@ -1,9 +1,9 @@
 
-# Multiple usage of TasksHost 
+# Multiple usages of TasksHost 
 
-## Enqueue with monitoring
+### Enqueue with monitoring
 ```c#
-var id = Guid.NewGuiId()
+var id = Guid.NewGuiId();
 TasksHost.Enqueue<MyTask>(id);
 
 var history = TaskHost.GetHistory(id);
@@ -11,14 +11,16 @@ var history = TaskHost.GetHistory(id);
 Console.Writeline(history.TerminatedDate);
 ```
 
-## Start synchronized task
+### Start synchronized task
 ```c#
 var mre = new ManualResetEvent(false);
+
 TasksHost.Enqueue<MyTask>(completed: (dic) => mre.Set());
+
 mre.WaitOne();
 ```
 
-## Enqueue parameterized task
+### Enqueue parameterized task
 ```c#
 public class ParameterizedTask : ITask
 {
@@ -44,7 +46,7 @@ TasksHost.Enqueue<ParameterizedTask>(id,
 mre.WaitOne();
 ```
 
-## Enqueue long task and cancel it
+### Enqueue long task and cancel it
 ```c#
 public class LongTask : ITask
 {
