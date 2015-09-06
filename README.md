@@ -25,7 +25,7 @@ public interface ITask
 
 ```
 
-### Enqueue simple task
+### Simple task
 ```c#
 public class MyTask : ITask
 {
@@ -46,7 +46,7 @@ TasksHost.Enqueue<MyTask>();
 TasksHost.Enqueue<MyTask>(delayInMillisecond: 5 * 1000);
 ```
 
-See others [examples(https://github.com/chouteau/TasksOnTime/enqueue.md)] :
+See others [examples](https://github.com/chouteau/TasksOnTime/blob/master/Enqueue.md) :
 
 ## Scheduled tasks :
 
@@ -71,5 +71,5 @@ TasksOnTime.Scheduler.Start();
 TasksOnTime.Scheduler.Stop();
 ```		
 
-See others [examples(https://github.com/chouteau/TasksOnTime/scheduling.md)] :
+See others [examples](https://github.com/chouteau/TasksOnTime/scheduling.md) :
 
