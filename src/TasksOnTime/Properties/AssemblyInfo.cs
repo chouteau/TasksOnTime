@@ -32,9 +32,9 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.0.7.2")]
-[assembly: AssemblyFileVersion("3.0.7.2")]
-[assembly: AssemblyInformationalVersion("3.0.7.2-beta")]
+[assembly: AssemblyVersion("3.1.8.0")]
+[assembly: AssemblyFileVersion("3.1.8.0")]
+[assembly: AssemblyInformationalVersion("3.1.8.0-beta")]
 
 [assembly: InternalsVisibleTo("TasksOnTime.Tests", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("TasksOnTime.Scheduling", AllInternalsVisible = true)]

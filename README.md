@@ -1,4 +1,4 @@
-# TasksOnTime (3.0.7) beta
+# TasksOnTime (3.1.8.0) beta
 
 ## About
 
