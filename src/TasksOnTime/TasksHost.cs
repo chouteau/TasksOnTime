@@ -27,21 +27,42 @@ namespace TasksOnTime
 
         internal SynchronizedCollection<TaskHistory> TaskHistoryList { get; set; }
 
-        public static void Enqueue<T>(
+		public static void Enqueue(
+			Type taskType,
+			Dictionary<string, object> inputParameters = null,
+			Action<Dictionary<string, object>> completed = null,
+			Action<Exception> failed = null,
+			int? delayInMillisecond = null)
+		{
+			Enqueue(Guid.NewGuid(), null, taskType, inputParameters, completed, failed, delayInMillisecond);
+		}
+
+		public static void Enqueue<T>(
             Dictionary<string, object> inputParameters = null,
             Action<Dictionary<string, object>> completed = null,
             Action<Exception> failed = null,
             int? delayInMillisecond = null)
-        {
+			where T : class, ITask
+		{
             Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond);
         }
 
-        public static void Enqueue<T>(Guid key,
+		public static void Enqueue(Guid key,
+			Type taskType,
+			Dictionary<string, object> inputParameters = null,
+			Action<Dictionary<string, object>> completed = null,
+			Action<Exception> failed = null,
+			int? delayInMillisecond = null)
+		{
+			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond);
+		}
+
+		public static void Enqueue<T>(Guid key,
                 Dictionary<string, object> inputParameters = null,
                 Action<Dictionary<string, object>> completed = null,
                 Action<Exception> failed = null,
                 int? delayInMillisecond = null)
-            where T : class
+            where T : class, ITask
         {
             Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond);
         }
