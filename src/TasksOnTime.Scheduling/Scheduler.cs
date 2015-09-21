@@ -156,8 +156,11 @@ namespace TasksOnTime.Scheduling
                 }
 
                 Current.ScheduledTaskList.Add(task);
-                Current.EventForceTask.Set();
-            }
+				if (Current.EventForceTask != null)
+				{
+					Current.EventForceTask.Set();
+				}
+			}
 		}
 
         public static void Remove(string taskName)
