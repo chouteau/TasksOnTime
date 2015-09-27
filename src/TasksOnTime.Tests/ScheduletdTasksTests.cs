@@ -316,6 +316,25 @@ namespace TasksOnTime.Tests
 			Check.That(result).IsTrue();
 		}
 
+		[TestMethod]
+		public void Scheduled_Task_With_Completed()
+		{
+			var id = Guid.NewGuid();
+			var task = Scheduler.CreateScheduledTask<ParameterizedOutputTask>("scheduledparameterizedtask")
+							.EverySecond(10);
 
+			var mre = new System.Threading.ManualResetEvent(false);
+
+			Scheduler.Add(task);
+
+			task.Completed += (dic) =>
+			{
+				var parameter = (string) dic["output"];
+				Check.That(parameter).Equals("test");
+				mre.Set();
+			};
+
+			mre.WaitOne();
+		}
 	}
 }

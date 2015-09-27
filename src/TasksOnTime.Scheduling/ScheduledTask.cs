@@ -13,7 +13,7 @@ namespace TasksOnTime.Scheduling
 
         public string Name { get; set; }
 
-        internal DateTime NextRunningDate { get; set; }
+        public DateTime NextRunningDate { get; set; }
 		public ScheduledTaskTimePeriod Period { get; set; }
 		internal int Interval { get; set; }
         internal int StartDay { get; set; }
@@ -25,7 +25,7 @@ namespace TasksOnTime.Scheduling
 		public Exception Exception { get; set; }
 
 		public Action Started { get; set; }
-		public Action Completed { get; set; }
+		public Action<Dictionary<string, object>> Completed { get; set; }
 		public Action Terminated { get; set; }
 
 		public DateTime CreationDate { get; internal set; }

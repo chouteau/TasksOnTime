@@ -302,7 +302,7 @@ namespace TasksOnTime.Scheduling
                     {
                         if (scheduledTask.Completed != null)
                         {
-                            scheduledTask.Completed();
+                            scheduledTask.Completed(dic);
                         }
                     }
                     catch (Exception ex)

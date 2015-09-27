@@ -69,6 +69,7 @@
     <Compile Include="DebugLogger.cs" />
     <Compile Include="FailedTask.cs" />
     <Compile Include="MockTaskProgress.cs" />
+    <Compile Include="ParameterizedOutputTask.cs" />
     <Compile Include="ParameterizedTask.cs" />
     <Compile Include="ProgressTask.cs" />
     <Compile Include="ProgressTaskTests.cs" />
