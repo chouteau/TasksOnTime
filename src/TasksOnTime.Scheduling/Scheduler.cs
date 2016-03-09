@@ -17,7 +17,8 @@ namespace TasksOnTime.Scheduling
 		{
 			ScheduledTaskList = new SynchronizedCollection<ScheduledTask>();
             Terminated = false;
-		}
+			LastSignal = DateTime.MinValue;
+        }
 
         internal static Scheduler Current
         {
@@ -27,7 +28,9 @@ namespace TasksOnTime.Scheduling
             }
         }
 
-        protected ManualResetEvent EventStop { get; set; }
+		public DateTime LastSignal { get; set; }
+
+		protected ManualResetEvent EventStop { get; set; }
         protected ManualResetEvent EventForceTask { get; set; }
         protected bool Terminated { get; set;}
         protected Thread TimerThread { get; set; }
@@ -185,20 +188,23 @@ namespace TasksOnTime.Scheduling
 
 		public static void ForceTask(string taskName)
 		{
+			GlobalConfiguration.Logger.Info("Try to force task {0}", taskName);
             ScheduledTask task = null;
             lock(Current.ScheduledTaskList.SyncRoot)
             {
                 task = Current.ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
                 if (task == null)
                 {
-                    return;
+					GlobalConfiguration.Logger.Warn("force unknown task {0}", taskName);
+					return;
                 }
-            }
-            task.DelayedStartInMillisecond = 0;
-			task.NextRunningDate = DateTime.MinValue;
+				task.DelayedStartInMillisecond = 0;
+				task.NextRunningDate = DateTime.MinValue;
+			}
 			if (Current.EventForceTask != null)
 			{
                 Current.EventForceTask.Set();
+				GlobalConfiguration.Logger.Info("Task {0} was forced", taskName);
 			}
 		}
 
@@ -229,10 +235,15 @@ namespace TasksOnTime.Scheduling
 				ProcessNextTasks(DateTime.Now);
 				var waitHandles = new WaitHandle[] { EventStop, EventForceTask };
 				int result = ManualResetEvent.WaitAny(waitHandles, GlobalConfiguration.Settings.IntervalInSeconds * 1000, true);
+				LastSignal = DateTime.Now;
 				if (result == 0)
 				{
 					Terminated = true;
 					break;
+				}
+				else if (result == 1)
+				{
+					GlobalConfiguration.Logger.Info("handle force");
 				}
 				EventForceTask.Reset();
 			}
@@ -254,13 +265,16 @@ namespace TasksOnTime.Scheduling
 					.ToList();
 
 			}
-			if (list != null && list.Count() > 0)
+			if (list != null 
+				&& list.Count() > 0)
 			{
 				foreach (var item in list)
 				{
 					try
 					{
+						GlobalConfiguration.Logger.Info("Try to start scheduled task {0}", item.Name);
 						ProcessTask(item);
+						SetNextRuningDate(DateTime.Now, item);
 					}
 					catch (Exception ex)
 					{
@@ -276,6 +290,7 @@ namespace TasksOnTime.Scheduling
 			if (scheduledTask.IsQueued 
 				&& !scheduledTask.AllowMultipleInstance)
 			{
+				GlobalConfiguration.Logger.Warn("scheduled task {0} is in queue and not allow multiple instance", scheduledTask.Name);
 				return;
 			}
 
@@ -283,6 +298,7 @@ namespace TasksOnTime.Scheduling
 			{
 				if (TasksHost.IsRunning(scheduledTask.Name))
 				{
+					GlobalConfiguration.Logger.Warn("scheduled task {0} is already running and not allow multiple instance", scheduledTask.Name);
 					return;
 				}
 			}
@@ -297,7 +313,8 @@ namespace TasksOnTime.Scheduling
                 , null
                 , (dic) =>
                 {
-                    scheduledTask.IsQueued = false;
+					GlobalConfiguration.Logger.Info("scheduled task {0} completed", scheduledTask.Name);
+					scheduledTask.IsQueued = false;
                     try
                     {
                         if (scheduledTask.Completed != null)
@@ -313,7 +330,8 @@ namespace TasksOnTime.Scheduling
                 , (ex) =>
                 {
                     scheduledTask.Exception = ex;
-                    if (TaskFailed != null)
+					GlobalConfiguration.Logger.Error(ex);
+					if (TaskFailed != null)
                     {
                         try
                         {
@@ -325,7 +343,8 @@ namespace TasksOnTime.Scheduling
                 null,
                 () =>
                 {
-                    scheduledTask.StartedCount += 1;
+					GlobalConfiguration.Logger.Info("scheduled task {0} started", scheduledTask.Name);
+					scheduledTask.StartedCount += 1;
                     if (TaskStarted != null)
                     {
                         try
@@ -352,52 +371,66 @@ namespace TasksOnTime.Scheduling
 				return false;
 			}
 
+			if (scheduledTask.Period == ScheduledTaskTimePeriod.WorkingDay
+					&& (scheduledTask.NextRunningDate.DayOfWeek == DayOfWeek.Saturday
+					|| scheduledTask.NextRunningDate.DayOfWeek == DayOfWeek.Sunday))
+			{
+				return false;
+			}
+
 			if (now >= scheduledTask.NextRunningDate
 				|| scheduledTask.StartedCount == 0)
 			{
-				switch (scheduledTask.Period)
-				{
-					case ScheduledTaskTimePeriod.Month:
-
-						scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, scheduledTask.StartDay, scheduledTask.StartHour, scheduledTask.StartMinute, 0).AddMonths(scheduledTask.Interval);
-
-						break;
-					case ScheduledTaskTimePeriod.Day:
-
-						scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, scheduledTask.StartHour, scheduledTask.StartMinute, 0).AddDays(scheduledTask.Interval);
-						break;
-
-					case ScheduledTaskTimePeriod.WorkingDay:
-
-                        if (scheduledTask.NextRunningDate.DayOfWeek == DayOfWeek.Saturday
-                                || scheduledTask.NextRunningDate.DayOfWeek == DayOfWeek.Sunday)
-                        {
-                            return false;
-                        }
-
-                        scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddDays(scheduledTask.Interval);
-                        break;
-					case ScheduledTaskTimePeriod.Hour:
-
-						scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddHours(scheduledTask.Interval);
-
-						break;
-					case ScheduledTaskTimePeriod.Minute:
-
-						scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(scheduledTask.Interval);
-
-						break;
-
-                    case ScheduledTaskTimePeriod.Second:
-
-                        scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(scheduledTask.Interval);
-                        break;
-				}
-
 				return true;
 			}
+
 			return false;
 		}
 
-    }
+		internal void SetNextRuningDate(DateTime now, ScheduledTask scheduledTask)
+		{
+			switch (scheduledTask.Period)
+			{
+				case ScheduledTaskTimePeriod.Month:
+
+					scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, scheduledTask.StartDay, scheduledTask.StartHour, scheduledTask.StartMinute, 0).AddMonths(scheduledTask.Interval);
+
+					break;
+				case ScheduledTaskTimePeriod.Day:
+
+					scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, scheduledTask.StartHour, scheduledTask.StartMinute, 0).AddDays(scheduledTask.Interval);
+					break;
+
+				case ScheduledTaskTimePeriod.WorkingDay:
+
+					while(true)
+					{
+						scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddDays(scheduledTask.Interval);
+						if (scheduledTask.NextRunningDate.DayOfWeek != DayOfWeek.Saturday
+							&& scheduledTask.NextRunningDate.DayOfWeek != DayOfWeek.Sunday)
+						{
+							break;
+						}
+						now = now.AddDays(1);
+					}
+					break;
+				case ScheduledTaskTimePeriod.Hour:
+
+					scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddHours(scheduledTask.Interval);
+
+					break;
+				case ScheduledTaskTimePeriod.Minute:
+
+					scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(scheduledTask.Interval);
+
+					break;
+
+				case ScheduledTaskTimePeriod.Second:
+
+					scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(scheduledTask.Interval);
+					break;
+			}
+		}
+
+	}
 }

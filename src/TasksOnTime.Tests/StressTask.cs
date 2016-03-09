@@ -64,7 +64,7 @@ namespace TasksOnTime.Tests
 
 			while(true)
 			{
-				var notPrime = primeNumber.FirstOrDefault(i => !i.Value);
+				var notPrime = primeNumber.FirstOrDefault(i => i != null && !i.Value);
 				if (notPrime == null)
 				{
 					break;

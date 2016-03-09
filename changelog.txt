@@ -1,4 +1,8 @@
-﻿3.1.9.1
+﻿4.0.10.0
+Migrate to .Net 4.5.2
+Change SynchronizedCollection to ConcurentDictionary for manage task history
+
+3.1.9.1
 Fix non threadsafe historyList when execute task 
 
 3.1.8.0

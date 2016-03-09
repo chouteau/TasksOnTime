@@ -180,9 +180,10 @@ namespace TasksOnTime.Tests
             bool canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
-            task.StartedCount = 1;
-            task.NextRunningDate = DateTime.Now.AddHours(1);
-            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
+			Scheduler.Current.SetNextRuningDate(DateTime.Now, task);
+
+			task.StartedCount = 1;
+			canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
 
@@ -195,8 +196,9 @@ namespace TasksOnTime.Tests
             var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
+			Scheduler.Current.SetNextRuningDate(DateTime.Now, task);
+
             task.StartedCount = 1;
-            task.NextRunningDate = DateTime.Now.AddHours(1);
             canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
@@ -223,21 +225,10 @@ namespace TasksOnTime.Tests
             var canRun = Scheduler.Current.CanRun(startDate, task);
             Check.That(canRun).IsTrue();
 
-            startDate = DateTime.Now;
-            while (true)
-            {
-                if (startDate.DayOfWeek == DayOfWeek.Saturday
-                    || startDate.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    break;
-                }
-                else
-                {
-                    startDate = startDate.AddDays(1);
-                }
-            }
-            task.NextRunningDate = startDate;
-            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
+			Scheduler.Current.SetNextRuningDate(startDate, task);
+
+			task.StartedCount = 1;
+            canRun = Scheduler.Current.CanRun(startDate, task);
             Check.That(canRun).IsFalse();
         }
 
@@ -245,19 +236,31 @@ namespace TasksOnTime.Tests
         [TestMethod]
         public void Can_Run_By_Hour()
         {
+			Scheduler.ResetScheduledTaskList();
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunHour")
                             .EveryHour();
+
+			Scheduler.Add(task);
 
             var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
-            task.StartedCount = 1;
-            task.NextRunningDate = DateTime.Now.AddMinutes(1);
-            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
-            Check.That(canRun).IsFalse();
-        }
+			Scheduler.Current.SetNextRuningDate(DateTime.Now, task);
+			task.StartedCount = 1;
 
-        [TestMethod]
+			canRun = Scheduler.Current.CanRun(DateTime.Now, task);
+            Check.That(canRun).IsFalse();
+
+			task.StartedCount = 0;
+			task.NextRunningDate = DateTime.Now.AddMinutes(-1);
+			Scheduler.m_LazyInstance.Value.ProcessNextTasks(DateTime.Now);
+
+			System.Threading.Thread.Sleep(1 * 1000);
+
+			Check.That(task.StartedCount).Equals(1);
+		}
+
+		[TestMethod]
         public void Can_Run_By_Minute()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunMinute")
@@ -266,8 +269,9 @@ namespace TasksOnTime.Tests
             var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsTrue();
 
+			Scheduler.Current.SetNextRuningDate(DateTime.Now, task);
+
             task.StartedCount = 1;
-            task.NextRunningDate = DateTime.Now.AddSeconds(1);
             canRun = Scheduler.Current.CanRun(DateTime.Now, task);
             Check.That(canRun).IsFalse();
         }
@@ -278,12 +282,15 @@ namespace TasksOnTime.Tests
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunSecond")
                             .EverySecond(2);
 
-            var canRun = Scheduler.Current.CanRun(DateTime.Now, task);
+			var now = DateTime.Now;
+            var canRun = Scheduler.Current.CanRun(now, task);
             Check.That(canRun).IsTrue();
+
+			Scheduler.Current.SetNextRuningDate(now, task);
 
             task.StartedCount = 1;
             task.NextRunningDate = DateTime.Now.AddSeconds(1);
-            canRun = Scheduler.Current.CanRun(DateTime.Now, task);
+            canRun = Scheduler.Current.CanRun(now, task);
             Check.That(canRun).IsFalse();
         }
 

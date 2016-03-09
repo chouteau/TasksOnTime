@@ -1,2 +1,5 @@
-﻿0.9.1.2
+﻿0.9.3.4
+- Fix CanRun not respect Single Reponsability Principle, splitted in CarRun and SetNextRuningDate
+
+0.9.1.2
 - Add Dictionary<string, object> to Completed action on ScheduledTask

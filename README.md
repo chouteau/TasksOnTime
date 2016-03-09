@@ -1,11 +1,11 @@
-# TasksOnTime (3.1.8.0) beta
+# TasksOnTime (4.0.10.0) 
 
 ## About
 
 Start a job or schedule it in **standard threadPool** with monitoring and cancelation
 **TasksOnTime** Can be used in service , console, website or wpf/winforms applications
 
-Require only **.Net 3.5** (minimum) with no other dependance
+Require only **.Net 4.5.2** (minimum) with no other dependance
 
 ## Where can I get it ?
 

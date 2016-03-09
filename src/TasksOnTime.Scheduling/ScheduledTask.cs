@@ -15,12 +15,12 @@ namespace TasksOnTime.Scheduling
 
         public DateTime NextRunningDate { get; set; }
 		public ScheduledTaskTimePeriod Period { get; set; }
-		internal int Interval { get; set; }
-        internal int StartDay { get; set; }
-        internal int StartHour { get; set; }
-        internal int StartMinute { get; set; }
-        internal int DelayedStartInMillisecond { get; set; }
-        internal bool IsQueued { get; set; }
+		public int Interval { get; internal set; }
+        public int StartDay { get; internal set; }
+        public int StartHour { get; internal set; }
+        public int StartMinute { get; internal set; }
+        public int DelayedStartInMillisecond { get; internal set; }
+        public bool IsQueued { get; internal set; }
 
 		public Exception Exception { get; set; }
 
@@ -31,11 +31,11 @@ namespace TasksOnTime.Scheduling
 		public DateTime CreationDate { get; internal set; }
 		// public DateTime StartDate { get; set; }
 		// public DateTime? TerminatedDate { get; set; }
-		internal Type TaskType { get; set; }
+		public Type TaskType { get; internal set; }
 
 		public int StartedCount { get; set; }
 		public bool Enabled { get; set; }
-		internal bool AllowMultipleInstance { get; set; }
+		public bool AllowMultipleInstance { get; internal set; }
 
 		#region IDisposable Members
 

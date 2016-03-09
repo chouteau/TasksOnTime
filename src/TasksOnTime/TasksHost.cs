@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace TasksOnTime
 
 		private TasksHost()
 		{
-            TaskHistoryList = new SynchronizedCollection<TaskHistory>();
+            TaskHistoryList = new ConcurrentDictionary<Guid,TaskHistory>();
         }
 
         internal static TasksHost Current 
@@ -25,7 +26,7 @@ namespace TasksOnTime
 			}
 		}
 
-        internal SynchronizedCollection<TaskHistory> TaskHistoryList { get; set; }
+        internal ConcurrentDictionary<Guid,TaskHistory> TaskHistoryList { get; set; }
 
 		public static void Enqueue(
 			Type taskType,
@@ -100,91 +101,99 @@ namespace TasksOnTime
             context.TaskType = taskType;
             context.Parameters = inputParameters ?? context.Parameters;
 
-            lock (Current.TaskHistoryList.SyncRoot)
-            {
-                var history = new TaskHistory();
-                history.Context = context;
-                history.Id = context.Id;
-                history.Name = name;
-                Current.TaskHistoryList.Add(history);
-            }
+            var history = new TaskHistory();
+            history.Context = context;
+            history.Id = context.Id;
+            history.Name = name;
+			var loop = 0;
+			while(true)
+			{
+				if (loop > 5)
+				{
+					break;
+				}
+				if (!Current.TaskHistoryList.TryAdd(context.Id, history))
+				{
+					loop++;
+					System.Threading.Thread.Sleep(500);
+					continue;
+				}
+				break;
+			}
 
-            Action<object> executeTask = (state) =>
+			Action<object> executeTask = (state) =>
             {
                 var ctx = (ExecutionContext)state;
-				lock(Current.TaskHistoryList.SyncRoot)
+				TaskHistory h = RetryGetValue(ctx.Id) ?? new TaskHistory();
+				if (ctx.Started != null)
 				{
-					var h = Current.TaskHistoryList.Single(i => i.Id == ctx.Id);
-					if (ctx.Started != null)
-					{
-						ctx.Started.Invoke();
-					}
+					ctx.Started.Invoke();
+				}
 
-					ITask taskInstance = null;
-					try
+				ITask taskInstance = null;
+				try
+				{
+					if (ctx.TaskType != null)
 					{
-						if (ctx.TaskType != null)
-						{
-							taskInstance = (ITask)GlobalConfiguration.DependencyResolver.GetService(ctx.TaskType);
-						}
+						taskInstance = (ITask)GlobalConfiguration.DependencyResolver.GetService(ctx.TaskType);
 					}
-					catch (Exception ex)
-					{
-						GlobalConfiguration.Logger.Error(ex);
-					}
+				}
+				catch (Exception ex)
+				{
+					GlobalConfiguration.Logger.Error(ex);
+				}
 
-					if (taskInstance == null)
-					{
-						return;
-					}
+				if (taskInstance == null)
+				{
+					return;
+				}
 
-					try
+				try
+				{
+					h.StartedDate = DateTime.Now;
+					taskInstance.Execute(ctx);
+					if (ctx.IsCancelRequested)
 					{
-						h.StartedDate = DateTime.Now;
-						taskInstance.Execute(ctx);
-						if (ctx.IsCancelRequested)
-						{
-							h.CanceledDate = DateTime.Now;
-						}
+						h.CanceledDate = DateTime.Now;
 					}
-					catch (Exception ex)
+				}
+				catch (Exception ex)
+				{
+					ctx.Exception = ex;
+					h.Exception = ex;
+					if (ctx.Failed != null)
 					{
-						ctx.Exception = ex;
-						h.Exception = ex;
-						if (ctx.Failed != null)
-						{
-							try
-							{
-								ctx.Failed(ex);
-							}
-							catch { }
-						}
-						GlobalConfiguration.Logger.Error(ex);
-					}
-					finally
-					{
-						if (ctx.Completed != null)
-						{
-							try
-							{
-								ctx.Completed(ctx.Parameters);
-								h.Parameters = ctx.Parameters;
-							}
-							catch { }
-						}
-						h.TerminatedDate = DateTime.Now;
-						h.Context = null;
 						try
 						{
-							ctx.Dispose();
-
-							if (taskInstance is IDisposable)
-							{
-								((IDisposable)taskInstance).Dispose();
-							}
+							ctx.Failed(ex);
 						}
 						catch { }
 					}
+					GlobalConfiguration.Logger.Error(ex);
+				}
+				finally
+				{
+					if (ctx.Completed != null)
+					{
+						try
+						{
+							ctx.Completed(ctx.Parameters);
+							h.Parameters = ctx.Parameters;
+						}
+						catch { }
+					}
+					h.TerminatedDate = DateTime.Now;
+					h.Context = null;
+					try
+					{
+						ctx.Dispose();
+
+						if (taskInstance is IDisposable)
+						{
+							((IDisposable)taskInstance).Dispose();
+						}
+					}
+					catch { }
 				}
 			};
 
@@ -214,132 +223,161 @@ namespace TasksOnTime
 
         public static bool IsRunning(Guid key)
 		{
-			lock (Current.TaskHistoryList.SyncRoot)
-			{
-                var task = Current.TaskHistoryList.SingleOrDefault(i => i.Id == key);
-                if (task != null)
-                {
-                    return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
-                }
-                return false;
-			}
+			TaskHistory task = RetryGetValue(key);
+            if (task != null)
+            {
+                return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
+            }
+            return false;
 		}
 
         public static bool IsRunning()
         {
             bool result = false;
-            lock (Current.TaskHistoryList.SyncRoot)
-            {
-                result = Current.TaskHistoryList.Any(i => !i.TerminatedDate.HasValue);
-            }
+			foreach (var key in Current.TaskHistoryList.Keys)
+			{
+				var item = RetryGetValue(key);
+				if (item != null)
+				{
+					if (!item.TerminatedDate.HasValue)
+					{
+						result = true;
+						break;
+					}
+				}
+			}
             return result;
         }
 
         internal static bool IsRunning(string taskName)
         {
-            lock (Current.TaskHistoryList.SyncRoot)
-            {
-                var task = Current.TaskHistoryList.OrderBy(i => i.CreationDate).FirstOrDefault(i => i.Name == taskName);
-                if (task != null)
-                {
-                    return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
-                }
-                return false;
-            }
+			bool result = false;
+			foreach (var key in Current.TaskHistoryList.Keys)
+			{
+				var item = RetryGetValue(key);
+				if (item != null
+					&& taskName.Equals(item.Name)
+					&& item.StartedDate.HasValue 
+					&& !item.TerminatedDate.HasValue)
+				{
+					result = true;
+					break;
+				}
+			}
+			return result;
         }
 
         public static void Cancel(Guid key)
 		{
-            lock(Current.TaskHistoryList.SyncRoot)
+			var existing = RetryGetValue(key);
+            if (existing == null)
             {
-                var existing = Current.TaskHistoryList.SingleOrDefault(i => i.Id == key);
-                if (existing == null)
-                {
-                    return;
-                }
-                if (existing.TerminatedDate.HasValue)
-                {
-                    return;
-                }
-                GlobalConfiguration.Logger.Debug("Cancel activity {0} requested", key);
-                existing.Context.IsCancelRequested = true;
+                return;
             }
+            if (existing.TerminatedDate.HasValue)
+            {
+                return;
+            }
+            GlobalConfiguration.Logger.Debug("Cancel activity {0} requested", key);
+            existing.Context.IsCancelRequested = true;
         }
 
 		public static bool Exists(Guid key)
 		{
-            lock(Current.TaskHistoryList.SyncRoot)
-            {
-                return Current.TaskHistoryList.Any(i => i.Id == key);
-            }
+			return RetryGetValue(key) != null;
         }
 
 		public static void Cleanup()
 		{
-			lock (Current.TaskHistoryList.SyncRoot)
+			var removeList = new ConcurrentBag<Guid>();
+			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				var cleanupList = (from instance in Current.TaskHistoryList
-                                   where instance.TerminatedDate.HasValue
-										&& instance.TerminatedDate.Value.AddSeconds(GlobalConfiguration.Settings.CleanupTimeoutInSeconds) > DateTime.Now
-								  select instance.Id).ToList();
-
-				foreach (var item in cleanupList)
+				var item = RetryGetValue(key);
+				if (item == null)
 				{
-					var first = Current.TaskHistoryList.FirstOrDefault(i => i.Id == item);
-					if (first == null)
-					{
-						continue;
-					}
-					// first.Dispose();
-                    Current.TaskHistoryList.Remove(first);
+					continue;
 				}
+				if (item.TerminatedDate.HasValue
+					&& item.TerminatedDate.Value.AddSeconds(GlobalConfiguration.Settings.CleanupTimeoutInSeconds) > DateTime.Now)
+				{
+					removeList.Add(key);
+				}
+			}
+			foreach (var key in removeList)
+			{
+				TaskHistory item = null;
+				Current.TaskHistoryList.TryRemove(key, out item);
 			}
 		}
 
         public static TaskHistory GetHistory(Guid id)
         {
-            TaskHistory ai = null;
-            lock (Current.TaskHistoryList.SyncRoot)
-            {
-                ai = Current.TaskHistoryList.SingleOrDefault(i => i.Id == id);
-            }
-
-            if (ai == null)
-            {
-                return null;
-            }
-
+            var ai = RetryGetValue(id);
             return ai;
         }
 
         public static IEnumerable<TaskHistory> GetHistory(string scheduledTaskName)
         {
-            IEnumerable<TaskHistory> result = null;
-            lock (Current.TaskHistoryList.SyncRoot)
-            {
-                result = Current.TaskHistoryList.Where(i => i.Name.Equals(scheduledTaskName, StringComparison.InvariantCultureIgnoreCase));
-            }
-            return result;
+			var result = new ConcurrentBag<TaskHistory>(); ;
+			if (string.IsNullOrWhiteSpace(scheduledTaskName))
+			{
+				return result;
+			}
+			foreach (var key in Current.TaskHistoryList.Keys)
+			{
+				var item = RetryGetValue(key);
+				if (item == null)
+				{
+					continue;
+				}
+				if (scheduledTaskName.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase))
+				{
+					result.Add(item);
+				}
+			}
+			return result;
         }
 
         #endregion
 
         public static void Stop()
 		{
-			lock (Current.TaskHistoryList.SyncRoot)
+			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				foreach (var item in Current.TaskHistoryList)
+				var item = RetryGetValue(key);
+				if (item == null)
 				{
-                    if (item.Context == null || item.TerminatedDate.HasValue)
-                    {
-                        continue;
-                    }
-                    item.Context.IsCancelRequested = true;
-                    System.Threading.Thread.Sleep(200);
-					item.Dispose();
+					continue;
 				}
+                if (item.Context == null || item.TerminatedDate.HasValue)
+                {
+                    continue;
+                }
+                item.Context.IsCancelRequested = true;
+                System.Threading.Thread.Sleep(200);
+				item.Dispose();
 			}
         }
 
+		private static TaskHistory RetryGetValue(Guid id)
+		{
+			TaskHistory result = null;
+			var loop = 0;
+			while(true)
+			{
+				if (!Current.TaskHistoryList.ContainsKey(id))
+				{
+					break;
+				}
+				if (!Current.TaskHistoryList.TryGetValue(id, out result))
+				{
+					System.Threading.Thread.Sleep(500);
+					loop++;
+					continue;
+				}
+				break;
+			}
+			return result;
+		}
     }
 }

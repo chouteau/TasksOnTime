@@ -14,7 +14,7 @@ namespace TasksOnTime
 			IntervalInSeconds = intervalInSecond;
 			ScheduledTaskDisabledByDefault = true;
 			CleanupTimeoutInSeconds = 60 * 10; // 10 minutes
-		}
+        }
 
 		public string this[string taskName]
 		{
