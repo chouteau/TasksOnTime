@@ -18,6 +18,18 @@ namespace TasksOnTime.Tests
 		public static void ClassInit(TestContext context)
 		{
 			GlobalConfiguration.Logger = new DebugLogger();
+			TasksHost.TaskStarted += (s, arg) =>
+			{
+				Console.WriteLine(arg);
+			};
+			TasksHost.TaskFailed += (s, arg) =>
+			{
+				Console.WriteLine(arg);
+			};
+			TasksHost.TaskTerminated += (s, arg) =>
+			{
+				Console.WriteLine(arg);
+			};
 		}
 
 		[ClassCleanup()]

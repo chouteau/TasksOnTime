@@ -27,6 +27,9 @@ namespace TasksOnTime
 		}
 
         internal ConcurrentDictionary<Guid,TaskHistory> TaskHistoryList { get; set; }
+		public static event EventHandler<Guid> TaskStarted;
+		public static event EventHandler<Guid> TaskTerminated;
+		public static event EventHandler<Guid> TaskFailed;
 
 		public static void Enqueue(
 			Type taskType,
@@ -124,11 +127,23 @@ namespace TasksOnTime
 			Action<object> executeTask = (state) =>
             {
                 var ctx = (ExecutionContext)state;
-				TaskHistory h = RetryGetValue(ctx.Id) ?? new TaskHistory();
+				TaskHistory h = Current.TaskHistoryList.RetryGetValue(ctx.Id) ?? new TaskHistory();
 				if (ctx.Started != null)
 				{
 					ctx.Started.Invoke();
 				}
+				if (TaskStarted != null)
+				{
+					try
+					{
+						TaskStarted(state, ctx.Id);
+					}
+					catch (Exception ex)
+					{
+						GlobalConfiguration.Logger.Error(ex);
+					}
+				}
+
 
 				ITask taskInstance = null;
 				try
@@ -168,6 +183,19 @@ namespace TasksOnTime
 							ctx.Failed(ex);
 						}
 						catch { }
+
+						if (TaskFailed != null)
+						{
+							try
+							{
+								TaskFailed(state, ctx.Id);
+							}
+							catch (Exception gex)
+							{
+								GlobalConfiguration.Logger.Error(gex);
+							}
+						}
+
 					}
 					GlobalConfiguration.Logger.Error(ex);
 				}
@@ -181,6 +209,17 @@ namespace TasksOnTime
 							h.Parameters = ctx.Parameters;
 						}
 						catch { }
+					}
+					if (TaskTerminated != null)
+					{
+						try
+						{
+							TaskTerminated(state, ctx.Id);
+						}
+						catch (Exception ex)
+						{
+							GlobalConfiguration.Logger.Error(ex);
+						}
 					}
 					h.TerminatedDate = DateTime.Now;
 					h.Context = null;
@@ -223,7 +262,7 @@ namespace TasksOnTime
 
         public static bool IsRunning(Guid key)
 		{
-			TaskHistory task = RetryGetValue(key);
+			TaskHistory task = Current.TaskHistoryList.RetryGetValue(key);
             if (task != null)
             {
                 return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
@@ -236,7 +275,7 @@ namespace TasksOnTime
             bool result = false;
 			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				var item = RetryGetValue(key);
+				var item = Current.TaskHistoryList.RetryGetValue(key);
 				if (item != null)
 				{
 					if (!item.TerminatedDate.HasValue)
@@ -254,7 +293,7 @@ namespace TasksOnTime
 			bool result = false;
 			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				var item = RetryGetValue(key);
+				var item = Current.TaskHistoryList.RetryGetValue(key);
 				if (item != null
 					&& taskName.Equals(item.Name)
 					&& item.StartedDate.HasValue 
@@ -269,7 +308,7 @@ namespace TasksOnTime
 
         public static void Cancel(Guid key)
 		{
-			var existing = RetryGetValue(key);
+			var existing = Current.TaskHistoryList.RetryGetValue(key);
             if (existing == null)
             {
                 return;
@@ -284,7 +323,7 @@ namespace TasksOnTime
 
 		public static bool Exists(Guid key)
 		{
-			return RetryGetValue(key) != null;
+			return Current.TaskHistoryList.RetryGetValue(key) != null;
         }
 
 		public static void Cleanup()
@@ -292,7 +331,7 @@ namespace TasksOnTime
 			var removeList = new ConcurrentBag<Guid>();
 			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				var item = RetryGetValue(key);
+				var item = Current.TaskHistoryList.RetryGetValue(key);
 				if (item == null)
 				{
 					continue;
@@ -312,7 +351,7 @@ namespace TasksOnTime
 
         public static TaskHistory GetHistory(Guid id)
         {
-            var ai = RetryGetValue(id);
+            var ai = Current.TaskHistoryList.RetryGetValue(id);
             return ai;
         }
 
@@ -325,7 +364,7 @@ namespace TasksOnTime
 			}
 			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				var item = RetryGetValue(key);
+				var item = Current.TaskHistoryList.RetryGetValue(key);
 				if (item == null)
 				{
 					continue;
@@ -344,7 +383,7 @@ namespace TasksOnTime
 		{
 			foreach (var key in Current.TaskHistoryList.Keys)
 			{
-				var item = RetryGetValue(key);
+				var item = Current.TaskHistoryList.RetryGetValue(key);
 				if (item == null)
 				{
 					continue;
@@ -359,25 +398,5 @@ namespace TasksOnTime
 			}
         }
 
-		private static TaskHistory RetryGetValue(Guid id)
-		{
-			TaskHistory result = null;
-			var loop = 0;
-			while(true)
-			{
-				if (!Current.TaskHistoryList.ContainsKey(id))
-				{
-					break;
-				}
-				if (!Current.TaskHistoryList.TryGetValue(id, out result))
-				{
-					System.Threading.Thread.Sleep(500);
-					loop++;
-					continue;
-				}
-				break;
-			}
-			return result;
-		}
     }
 }
