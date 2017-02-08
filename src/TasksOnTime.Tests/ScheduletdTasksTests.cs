@@ -343,5 +343,61 @@ namespace TasksOnTime.Tests
 
 			mre.WaitOne();
 		}
+
+		[TestMethod]
+		public void Scheduled_Task_With_Parameters()
+		{
+			var id = Guid.NewGuid();
+			var task = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
+							.EverySecond(10);
+
+			var mre = new System.Threading.ManualResetEvent(false);
+
+			Scheduler.Add(task);
+
+			task.Completed += (dic) =>
+			{
+				var parameter = (string)dic["output"];
+				Check.That(parameter).Equals("test");
+				mre.Set();
+			};
+
+			mre.WaitOne();
+		}
+
+		[TestMethod]
+		public void Scheduled_Same_Task_With_Parameters_And_Different_Name()
+		{
+			var id = Guid.NewGuid();
+			var task1 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask1", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
+							.EverySecond(10);
+
+			var task2 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask2", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
+				.EverySecond(10);
+
+
+			var mre1 = new System.Threading.ManualResetEvent(false);
+			var mre2 = new System.Threading.ManualResetEvent(false);
+
+			Scheduler.Add(task1);
+			Scheduler.Add(task2);
+
+			task1.Completed += (dic) =>
+			{
+				var parameter = (string)dic["output"];
+				Check.That(parameter).Equals("test");
+				mre1.Set();
+			};
+
+			task2.Completed += (dic) =>
+			{
+				var parameter = (string)dic["output"];
+				Check.That(parameter).Equals("test");
+				mre2.Set();
+			};
+
+			mre1.WaitOne();
+			mre2.WaitOne();
+		}
 	}
 }

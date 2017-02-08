@@ -1,4 +1,7 @@
-﻿4.1.11.0
+﻿1.1.5.0 (Scheduler)
+Add parameters for ScheduledTask
+
+4.1.11.0
 Add global events in TasksHost
 	TaskStarted, TaskFailed, TaskTerminated
 

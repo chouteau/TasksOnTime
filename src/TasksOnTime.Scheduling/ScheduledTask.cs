@@ -9,6 +9,7 @@ namespace TasksOnTime.Scheduling
 	{
 		internal ScheduledTask()
 		{
+			Parameters = new Dictionary<string, object>();
 		}
 
         public string Name { get; set; }
@@ -36,6 +37,7 @@ namespace TasksOnTime.Scheduling
 		public int StartedCount { get; set; }
 		public bool Enabled { get; set; }
 		public bool AllowMultipleInstance { get; internal set; }
+		public Dictionary<string, object> Parameters { get; set; }
 
 		#region IDisposable Members
 

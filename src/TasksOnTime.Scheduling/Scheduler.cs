@@ -74,7 +74,7 @@ namespace TasksOnTime.Scheduling
             Current.TimerThread.Start();
 		}
 
-        public static ScheduledTask CreateScheduledTask<T>(string name)
+        public static ScheduledTask CreateScheduledTask<T>(string name, Dictionary<string, object> parameters = null)
             where T : class
         {
             if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))
@@ -90,8 +90,12 @@ namespace TasksOnTime.Scheduling
             task.StartedCount = 0;
             task.Enabled = true;
             task.AllowMultipleInstance = true;
+			if (parameters != null)
+			{
+				task.Parameters = parameters;
+			}
 
-            return task;
+			return task;
         }
 
         #region Static
@@ -310,7 +314,7 @@ namespace TasksOnTime.Scheduling
                 id
                 , scheduledTask.Name
                 , scheduledTask.TaskType
-                , null
+                , scheduledTask.Parameters
                 , (dic) =>
                 {
 					GlobalConfiguration.Logger.Info("scheduled task {0} completed", scheduledTask.Name);
