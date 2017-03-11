@@ -364,7 +364,6 @@ namespace TasksOnTime.Scheduling
 		{
 			if (scheduledTask.IsQueued)
 			{
-                GlobalConfiguration.Logger.Debug("task {0} with only instance is already queued", scheduledTask.Name);
 				return false;
 			}
 
