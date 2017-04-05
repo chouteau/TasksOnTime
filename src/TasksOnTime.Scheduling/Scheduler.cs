@@ -227,7 +227,15 @@ namespace TasksOnTime.Scheduling
 
         public static IEnumerable<ScheduledTask> GetList()
         {
-            return Current.ScheduledTaskList;
+			var result = new List<ScheduledTask>();
+			lock(Current.ScheduledTaskList.SyncRoot)
+			{
+				foreach (var item in Current.ScheduledTaskList)
+				{
+					result.Add(item);
+				}
+			}
+			return result;
         }
 
         #endregion  
