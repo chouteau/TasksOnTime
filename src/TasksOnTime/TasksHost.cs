@@ -71,14 +71,15 @@ namespace TasksOnTime
             Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond);
         }
 
-        internal static void Enqueue(Guid key,
-            string name,
-            Type taskType,
-            Dictionary<string, object> inputParameters = null,
-			Action<Dictionary<string, object>> completed = null, 
+		internal static void Enqueue(Guid key,
+			string name,
+			Type taskType,
+			Dictionary<string, object> inputParameters = null,
+			Action<Dictionary<string, object>> completed = null,
 			Action<Exception> failed = null,
-            int? delayInMillisecond = null,
-            Action started = null)
+			int? delayInMillisecond = null,
+			Action started = null,
+			bool IsScheduled = false)
         {
 			if (key == Guid.Empty)
 			{
@@ -107,7 +108,8 @@ namespace TasksOnTime
             var history = new TaskHistory();
             history.Context = context;
             history.Id = context.Id;
-            history.Name = name;
+			history.IsScheduled = IsScheduled;
+            history.Name = name ?? taskType.FullName;
 			var loop = 0;
 			while(true)
 			{

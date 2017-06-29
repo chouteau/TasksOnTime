@@ -10,11 +10,13 @@ namespace TasksOnTime
         public TaskHistory()
         {
             CreationDate = DateTime.Now;
+			IsScheduled = false;
         }
 
 		public Guid Id { get; set; }
         public string Name { get; set; }
-        public DateTime CreationDate { get; set; }
+		public bool IsScheduled { get; set; }
+		public DateTime CreationDate { get; set; }
         public DateTime? StartedDate { get; set; }
         public DateTime? TerminatedDate { get; set; }
 		public DateTime? CanceledDate { get; set; }

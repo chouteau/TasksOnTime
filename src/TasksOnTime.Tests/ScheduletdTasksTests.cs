@@ -253,7 +253,7 @@ namespace TasksOnTime.Tests
 
 			task.StartedCount = 0;
 			task.NextRunningDate = DateTime.Now.AddMinutes(-1);
-			Scheduler.m_LazyInstance.Value.ProcessNextTasks(DateTime.Now);
+			Scheduler.Current.ProcessNextTasks(DateTime.Now);
 
 			System.Threading.Thread.Sleep(1 * 1000);
 

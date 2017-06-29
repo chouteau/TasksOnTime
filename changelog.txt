@@ -1,4 +1,11 @@
-﻿1.1.5.0 (Scheduler)
+﻿4.1.12.0
+Add IsScheduled property in TaskHistory
+Add Type FullName in not scheduled task in TaskHistory
+
+1.1.7.2 (Sheduler)
+Start scheduled task with IsScheduled parameter
+
+1.1.5.0 (Scheduler)
 Add parameters for ScheduledTask
 
 4.1.11.0

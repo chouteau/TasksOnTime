@@ -8,7 +8,7 @@ namespace TasksOnTime.Scheduling
 {
 	public class Scheduler 
 	{
-        public static Lazy<Scheduler> m_LazyInstance = new Lazy<Scheduler>(() =>
+        private static Lazy<Scheduler> m_LazyInstance = new Lazy<Scheduler>(() =>
         {
             return new Scheduler();
         });
@@ -365,7 +365,8 @@ namespace TasksOnTime.Scheduling
                         }
                         catch { }
                     }
-                });
+                },
+				true);
 		}
 
 		internal bool CanRun(DateTime now, ScheduledTask scheduledTask)
