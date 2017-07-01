@@ -18,6 +18,8 @@ namespace TasksOnTime.Scheduling
         public string Name { get; set; }
 		[DataMember]
 		public DateTime NextRunningDate { get; set; }
+		[IgnoreDataMember]
+		public Func<DateTime> NextRunningDateFactory { get; set; }
 		[DataMember]
 		public ScheduledTaskTimePeriod Period { get; set; }
 		[DataMember]

@@ -13,5 +13,6 @@ namespace TasksOnTime.Scheduling
 		Hour,
 		Minute,
         Second,
+		Custom
 	}
 }

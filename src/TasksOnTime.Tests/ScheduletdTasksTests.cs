@@ -399,5 +399,28 @@ namespace TasksOnTime.Tests
 			mre1.WaitOne();
 			mre2.WaitOne();
 		}
+
+		[TestMethod]
+		public void Scheduled_Task_With_NextRunningDate()
+		{
+			var id = Guid.NewGuid();
+			var nextDate = DateTime.Now.AddHours(1);
+			var task = Scheduler.CreateScheduledTask<ParameterizedTask>("schedulednextrunningdate", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
+							.NextRunningDate(() => nextDate);
+
+			var mre = new System.Threading.ManualResetEvent(false);
+
+			Scheduler.Add(task);
+
+			task.Completed += (dic) =>
+			{
+				mre.Set();
+			};
+
+			mre.WaitOne();
+
+			Check.That(task.NextRunningDate.Ticks).IsEqualTo(nextDate.Ticks);
+		}
+
 	}
 }

@@ -62,6 +62,13 @@ namespace TasksOnTime.Scheduling
 			return task;
 		}
 
+		public static ScheduledTask NextRunningDate(this ScheduledTask task, Func<DateTime> factory)
+		{
+			task.NextRunningDateFactory = factory;
+			task.Period = ScheduledTaskTimePeriod.Custom;
+			task.Interval = -1;
+			return task;
+		}
 
 	}
 }

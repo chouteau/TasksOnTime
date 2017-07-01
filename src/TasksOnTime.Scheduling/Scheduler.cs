@@ -128,7 +128,8 @@ namespace TasksOnTime.Scheduling
                     throw new Exception(string.Format("task {0} must contains GetTask delegate", task.Name));
                 }
 
-                if (task.Interval <= 0)
+                if (task.Period != ScheduledTaskTimePeriod.Custom
+					&& task.Interval <= 0)
                 {
                     throw new Exception(string.Format("interval for task {0} must be greater than zero", task.Name));
                 }
@@ -338,6 +339,20 @@ namespace TasksOnTime.Scheduling
                     {
                         GlobalConfiguration.Logger.Error(ex);
                     }
+					finally
+					{
+						if (scheduledTask.NextRunningDateFactory != null)
+						{
+							try
+							{
+								scheduledTask.NextRunningDate = scheduledTask.NextRunningDateFactory.Invoke();
+							}
+							catch (Exception ex)
+							{
+								GlobalConfiguration.Logger.Error(ex);
+							}
+						}
+					}
                 }
                 , (ex) =>
                 {
