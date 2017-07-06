@@ -22,8 +22,9 @@ namespace TasksOnTime
 		public DateTime? CanceledDate { get; set; }
 		public Exception Exception { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
+		public DateTime? NextRunningDate { get; set; }
 
-        internal ExecutionContext Context { get; set; }
+		internal ExecutionContext Context { get; set; }
 
         public void Dispose()
         {

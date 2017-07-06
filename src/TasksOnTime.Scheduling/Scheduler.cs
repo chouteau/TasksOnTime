@@ -205,6 +205,7 @@ namespace TasksOnTime.Scheduling
                 }
 				task.DelayedStartInMillisecond = 0;
 				task.NextRunningDate = DateTime.MinValue;
+				task.IsForced = true;
 			}
 			if (Current.EventForceTask != null)
 			{
@@ -341,6 +342,7 @@ namespace TasksOnTime.Scheduling
                     }
 					finally
 					{
+						scheduledTask.IsForced = false;
 						if (scheduledTask.NextRunningDateFactory != null)
 						{
 							try
@@ -381,7 +383,8 @@ namespace TasksOnTime.Scheduling
                         catch { }
                     }
                 },
-				true);
+				true,
+				scheduledTask.IsForced);
 		}
 
 		internal bool CanRun(DateTime now, ScheduledTask scheduledTask)

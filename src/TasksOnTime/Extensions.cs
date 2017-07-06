@@ -35,5 +35,36 @@ namespace TasksOnTime
 			}
 			return result;
 		}
+
+		public static void AddOrUpdateParameter(this Dictionary<string, object> parameters, string key, object value)
+		{
+			if (string.IsNullOrWhiteSpace(key))
+			{
+				return;
+			}
+			if (parameters.ContainsKey(key))
+			{
+				parameters[key] = value;
+			}
+			else
+			{
+				parameters.Add(key, value);
+			}
+		}
+
+		public static object GetParameter(this Dictionary<string, object> paremeters, string key)
+		{
+			if (string.IsNullOrWhiteSpace(key))
+			{
+				return null;
+			}
+
+			if (paremeters.ContainsKey(key))
+			{
+				return paremeters[key];
+			}
+
+			return null;
+		}
 	}
 }

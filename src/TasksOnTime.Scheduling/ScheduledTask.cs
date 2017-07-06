@@ -12,6 +12,7 @@ namespace TasksOnTime.Scheduling
 		internal ScheduledTask()
 		{
 			Parameters = new Dictionary<string, object>();
+			IsForced = false;
 		}
 
 		[DataMember]
@@ -56,6 +57,9 @@ namespace TasksOnTime.Scheduling
 		public bool AllowMultipleInstance { get; internal set; }
 		[DataMember]
 		public Dictionary<string, object> Parameters { get; set; }
+
+		[IgnoreDataMember]
+		public bool IsForced { get; set; }
 
 		#region IDisposable Members
 

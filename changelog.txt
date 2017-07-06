@@ -1,4 +1,7 @@
-﻿1.2.8.0 (Sheduler)
+﻿Core 4.2.13.0 / Scheduling 1.3.9.0 
+Add force parameter in context for scheduled tasks
+
+1.2.8.0 (Sheduler)
 Add custom period with NextRunningDateFactory parameter
 
 4.1.12.0

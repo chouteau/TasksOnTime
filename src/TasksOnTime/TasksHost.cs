@@ -42,13 +42,14 @@ namespace TasksOnTime
 		}
 
 		public static void Enqueue<T>(
-            Dictionary<string, object> inputParameters = null,
-            Action<Dictionary<string, object>> completed = null,
-            Action<Exception> failed = null,
-            int? delayInMillisecond = null)
+			Dictionary<string, object> inputParameters = null,
+			Action<Dictionary<string, object>> completed = null,
+			Action<Exception> failed = null,
+			int? delayInMillisecond = null,
+			bool force = false)
 			where T : class, ITask
 		{
-            Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond);
+            Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced : force);
         }
 
 		public static void Enqueue(Guid key,
@@ -56,19 +57,21 @@ namespace TasksOnTime
 			Dictionary<string, object> inputParameters = null,
 			Action<Dictionary<string, object>> completed = null,
 			Action<Exception> failed = null,
-			int? delayInMillisecond = null)
+			int? delayInMillisecond = null,
+			bool force = false)
 		{
-			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond);
+			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced : false);
 		}
 
 		public static void Enqueue<T>(Guid key,
                 Dictionary<string, object> inputParameters = null,
                 Action<Dictionary<string, object>> completed = null,
                 Action<Exception> failed = null,
-                int? delayInMillisecond = null)
+                int? delayInMillisecond = null,
+				bool force = false)
             where T : class, ITask
         {
-            Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond);
+            Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced : false);
         }
 
 		internal static void Enqueue(Guid key,
@@ -79,7 +82,8 @@ namespace TasksOnTime
 			Action<Exception> failed = null,
 			int? delayInMillisecond = null,
 			Action started = null,
-			bool IsScheduled = false)
+			bool IsScheduled = false,
+			bool IsForced = false)
         {
 			if (key == Guid.Empty)
 			{
@@ -104,6 +108,7 @@ namespace TasksOnTime
             context.Started = started;
             context.TaskType = taskType;
             context.Parameters = inputParameters ?? context.Parameters;
+			context.Force = IsForced;
 
             var history = new TaskHistory();
             history.Context = context;

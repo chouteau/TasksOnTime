@@ -27,6 +27,8 @@ namespace TasksOnTime
         internal DateTime CreationDate { get; set; }
 		internal Exception Exception { get; set; }
 
+		public bool Force { get; set; }
+
 		internal Type TaskType { get; set; }
 
         internal Action Started { get; set; }

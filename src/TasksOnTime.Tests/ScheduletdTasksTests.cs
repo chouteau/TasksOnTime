@@ -104,25 +104,6 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public void Force_Schedule_Task()
-        {
-            var task = Scheduler.CreateScheduledTask<TextTask>("ForceTaskTest")
-                                .StartWithDelay(60)
-                                .EverySecond(3);
-
-            Scheduler.Add(task);
-
-            System.Threading.Thread.Sleep(4 * 1000);
-            Check.That(task.StartedCount).Equals(0);
-
-            Scheduler.ForceTask("ForceTaskTest");
-
-            System.Threading.Thread.Sleep(4 * 1000);
-
-            Check.That(task.StartedCount).IsGreaterThan(0);
-        }
-
-        [TestMethod]
         public void Remove_Task()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("RemoveTest")
@@ -421,6 +402,32 @@ namespace TasksOnTime.Tests
 
 			Check.That(task.NextRunningDate.Ticks).IsEqualTo(nextDate.Ticks);
 		}
+
+		[TestMethod]
+		public void Force_Scheduled_Task()
+		{
+			var id = Guid.NewGuid();
+			var nextDate = DateTime.Now.AddHours(1);
+			var task = Scheduler.CreateScheduledTask<ForceTask>("forcescheduled")
+						.StartWithDelay(60 * 1000)
+						.EveryMinute(1);
+
+			var mre = new System.Threading.ManualResetEvent(false);
+
+			Scheduler.Add(task);
+
+			task.Completed += (dic) =>
+			{
+				mre.Set();
+			};
+
+			Scheduler.ForceTask("forcescheduled");
+
+			mre.WaitOne();
+
+		}
+
+
 
 	}
 }
