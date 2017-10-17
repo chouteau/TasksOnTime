@@ -1,4 +1,7 @@
-﻿Core 4.2.13.0 / Scheduling 1.3.9.0 
+﻿Core 4.2.14
+Change classic log from info to debug
+
+Core 4.2.13.0 / Scheduling 1.3.9.0 
 Add force parameter in context for scheduled tasks
 
 1.2.8.0 (Sheduler)

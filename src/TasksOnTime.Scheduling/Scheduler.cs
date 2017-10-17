@@ -286,7 +286,7 @@ namespace TasksOnTime.Scheduling
 				{
 					try
 					{
-						GlobalConfiguration.Logger.Info("Try to start scheduled task {0}", item.Name);
+						GlobalConfiguration.Logger.Debug("Try to start scheduled task {0}", item.Name);
 						ProcessTask(item);
 						SetNextRuningDate(DateTime.Now, item);
 					}
@@ -327,7 +327,7 @@ namespace TasksOnTime.Scheduling
                 , scheduledTask.Parameters
                 , (dic) =>
                 {
-					GlobalConfiguration.Logger.Info("scheduled task {0} completed", scheduledTask.Name);
+					GlobalConfiguration.Logger.Debug("scheduled task {0} completed", scheduledTask.Name);
 					scheduledTask.IsQueued = false;
                     try
                     {
@@ -372,7 +372,7 @@ namespace TasksOnTime.Scheduling
                 null,
                 () =>
                 {
-					GlobalConfiguration.Logger.Info("scheduled task {0} started", scheduledTask.Name);
+					GlobalConfiguration.Logger.Debug("scheduled task {0} started", scheduledTask.Name);
 					scheduledTask.StartedCount += 1;
                     if (TaskStarted != null)
                     {
