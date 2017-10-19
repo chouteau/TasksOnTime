@@ -48,17 +48,22 @@ namespace TasksOnTime.Scheduling
                 Current.EventStop.Set();
             }
 
+			foreach (var item in Current.ScheduledTaskList)
+			{
+				try
+				{
+					Remove(item.Name);
+				}
+				catch { }
+				item.Dispose();
+			}
+
 			// Waiting 5 secondes before kill process
 			if (Current.TimerThread != null 
 				&& !Current.TimerThread.Join(TimeSpan.FromSeconds(5)))
 			{
                 Current.TimerThread.Abort();
 			}
-
-            foreach (var item in Current.ScheduledTaskList)
-            {
-                item.Dispose();
-            }
 		}
 
 		public static void Start()

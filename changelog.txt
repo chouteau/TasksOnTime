@@ -1,13 +1,16 @@
-﻿Core 4.2.14
+﻿1.3.10 (Scheduler)
+Remove all scheduled tasks and cancel current operations on closing 
+
+4.2.14 (Core)
 Change classic log from info to debug
 
 Core 4.2.13.0 / Scheduling 1.3.9.0 
 Add force parameter in context for scheduled tasks
 
-1.2.8.0 (Sheduler)
+1.2.8.0 (Scheduler)
 Add custom period with NextRunningDateFactory parameter
 
-4.1.12.0
+4.1.12.0 (Core)
 Add IsScheduled property in TaskHistory
 Add Type FullName in not scheduled task in TaskHistory
 
