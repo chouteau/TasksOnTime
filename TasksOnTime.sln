@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime", "src\TasksOnTime\TasksOnTime.csproj", "{E9D8BCC7-0FB5-4AE1-99B2-A9A07DCE5C83}"
 EndProject
@@ -9,6 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.Tests", "src\Ta
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{391758F3-0B6A-4CDC-8C11-CCFC24C431D2}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		changelog.txt = changelog.txt
 		Enqueue.md = Enqueue.md
 		license.md = license.md
@@ -50,5 +51,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D2EBA41C-4C42-4EC9-9648-5ED28A6A82D1}
 	EndGlobalSection
 EndGlobal

@@ -40,32 +40,6 @@ namespace TasksOnTime.Scheduling
 		public event Action<string> TaskStarted;
 		public event Action<string> TaskFinished;
 
-        public static void Stop()
-		{
-            Current.Terminated = true;
-            if (Current.EventStop != null)
-            {
-                Current.EventStop.Set();
-            }
-
-			foreach (var item in Current.ScheduledTaskList)
-			{
-				try
-				{
-					Remove(item.Name);
-				}
-				catch { }
-				item.Dispose();
-			}
-
-			// Waiting 5 secondes before kill process
-			if (Current.TimerThread != null 
-				&& !Current.TimerThread.Join(TimeSpan.FromSeconds(5)))
-			{
-                Current.TimerThread.Abort();
-			}
-		}
-
 		public static void Start()
 		{
 			if (Current.TimerThread != null)
@@ -79,7 +53,39 @@ namespace TasksOnTime.Scheduling
             Current.TimerThread.Start();
 		}
 
-        public static ScheduledTask CreateScheduledTask<T>(string name, Dictionary<string, object> parameters = null)
+		public static void Stop()
+		{
+			Current.Terminated = true;
+			if (Current.EventStop != null)
+			{
+				Current.EventStop.Set();
+			}
+
+			var loop = Current.ScheduledTaskList.Count;
+			while (true)
+			{
+				var task = Current.ScheduledTaskList.FirstOrDefault();
+				if (task == null)
+				{
+					break;
+				}
+				Remove(task.Name);
+				loop--;
+				if (loop <= 0)
+				{
+					break;
+				}
+			}
+
+			// Waiting 5 secondes before kill process
+			if (Current.TimerThread != null
+				&& !Current.TimerThread.Join(TimeSpan.FromSeconds(5)))
+			{
+				Current.TimerThread.Abort();
+			}
+		}
+
+		public static ScheduledTask CreateScheduledTask<T>(string name, Dictionary<string, object> parameters = null)
             where T : class
         {
             if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))

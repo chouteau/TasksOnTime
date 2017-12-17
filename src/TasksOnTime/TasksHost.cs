@@ -133,114 +133,7 @@ namespace TasksOnTime
 
 			Action<object> executeTask = (state) =>
             {
-                var ctx = (ExecutionContext)state;
-				TaskHistory h = Current.TaskHistoryList.RetryGetValue(ctx.Id) ?? new TaskHistory();
-				if (ctx.Started != null)
-				{
-					ctx.Started.Invoke();
-				}
-				if (TaskStarted != null)
-				{
-					try
-					{
-						TaskStarted(state, ctx.Id);
-					}
-					catch (Exception ex)
-					{
-						GlobalConfiguration.Logger.Error(ex);
-					}
-				}
-
-
-				ITask taskInstance = null;
-				try
-				{
-					if (ctx.TaskType != null)
-					{
-						taskInstance = (ITask)GlobalConfiguration.DependencyResolver.GetService(ctx.TaskType);
-					}
-				}
-				catch (Exception ex)
-				{
-					GlobalConfiguration.Logger.Error(ex);
-				}
-
-				if (taskInstance == null)
-				{
-					return;
-				}
-
-				try
-				{
-					h.StartedDate = DateTime.Now;
-					taskInstance.Execute(ctx);
-					if (ctx.IsCancelRequested)
-					{
-						h.CanceledDate = DateTime.Now;
-					}
-				}
-				catch (Exception ex)
-				{
-					ctx.Exception = ex;
-					h.Exception = ex;
-					if (ctx.Failed != null)
-					{
-						try
-						{
-							ctx.Failed(ex);
-						}
-						catch { }
-
-						if (TaskFailed != null)
-						{
-							try
-							{
-								TaskFailed(state, ctx.Id);
-							}
-							catch (Exception gex)
-							{
-								GlobalConfiguration.Logger.Error(gex);
-							}
-						}
-
-					}
-					GlobalConfiguration.Logger.Error(ex);
-				}
-				finally
-				{
-					if (ctx.Completed != null)
-					{
-						try
-						{
-							ctx.Completed(ctx.Parameters);
-							h.Parameters = ctx.Parameters;
-						}
-						catch { }
-					}
-					if (TaskTerminated != null)
-					{
-						try
-						{
-							TaskTerminated(state, ctx.Id);
-						}
-						catch (Exception ex)
-						{
-							GlobalConfiguration.Logger.Error(ex);
-						}
-					}
-					h.TerminatedDate = DateTime.Now;
-					h.Context = null;
-					try
-					{
-						ctx.Dispose();
-
-						if (taskInstance is IDisposable)
-						{
-							((IDisposable)taskInstance).Dispose();
-						}
-					}
-					catch { }
-				}
+				ExecuteTask((ExecutionContext)state);
 			};
 
             if (!delayInMillisecond.HasValue)
@@ -265,9 +158,123 @@ namespace TasksOnTime
             }
         }
 
-        #region Task Management
+		internal static void ExecuteTask(ExecutionContext ctx)
+		{
+			var h = Current.TaskHistoryList.RetryGetValue(ctx.Id) 
+								?? new TaskHistory();
 
-        public static bool IsRunning(Guid key)
+			if (ctx.Started != null)
+			{
+				ctx.Started.Invoke();
+			}
+			if (TaskStarted != null)
+			{
+				try
+				{
+					TaskStarted(ctx, ctx.Id);
+				}
+				catch (Exception ex)
+				{
+					GlobalConfiguration.Logger.Error(ex);
+				}
+			}
+
+
+			ITask taskInstance = null;
+			try
+			{
+				if (ctx.TaskType != null)
+				{
+					taskInstance = (ITask)GlobalConfiguration.DependencyResolver.GetService(ctx.TaskType);
+				}
+			}
+			catch (Exception ex)
+			{
+				GlobalConfiguration.Logger.Error(ex);
+			}
+
+			if (taskInstance == null)
+			{
+				return;
+			}
+
+			try
+			{
+				h.StartedDate = DateTime.Now;
+				taskInstance.Execute(ctx);
+				if (ctx.IsCancelRequested)
+				{
+					h.CanceledDate = DateTime.Now;
+				}
+			}
+			catch (Exception ex)
+			{
+				ctx.Exception = ex;
+				h.Exception = ex;
+				if (ctx.Failed != null)
+				{
+					try
+					{
+						ctx.Failed(ex);
+					}
+					catch { }
+
+					if (TaskFailed != null)
+					{
+						try
+						{
+							TaskFailed(ctx, ctx.Id);
+						}
+						catch (Exception gex)
+						{
+							GlobalConfiguration.Logger.Error(gex);
+						}
+					}
+
+				}
+				GlobalConfiguration.Logger.Error(ex);
+			}
+			finally
+			{
+				if (ctx.Completed != null)
+				{
+					try
+					{
+						ctx.Completed(ctx.Parameters);
+						h.Parameters = ctx.Parameters;
+					}
+					catch { }
+				}
+				if (TaskTerminated != null)
+				{
+					try
+					{
+						TaskTerminated(ctx, ctx.Id);
+					}
+					catch (Exception ex)
+					{
+						GlobalConfiguration.Logger.Error(ex);
+					}
+				}
+				h.TerminatedDate = DateTime.Now;
+				h.Context = null;
+				try
+				{
+					ctx.Dispose();
+
+					if (taskInstance is IDisposable)
+					{
+						((IDisposable)taskInstance).Dispose();
+					}
+				}
+				catch { }
+			}
+
+		}
+
+		#region Task Management
+
+		public static bool IsRunning(Guid key)
 		{
 			TaskHistory task = Current.TaskHistoryList.RetryGetValue(key);
             if (task != null)

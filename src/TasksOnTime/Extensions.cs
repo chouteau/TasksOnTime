@@ -52,19 +52,28 @@ namespace TasksOnTime
 			}
 		}
 
-		public static object GetParameter(this Dictionary<string, object> paremeters, string key)
+		public static object GetParameter(this Dictionary<string, object> parameters, string key)
 		{
 			if (string.IsNullOrWhiteSpace(key))
 			{
 				return null;
 			}
 
-			if (paremeters.ContainsKey(key))
+			if (parameters.ContainsKey(key))
 			{
-				return paremeters[key];
+				return parameters[key];
 			}
 
 			return null;
+		}
+
+		public static void ExecuteSubTask<T>(this ExecutionContext ctx, Dictionary<string, object> parameters = null)
+		{
+			var clone = (ExecutionContext) ctx.Clone();
+			clone.Parameters = parameters ?? ctx.Parameters ?? new Dictionary<string, object>();
+			clone.TaskType = typeof(T);
+			clone.IsSubTask = true;
+			TasksHost.ExecuteTask(clone);
 		}
 	}
 }

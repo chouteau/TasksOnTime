@@ -76,6 +76,9 @@
     <Compile Include="ProgressTask.cs" />
     <Compile Include="ProgressTaskTests.cs" />
     <Compile Include="StressTask.cs" />
+    <Compile Include="SubTask.cs" />
+    <Compile Include="SubTaskMaster.cs" />
+    <Compile Include="SubTasksTests.cs" />
     <Compile Include="TasksHostTests.cs" />
     <Compile Include="TextTask.cs" />
     <Compile Include="LongTask.cs" />
