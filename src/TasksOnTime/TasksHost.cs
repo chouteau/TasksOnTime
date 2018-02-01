@@ -60,7 +60,7 @@ namespace TasksOnTime
 			int? delayInMillisecond = null,
 			bool force = false)
 		{
-			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced : false);
+			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced : force);
 		}
 
 		public static void Enqueue<T>(Guid key,
@@ -71,7 +71,7 @@ namespace TasksOnTime
 				bool force = false)
             where T : class, ITask
         {
-            Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced : false);
+            Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced : force);
         }
 
 		internal static void Enqueue(Guid key,

@@ -70,10 +70,22 @@ namespace TasksOnTime
 		public static void ExecuteSubTask<T>(this ExecutionContext ctx, Dictionary<string, object> parameters = null)
 		{
 			var clone = (ExecutionContext) ctx.Clone();
-			clone.Parameters = parameters ?? ctx.Parameters ?? new Dictionary<string, object>();
+			clone.Parameters = ctx.Parameters ?? new Dictionary<string, object>();
+			if (parameters != null)
+			{
+				foreach (var item in parameters)
+				{
+					clone.Parameters.AddOrUpdateParameter(item.Key, item.Value);
+				}
+			}
 			clone.TaskType = typeof(T);
 			clone.IsSubTask = true;
 			TasksHost.ExecuteTask(clone);
+			if (ctx.Exception != null)
+			{
+				throw ctx.Exception;
+			}
+			ctx.Parameters = clone.Parameters;
 		}
 	}
 }
