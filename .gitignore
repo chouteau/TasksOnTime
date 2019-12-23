@@ -195,3 +195,5 @@ ModelManifest.xml
 /nuget
 /.vs/config
 /AllServices
+/.vs/
+

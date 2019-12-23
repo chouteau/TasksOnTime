@@ -11,7 +11,7 @@ namespace TasksOnTime
         private static Lazy<TasksHost> m_LazyActivityHoster = new Lazy<TasksHost>(() =>
 		{
 			return new TasksHost();
-		});
+		}, true);
 
 		private TasksHost()
 		{
