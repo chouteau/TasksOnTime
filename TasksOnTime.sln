@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime", "src\TasksOnTime\TasksOnTime.csproj", "{E9D8BCC7-0FB5-4AE1-99B2-A9A07DCE5C83}"
 EndProject
@@ -21,6 +21,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.Scheduling", "src\TasksOnTime.Scheduling\TasksOnTime.Scheduling.csproj", "{C05976F4-A687-4FD0-9B11-3601C7BF58F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime.MonitorApi", "src\TasksOnTime.MonitorApi\TasksOnTime.MonitorApi.csproj", "{057C4E7B-C0A2-4298-A08C-35E93CDDD1F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTimeCore", "src\TasksOnTimeCore\TasksOnTimeCore.csproj", "{C9F5854F-5060-4090-A0AB-473719424993}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTimeCore.Tests", "src\TasksOnTimeCore.Tests\TasksOnTimeCore.Tests.csproj", "{30AEB95F-300B-48E2-BC4E-D24CABC38E47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTimeCore.Scheduling", "src\TasksOnTimeCore.Scheduling\TasksOnTimeCore.Scheduling.csproj", "{33F64BDA-96AC-4509-AF1E-27D459ADABAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +54,18 @@ Global
 		{057C4E7B-C0A2-4298-A08C-35E93CDDD1F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{057C4E7B-C0A2-4298-A08C-35E93CDDD1F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{057C4E7B-C0A2-4298-A08C-35E93CDDD1F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9F5854F-5060-4090-A0AB-473719424993}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9F5854F-5060-4090-A0AB-473719424993}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9F5854F-5060-4090-A0AB-473719424993}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9F5854F-5060-4090-A0AB-473719424993}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30AEB95F-300B-48E2-BC4E-D24CABC38E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30AEB95F-300B-48E2-BC4E-D24CABC38E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30AEB95F-300B-48E2-BC4E-D24CABC38E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30AEB95F-300B-48E2-BC4E-D24CABC38E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33F64BDA-96AC-4509-AF1E-27D459ADABAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33F64BDA-96AC-4509-AF1E-27D459ADABAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33F64BDA-96AC-4509-AF1E-27D459ADABAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33F64BDA-96AC-4509-AF1E-27D459ADABAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
