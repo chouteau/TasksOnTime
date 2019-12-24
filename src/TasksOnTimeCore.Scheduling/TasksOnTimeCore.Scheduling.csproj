@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>TasksOnTime.Scheduling</RootNamespace>
+    <Version>0.0.9</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
+  </ItemGroup>
+
+</Project>
