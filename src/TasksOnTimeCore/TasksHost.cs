@@ -227,6 +227,7 @@ namespace TasksOnTime
 			{
 				h.StartedDate = DateTime.Now;
 				taskInstance.Execute(ctx);
+				h.TerminatedDate = DateTime.Now;
 				if (ctx.IsCancelRequested)
 				{
 					h.CanceledDate = DateTime.Now;
@@ -261,12 +262,15 @@ namespace TasksOnTime
 			}
 			finally
 			{
+				h.TerminatedDate = DateTime.Now;
+				h.Context = null;
+				h.Parameters = ctx.Parameters;
+
 				if (ctx.Completed != null)
 				{
 					try
 					{
 						ctx.Completed(ctx.Parameters);
-						h.Parameters = ctx.Parameters;
 					}
 					catch { }
 				}
@@ -281,8 +285,6 @@ namespace TasksOnTime
 						Logger.LogError(ex, ex.Message);
 					}
 				}
-				h.TerminatedDate = DateTime.Now;
-				h.Context = null;
 				try
 				{
 					ctx.Dispose();
