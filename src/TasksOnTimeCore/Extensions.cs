@@ -27,6 +27,8 @@ namespace TasksOnTime
 			}
 			services.AddSingleton(defaultSettings);
 			services.AddSingleton<TasksHost>();
+			services.AddSingleton<IProgressReporter, DefaultProgressReporter>();
+
 			services.AddLogging();
 			return services;
 		}

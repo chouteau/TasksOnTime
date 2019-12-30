@@ -17,18 +17,21 @@ namespace TasksOnTime
 
 		public TasksHost(ILogger<TasksHost> logger,
 			IServiceProvider serviceProvider,
-			Settings settings)
+			Settings settings,
+			IProgressReporter progressReporter)
 		{
             TaskHistoryList = new ConcurrentDictionary<Guid,TaskHistory>();
 			this.Logger = logger;
 			this.ServiceProvider = serviceProvider;
 			this.Settings = settings;
+			this.ProgressReporter = progressReporter;
         }
 
 		protected ILogger<TasksHost> Logger { get;  }
 		protected IServiceProvider ServiceProvider { get; }
 		internal ConcurrentDictionary<Guid,TaskHistory> TaskHistoryList { get; set; }
 		protected Settings Settings { get; }
+		protected IProgressReporter ProgressReporter { get; }
 
 		public void Enqueue(
 			Type taskType,
@@ -130,6 +133,7 @@ namespace TasksOnTime
             context.TaskType = taskType;
             context.Parameters = inputParameters ?? context.Parameters;
 			context.Force = IsForced;
+			context.Progress = ProgressReporter;
 
             var history = new TaskHistory();
             history.Context = context;

@@ -23,19 +23,15 @@ namespace TasksOnTime
 		public Guid Id { get; set; }
         public bool IsCancelRequested { get; internal set; }
         public Dictionary<string, object> Parameters { get; set; }
-
         internal DateTime CreationDate { get; set; }
 		internal Exception Exception { get; set; }
-
 		public bool Force { get; set; }
-
 		internal Type TaskType { get; set; }
-
         internal Action Started { get; set; }
 		internal Action<Dictionary<string, object>> Completed { get; set; }
         internal Action<Exception> Failed { get; set; }
-
 		public bool IsSubTask { get; set; }
+		internal IProgressReporter Progress { get; set; }
 
 		public void Dispose()
 		{
@@ -56,6 +52,7 @@ namespace TasksOnTime
 			clone.TaskType = null;
 			clone.Parameters = Parameters;
 			clone.Exception = Exception;
+			clone.Progress = Progress;
 			return clone;
 		}
 	}

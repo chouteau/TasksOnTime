@@ -67,19 +67,19 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BadTask.cs" />
+    <Compile Include="ConsoleProgressReporter.cs" />
     <Compile Include="DebugLogger.cs" />
     <Compile Include="FailedTask.cs" />
     <Compile Include="ForceTask.cs" />
-    <Compile Include="MockTaskProgress.cs" />
+    <Compile Include="LongProgressTask.cs" />
     <Compile Include="ParameterizedOutputTask.cs" />
     <Compile Include="ParameterizedTask.cs" />
-    <Compile Include="ProgressTask.cs" />
-    <Compile Include="ProgressTaskTests.cs" />
     <Compile Include="StressTask.cs" />
     <Compile Include="SubTask.cs" />
     <Compile Include="SubTaskMaster.cs" />
     <Compile Include="SubTasksTests.cs" />
     <Compile Include="TasksHostTests.cs" />
+    <Compile Include="TasksHostWithProgressTests.cs" />
     <Compile Include="TextTask.cs" />
     <Compile Include="LongTask.cs" />
     <Compile Include="MyTask.cs" />
@@ -87,10 +87,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TasksOnTime.Notification\TasksOnTime.Notification.csproj">
-      <Project>{fc356e16-d2dc-4088-b3a1-680b39f6709b}</Project>
-      <Name>TasksOnTime.Notification</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TasksOnTime.Scheduling\TasksOnTime.Scheduling.csproj">
       <Project>{c05976f4-a687-4fd0-9b11-3601c7bf58f6}</Project>
       <Name>TasksOnTime.Scheduling</Name>

@@ -37,6 +37,7 @@ namespace TasksOnTime
         internal Action<Exception> Failed { get; set; }
 
 		public bool IsSubTask { get; set; }
+		internal IProgressReporter Progress { get; set; }
 
 		public void Dispose()
 		{
@@ -57,6 +58,7 @@ namespace TasksOnTime
 			clone.TaskType = null;
 			clone.Parameters = Parameters;
 			clone.Exception = Exception;
+			clone.Progress = Progress;
 			return clone;
 		}
 	}

@@ -51,7 +51,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultProgressReporter.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="IProgressReporter.cs" />
+    <Compile Include="ProgressExtensions.cs" />
+    <Compile Include="ProgressInfo.cs" />
+    <Compile Include="ProgressType.cs" />
     <Compile Include="TaskHistory.cs" />
     <Compile Include="ITask.cs" />
     <Compile Include="TasksHost.cs" />
