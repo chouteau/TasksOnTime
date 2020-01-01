@@ -26,7 +26,7 @@ namespace TasksOnTime
 				settingsExpression.Invoke(s);
 			}
 			services.AddSingleton(defaultSettings);
-			services.AddSingleton<TasksHost>();
+			services.AddSingleton<ITasksHost, TasksHost>();
 			services.AddSingleton<IProgressReporter, DefaultProgressReporter>();
 
 			services.AddLogging();
