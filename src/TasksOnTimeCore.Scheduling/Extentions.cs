@@ -18,7 +18,7 @@ namespace TasksOnTime.Scheduling
 			configuration.GetSection("TasksOnTime").Bind(defaultSettings);
 			services.AddSingleton(defaultSettings);
 			services.AddTasksOnTimeServices(configuration);
-			services.AddSingleton<TaskScheduler>();
+			services.AddSingleton<ITaskScheduler, TaskScheduler>();
 			services.AddLogging();
 			return services;
 		}

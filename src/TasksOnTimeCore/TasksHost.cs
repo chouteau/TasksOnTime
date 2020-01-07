@@ -97,7 +97,6 @@ namespace TasksOnTime
 			ctx.Parameters = clone.Parameters;
 		}
 
-
 		internal void Enqueue(Guid key,
 			string name,
 			Type taskType,

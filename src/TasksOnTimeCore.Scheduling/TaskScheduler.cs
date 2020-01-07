@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TasksOnTime.Scheduling
 {
-	public class TaskScheduler 
+	public class TaskScheduler : ITaskScheduler
 	{
 		public event Action<string, Exception> TaskFailed;
 		public event Action<string> TaskStarted;
@@ -18,26 +18,26 @@ namespace TasksOnTime.Scheduling
 
 		public TaskScheduler(ScheduleSettings scheduleSettings,
 			ILogger<TaskScheduler> logger,
-			TasksHost tasksHost)
+			ITasksHost tasksHost)
 		{
 			this.ScheduledTaskList = new List<ScheduledTask>();
-            this.Terminated = false;
+			this.Terminated = false;
 			this.LastSignal = DateTime.MinValue;
 			this.Settings = scheduleSettings;
 			this.Logger = logger;
 			this.TasksHost = tasksHost;
-        }
+		}
 
 		public DateTime LastSignal { get; set; }
 
 		protected ManualResetEvent EventStop { get; set; }
-        protected ManualResetEvent EventForceTask { get; set; }
-        protected bool Terminated { get; set;}
-        protected Thread TimerThread { get; set; }
-        protected IList<ScheduledTask> ScheduledTaskList { get; set; }
+		protected ManualResetEvent EventForceTask { get; set; }
+		protected bool Terminated { get; set; }
+		protected Thread TimerThread { get; set; }
+		protected IList<ScheduledTask> ScheduledTaskList { get; set; }
 		protected ScheduleSettings Settings { get; }
 		protected ILogger<TaskScheduler> Logger { get; }
-		protected TasksHost TasksHost { get; }
+		protected ITasksHost TasksHost { get; }
 
 		public void Start()
 		{
@@ -47,12 +47,12 @@ namespace TasksOnTime.Scheduling
 				return;
 			}
 
-            EventStop = new ManualResetEvent(false);
-            EventForceTask = new ManualResetEvent(false);
+			EventStop = new ManualResetEvent(false);
+			EventForceTask = new ManualResetEvent(false);
 
-            TimerThread = new Thread(new ThreadStart(ProcessNextTasks));
-            TimerThread.Name = $"ToTCore.Scheduler.{Guid.NewGuid()}";
-            TimerThread.Start();
+			TimerThread = new Thread(new ThreadStart(ProcessNextTasks));
+			TimerThread.Name = $"ToTCore.Scheduler.{Guid.NewGuid()}";
+			TimerThread.Start();
 		}
 
 		public void Stop()
@@ -88,61 +88,61 @@ namespace TasksOnTime.Scheduling
 		}
 
 		public ScheduledTask CreateScheduledTask<T>(string name, Dictionary<string, object> parameters = null)
-            where T : class
-        {
-            if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))
-            {
-                throw new Exception("task must implements ITask");
-            }
-            var task = new ScheduledTask();
-            task.Name = name;
-            task.Enabled = !Settings.ScheduledTaskDisabledByDefault;
-            task.TaskType = typeof(T);
-            task.NextRunningDate = DateTime.MinValue;
-            task.CreationDate = DateTime.Now;
-            task.StartedCount = 0;
-            task.Enabled = true;
-            task.AllowMultipleInstance = true;
+			where T : class
+		{
+			if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))
+			{
+				throw new Exception("task must implements ITask");
+			}
+			var task = new ScheduledTask();
+			task.Name = name;
+			task.Enabled = !Settings.ScheduledTaskDisabledByDefault;
+			task.TaskType = typeof(T);
+			task.NextRunningDate = DateTime.MinValue;
+			task.CreationDate = DateTime.Now;
+			task.StartedCount = 0;
+			task.Enabled = true;
+			task.AllowMultipleInstance = true;
 			if (parameters != null)
 			{
 				task.Parameters = parameters;
 			}
 
 			return task;
-        }
+		}
 
-        #region Static
+		#region Static
 
-        public bool Contains(string taskName)
-        {
-            bool result = false;
-            if (ScheduledTaskList == null || ScheduledTaskList.Count == 0)
-            {
-                return false;
-            }
-            result = ScheduledTaskList.Where(i => i.Name != null).Any(i => i.Name.Equals(taskName));
-            return result;
-        }
-
-        public void Add(ScheduledTask task)
+		public bool Contains(string taskName)
 		{
-            if (ScheduledTaskList.Any(i => i.Name.Equals(task.Name, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                throw new Exception(string.Format("this task with name {0} is already registered", task.Name));
-            }
+			bool result = false;
+			if (ScheduledTaskList == null || ScheduledTaskList.Count == 0)
+			{
+				return false;
+			}
+			result = ScheduledTaskList.Where(i => i.Name != null).Any(i => i.Name.Equals(taskName));
+			return result;
+		}
 
-            if (task.TaskType == null)
-            {
-                throw new Exception(string.Format("task {0} must contains GetTask delegate", task.Name));
-            }
+		public void Add(ScheduledTask task)
+		{
+			if (ScheduledTaskList.Any(i => i.Name.Equals(task.Name, StringComparison.InvariantCultureIgnoreCase)))
+			{
+				throw new Exception(string.Format("this task with name {0} is already registered", task.Name));
+			}
 
-            if (task.Period != ScheduledTaskTimePeriod.Custom
+			if (task.TaskType == null)
+			{
+				throw new Exception(string.Format("task {0} must contains GetTask delegate", task.Name));
+			}
+
+			if (task.Period != ScheduledTaskTimePeriod.Custom
 				&& task.Interval <= 0)
-            {
-                throw new Exception(string.Format("interval for task {0} must be greater than zero", task.Name));
-            }
+			{
+				throw new Exception(string.Format("interval for task {0} must be greater than zero", task.Name));
+			}
 
-            var taskFound = Settings[task.Name];
+			var taskFound = Settings[task.Name];
 			if (Settings.ScheduledTaskDisabledByDefault)
 			{
 				if (taskFound == null)
@@ -164,12 +164,12 @@ namespace TasksOnTime.Scheduling
 
 			Logger.LogInformation($"Add task {task.Name} scheduling");
 
-            if (task.Period == ScheduledTaskTimePeriod.Second)
-            {
+			if (task.Period == ScheduledTaskTimePeriod.Second)
+			{
 				Settings.IntervalInSeconds = Math.Min(Settings.IntervalInSeconds, task.Interval);
-            }
+			}
 
-            ScheduledTaskList.Add(task);
+			ScheduledTaskList.Add(task);
 			if (EventForceTask != null)
 			{
 				Logger.LogDebug($"try to force task {task.Name}");
@@ -177,66 +177,66 @@ namespace TasksOnTime.Scheduling
 			}
 		}
 
-        public void Remove(string taskName)
-        {
-            var task = ScheduledTaskList.SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
-            if (task != null)
-            {
-				if (TasksHost.IsRunning(task.Name))
-                {
+		public void Remove(string taskName)
+		{
+			var task = ScheduledTaskList.SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+			if (task != null)
+			{
+				if (((TasksHost)TasksHost).IsRunning(task.Name))
+				{
 					var h = TasksHost.GetHistory(task.Name).LastOrDefault();
 					if (h != null && h.Context != null)
 					{
 						h.Context.IsCancelRequested = true;
 					}
 				}
-                ScheduledTaskList.Remove(task);
-            }
-        }
+				ScheduledTaskList.Remove(task);
+			}
+		}
 
 		public void ForceTask(string taskName)
 		{
 			Logger.LogInformation("Try to force task {0}", taskName);
-            ScheduledTask task = null;
-            task = ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
-            if (task == null)
-            {
+			ScheduledTask task = null;
+			task = ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
+			if (task == null)
+			{
 				Logger.LogWarning("force unknown task {0}", taskName);
 				return;
-            }
+			}
 			task.DelayedStartInMillisecond = 0;
 			task.NextRunningDate = DateTime.MinValue;
 			task.IsForced = true;
 			if (EventForceTask != null)
 			{
-                EventForceTask.Set();
+				EventForceTask.Set();
 				Logger.LogInformation("Task {0} was forced", taskName);
 			}
 		}
 
-        public void ResetScheduledTaskList()
-        {
-            ScheduledTaskList.Clear();
-        }
+		public void ResetScheduledTaskList()
+		{
+			ScheduledTaskList.Clear();
+		}
 
-        public int GetScheduledTaskCount()
-        {
-            return ScheduledTaskList.Count;
-        }
+		public int GetScheduledTaskCount()
+		{
+			return ScheduledTaskList.Count;
+		}
 
-        public IEnumerable<ScheduledTask> GetList()
-        {
+		public IEnumerable<ScheduledTask> GetList()
+		{
 			var result = new List<ScheduledTask>();
 			foreach (var item in ScheduledTaskList)
 			{
 				result.Add(item);
 			}
 			return result;
-        }
+		}
 
-        #endregion  
+		#endregion
 
-        internal virtual void ProcessNextTasks()
+		internal virtual void ProcessNextTasks()
 		{
 			Logger.LogInformation("Task scheduler started");
 			int loop = 0;
@@ -279,7 +279,7 @@ namespace TasksOnTime.Scheduling
 						orderby t.CreationDate
 						select t).ToList();
 
-			while(true)
+			while (true)
 			{
 				var task = list.FirstOrDefault();
 				if (task == null)
@@ -303,7 +303,7 @@ namespace TasksOnTime.Scheduling
 
 		internal virtual void ProcessTask(ScheduledTask scheduledTask)
 		{
-			if (scheduledTask.IsQueued 
+			if (scheduledTask.IsQueued
 				&& !scheduledTask.AllowMultipleInstance)
 			{
 				Logger.LogWarning("scheduled task {0} is in queue and not allow multiple instance", scheduledTask.Name);
@@ -312,36 +312,36 @@ namespace TasksOnTime.Scheduling
 
 			if (!scheduledTask.AllowMultipleInstance)
 			{
-				if (TasksHost.IsRunning(scheduledTask.Name))
+				if (((TasksHost)TasksHost).IsRunning(scheduledTask.Name))
 				{
 					Logger.LogWarning("scheduled task {0} is already running and not allow multiple instance", scheduledTask.Name);
 					return;
 				}
 			}
 
-            var id = Guid.NewGuid();
-            scheduledTask.IsQueued = true;
+			var id = Guid.NewGuid();
+			scheduledTask.IsQueued = true;
 
-            TasksHost.Enqueue(
-                id
-                , scheduledTask.Name
-                , scheduledTask.TaskType
-                , scheduledTask.Parameters
-                , (dic) =>
-                {
+			((TasksHost) TasksHost).Enqueue(
+				id
+				, scheduledTask.Name
+				, scheduledTask.TaskType
+				, scheduledTask.Parameters
+				, (dic) =>
+				{
 					Logger.LogDebug("scheduled task {0} completed", scheduledTask.Name);
 					scheduledTask.IsQueued = false;
-                    try
-                    {
-                        if (scheduledTask.Completed != null)
-                        {
-                            scheduledTask.Completed(dic);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, ex.Message);
-                    }
+					try
+					{
+						if (scheduledTask.Completed != null)
+						{
+							scheduledTask.Completed(dic);
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.LogError(ex, ex.Message);
+					}
 					finally
 					{
 						scheduledTask.IsForced = false;
@@ -357,34 +357,34 @@ namespace TasksOnTime.Scheduling
 							}
 						}
 					}
-                }
-                , (ex) =>
-                {
-                    scheduledTask.Exception = ex;
+				}
+				, (ex) =>
+				{
+					scheduledTask.Exception = ex;
 					Logger.LogError(ex, ex.Message);
 					if (TaskFailed != null)
-                    {
-                        try
-                        {
-                            TaskFailed.Invoke(scheduledTask.Name, ex);
-                        }
-                        catch { }
-                    }
-                },
-                null,
-                () =>
-                {
+					{
+						try
+						{
+							TaskFailed.Invoke(scheduledTask.Name, ex);
+						}
+						catch { }
+					}
+				},
+				null,
+				() =>
+				{
 					Logger.LogDebug("scheduled task {0} started", scheduledTask.Name);
 					scheduledTask.StartedCount += 1;
-                    if (TaskStarted != null)
-                    {
-                        try
-                        {
-                            TaskStarted.Invoke(scheduledTask.Name);
-                        }
-                        catch { }
-                    }
-                },
+					if (TaskStarted != null)
+					{
+						try
+						{
+							TaskStarted.Invoke(scheduledTask.Name);
+						}
+						catch { }
+					}
+				},
 				true,
 				scheduledTask.IsForced);
 		}
@@ -398,7 +398,7 @@ namespace TasksOnTime.Scheduling
 
 			// Delayed start
 			if (scheduledTask.DelayedStartInMillisecond > 0
-                && now < scheduledTask.CreationDate.AddSeconds(scheduledTask.DelayedStartInMillisecond))
+				&& now < scheduledTask.CreationDate.AddSeconds(scheduledTask.DelayedStartInMillisecond))
 			{
 				return false;
 			}
@@ -435,7 +435,7 @@ namespace TasksOnTime.Scheduling
 
 				case ScheduledTaskTimePeriod.WorkingDay:
 
-					while(true)
+					while (true)
 					{
 						scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddDays(scheduledTask.Interval);
 						if (scheduledTask.NextRunningDate.DayOfWeek != DayOfWeek.Saturday
