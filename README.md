@@ -6,6 +6,8 @@ Start a job or schedule it in **standard threadPool** with monitoring and cancel
 **TasksOnTime** Can be used in service , console, website or wpf/winforms applications
 
 Require only **.Net 4.5.2** (minimum) with no other dependance
+or
+Require only dotnetcore 3.0
 
 ## Where can I get it ?
 

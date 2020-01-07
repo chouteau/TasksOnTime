@@ -109,8 +109,9 @@ namespace TasksOnTime
             context.TaskType = taskType;
             context.Parameters = inputParameters ?? context.Parameters;
 			context.Force = IsForced;
+			context.Progress = GlobalConfiguration.ProgressReporter;
 
-            var history = new TaskHistory();
+			var history = new TaskHistory();
             history.Context = context;
             history.Id = context.Id;
 			history.IsScheduled = IsScheduled;
@@ -236,6 +237,7 @@ namespace TasksOnTime
 			}
 			finally
 			{
+				h.TerminatedDate = DateTime.Now;
 				if (ctx.Completed != null)
 				{
 					try
@@ -256,7 +258,6 @@ namespace TasksOnTime
 						GlobalConfiguration.Logger.Error(ex);
 					}
 				}
-				h.TerminatedDate = DateTime.Now;
 				h.Context = null;
 				try
 				{

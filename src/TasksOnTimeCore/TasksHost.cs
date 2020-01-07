@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TasksOnTime
 {
-	public class TasksHost
+	public class TasksHost : ITasksHost
 	{
 		public event EventHandler<Guid> TaskStarted;
 		public event EventHandler<Guid> TaskTerminated;
@@ -17,18 +17,21 @@ namespace TasksOnTime
 
 		public TasksHost(ILogger<TasksHost> logger,
 			IServiceProvider serviceProvider,
-			Settings settings)
+			Settings settings,
+			IProgressReporter progressReporter)
 		{
-            TaskHistoryList = new ConcurrentDictionary<Guid,TaskHistory>();
+			TaskHistoryList = new ConcurrentDictionary<Guid, TaskHistory>();
 			this.Logger = logger;
 			this.ServiceProvider = serviceProvider;
 			this.Settings = settings;
-        }
+			this.ProgressReporter = progressReporter;
+		}
 
-		protected ILogger<TasksHost> Logger { get;  }
+		protected ILogger<TasksHost> Logger { get; }
 		protected IServiceProvider ServiceProvider { get; }
-		internal ConcurrentDictionary<Guid,TaskHistory> TaskHistoryList { get; set; }
+		internal ConcurrentDictionary<Guid, TaskHistory> TaskHistoryList { get; set; }
 		protected Settings Settings { get; }
+		protected IProgressReporter ProgressReporter { get; }
 
 		public void Enqueue(
 			Type taskType,
@@ -48,8 +51,8 @@ namespace TasksOnTime
 			bool force = false)
 			where T : class, ITask
 		{
-            Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced : force);
-        }
+			Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
+		}
 
 		public void Enqueue(Guid key,
 			Type taskType,
@@ -59,19 +62,19 @@ namespace TasksOnTime
 			int? delayInMillisecond = null,
 			bool force = false)
 		{
-			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced : force);
+			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced: force);
 		}
 
 		public void Enqueue<T>(Guid key,
-                Dictionary<string, object> inputParameters = null,
-                Action<Dictionary<string, object>> completed = null,
-                Action<Exception> failed = null,
-                int? delayInMillisecond = null,
+				Dictionary<string, object> inputParameters = null,
+				Action<Dictionary<string, object>> completed = null,
+				Action<Exception> failed = null,
+				int? delayInMillisecond = null,
 				bool force = false)
-            where T : class, ITask
-        {
-            Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced : force);
-        }
+			where T : class, ITask
+		{
+			Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
+		}
 
 		public void ExecuteSubTask<T>(ExecutionContext ctx, Dictionary<string, object> parameters = null)
 		{
@@ -94,7 +97,6 @@ namespace TasksOnTime
 			ctx.Parameters = clone.Parameters;
 		}
 
-
 		internal void Enqueue(Guid key,
 			string name,
 			Type taskType,
@@ -105,7 +107,7 @@ namespace TasksOnTime
 			Action started = null,
 			bool IsScheduled = false,
 			bool IsForced = false)
-        {
+		{
 			if (key == Guid.Empty)
 			{
 				throw new ArgumentNullException("key parameter required");
@@ -116,29 +118,30 @@ namespace TasksOnTime
 				throw new Exception("task must implement ITask");
 			}
 
-            if (delayInMillisecond.HasValue 
-                && delayInMillisecond.Value <0)
-            {
-                delayInMillisecond = 0;
-            }
+			if (delayInMillisecond.HasValue
+				&& delayInMillisecond.Value < 0)
+			{
+				delayInMillisecond = 0;
+			}
 
 			var context = ExecutionContext.Create();
 			context.Id = key;
 			context.Completed = completed ?? context.Completed;
 			context.Failed = failed ?? context.Failed;
-            context.Started = started;
-            context.TaskType = taskType;
-            context.Parameters = inputParameters ?? context.Parameters;
+			context.Started = started;
+			context.TaskType = taskType;
+			context.Parameters = inputParameters ?? context.Parameters;
 			context.Force = IsForced;
+			context.Progress = ProgressReporter;
 
-            var history = new TaskHistory();
-            history.Context = context;
-            history.Id = context.Id;
+			var history = new TaskHistory();
+			history.Context = context;
+			history.Id = context.Id;
 			history.IsScheduled = IsScheduled;
-            history.Name = name ?? taskType.FullName;
+			history.Name = name ?? taskType.FullName;
 			var loop = 0;
 
-			while(true)
+			while (true)
 			{
 				if (loop > 5)
 				{
@@ -154,35 +157,40 @@ namespace TasksOnTime
 			}
 
 			Action<object> executeTask = (state) =>
-            {
+			{
 				ExecuteTask((ExecutionContext)state);
 			};
 
-            if (!delayInMillisecond.HasValue)
-            {
-                System.Threading.ThreadPool.QueueUserWorkItem(
-                    new System.Threading.WaitCallback(executeTask), 
-                    context);
-            }
-            else
-            {
-                Action<object, bool> timeoutCallback = (state, timeout) =>
-                {
-                    executeTask.Invoke(context);
-                };
+			ExecuteInThreadPool(executeTask, context, delayInMillisecond);
+		}
 
-                System.Threading.ThreadPool.RegisterWaitForSingleObject(
-                    new System.Threading.AutoResetEvent(false),
-                    new System.Threading.WaitOrTimerCallback(timeoutCallback), 
-                    context, 
-                    delayInMillisecond.Value, 
-                    true);
-            }
-        }
+		protected virtual void ExecuteInThreadPool(Action<object> executeTask, ExecutionContext context, int? delayInMillisecond = null)
+		{
+			if (!delayInMillisecond.HasValue)
+			{
+				System.Threading.ThreadPool.QueueUserWorkItem(
+					new System.Threading.WaitCallback(executeTask),
+					context);
+			}
+			else
+			{
+				Action<object, bool> timeoutCallback = (state, timeout) =>
+				{
+					executeTask.Invoke(context);
+				};
+
+				System.Threading.ThreadPool.RegisterWaitForSingleObject(
+					new System.Threading.AutoResetEvent(false),
+					new System.Threading.WaitOrTimerCallback(timeoutCallback),
+					context,
+					delayInMillisecond.Value,
+					true);
+			}
+		}
 
 		internal void ExecuteTask(ExecutionContext ctx)
 		{
-			var h = TaskHistoryList.RetryGetValue(ctx.Id) 
+			var h = TaskHistoryList.RetryGetValue(ctx.Id)
 								?? new TaskHistory();
 
 			if (ctx.Started != null)
@@ -207,7 +215,7 @@ namespace TasksOnTime
 			{
 				if (ctx.TaskType != null)
 				{
-					using(var scope = ServiceProvider.CreateScope())
+					using (var scope = ServiceProvider.CreateScope())
 					{
 						taskInstance = (ITask)ActivatorUtilities.CreateInstance(scope.ServiceProvider, ctx.TaskType);
 					}
@@ -227,6 +235,7 @@ namespace TasksOnTime
 			{
 				h.StartedDate = DateTime.Now;
 				taskInstance.Execute(ctx);
+				h.TerminatedDate = DateTime.Now;
 				if (ctx.IsCancelRequested)
 				{
 					h.CanceledDate = DateTime.Now;
@@ -261,12 +270,15 @@ namespace TasksOnTime
 			}
 			finally
 			{
+				h.TerminatedDate = DateTime.Now;
+				h.Context = null;
+				h.Parameters = ctx.Parameters;
+
 				if (ctx.Completed != null)
 				{
 					try
 					{
 						ctx.Completed(ctx.Parameters);
-						h.Parameters = ctx.Parameters;
 					}
 					catch { }
 				}
@@ -281,8 +293,6 @@ namespace TasksOnTime
 						Logger.LogError(ex, ex.Message);
 					}
 				}
-				h.TerminatedDate = DateTime.Now;
-				h.Context = null;
 				try
 				{
 					ctx.Dispose();
@@ -302,16 +312,16 @@ namespace TasksOnTime
 		public bool IsRunning(Guid key)
 		{
 			TaskHistory task = TaskHistoryList.RetryGetValue(key);
-            if (task != null)
-            {
-                return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
-            }
-            return false;
+			if (task != null)
+			{
+				return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
+			}
+			return false;
 		}
 
-        public bool IsRunning()
-        {
-            bool result = false;
+		public bool IsRunning()
+		{
+			bool result = false;
 			foreach (var key in TaskHistoryList.Keys)
 			{
 				var item = TaskHistoryList.RetryGetValue(key);
@@ -324,18 +334,18 @@ namespace TasksOnTime
 					}
 				}
 			}
-            return result;
-        }
+			return result;
+		}
 
-        internal bool IsRunning(string taskName)
-        {
+		internal bool IsRunning(string taskName)
+		{
 			bool result = false;
 			foreach (var key in TaskHistoryList.Keys)
 			{
 				var item = TaskHistoryList.RetryGetValue(key);
 				if (item != null
 					&& taskName.Equals(item.Name)
-					&& item.StartedDate.HasValue 
+					&& item.StartedDate.HasValue
 					&& !item.TerminatedDate.HasValue)
 				{
 					result = true;
@@ -343,27 +353,27 @@ namespace TasksOnTime
 				}
 			}
 			return result;
-        }
+		}
 
-        public void Cancel(Guid key)
+		public void Cancel(Guid key)
 		{
 			var existing = TaskHistoryList.RetryGetValue(key);
-            if (existing == null)
-            {
-                return;
-            }
-            if (existing.TerminatedDate.HasValue)
-            {
-                return;
-            }
-            Logger.LogDebug("Cancel activity {0} requested", key);
-            existing.Context.IsCancelRequested = true;
-        }
+			if (existing == null)
+			{
+				return;
+			}
+			if (existing.TerminatedDate.HasValue)
+			{
+				return;
+			}
+			Logger.LogDebug("Cancel activity {0} requested", key);
+			existing.Context.IsCancelRequested = true;
+		}
 
 		public bool Exists(Guid key)
 		{
 			return TaskHistoryList.RetryGetValue(key) != null;
-        }
+		}
 
 		public void Cleanup()
 		{
@@ -388,14 +398,14 @@ namespace TasksOnTime
 			}
 		}
 
-        public TaskHistory GetHistory(Guid id)
-        {
-            var ai = TaskHistoryList.RetryGetValue(id);
-            return ai;
-        }
+		public TaskHistory GetHistory(Guid id)
+		{
+			var ai = TaskHistoryList.RetryGetValue(id);
+			return ai;
+		}
 
-        public IEnumerable<TaskHistory> GetHistory(string scheduledTaskName)
-        {
+		public IEnumerable<TaskHistory> GetHistory(string scheduledTaskName)
+		{
 			var result = new ConcurrentBag<TaskHistory>(); ;
 			if (string.IsNullOrWhiteSpace(scheduledTaskName))
 			{
@@ -414,11 +424,11 @@ namespace TasksOnTime
 				}
 			}
 			return result;
-        }
+		}
 
-        #endregion
+		#endregion
 
-        public void Stop()
+		public void Stop()
 		{
 			foreach (var key in TaskHistoryList.Keys)
 			{
@@ -427,14 +437,14 @@ namespace TasksOnTime
 				{
 					continue;
 				}
-                if (item.Context == null || item.TerminatedDate.HasValue)
-                {
-                    continue;
-                }
-                item.Context.IsCancelRequested = true;
-                System.Threading.Thread.Sleep(200);
+				if (item.Context == null || item.TerminatedDate.HasValue)
+				{
+					continue;
+				}
+				item.Context.IsCancelRequested = true;
+				System.Threading.Thread.Sleep(200);
 				item.Dispose();
 			}
-        }
-    }
+		}
+	}
 }

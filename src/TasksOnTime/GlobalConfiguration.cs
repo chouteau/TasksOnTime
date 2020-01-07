@@ -17,6 +17,7 @@ namespace TasksOnTime
 		static GlobalConfiguration()
 		{
 			Logger = new VoidLogger();
+			ProgressReporter = new DefaultProgressReporter();
 			DependencyResolver = new DefaultDependencyResolver();
 		}
 
@@ -29,6 +30,7 @@ namespace TasksOnTime
 		}
 
 		public static ILogger Logger { get; set; }
+		public static IProgressReporter ProgressReporter { get; set; }
 		public static IDependencyResolver DependencyResolver { get; set; }
 
 	}

@@ -1,4 +1,7 @@
-﻿4.3.17.1 (Core)
+﻿4.4.19 .NetFramework 0.1.1 Dotnetcore
+Add Progress task notifications
+
+4.3.17.1 (Core)
 Fix bug with force parameter
 
 1.3.11.1 (Scheduler)
