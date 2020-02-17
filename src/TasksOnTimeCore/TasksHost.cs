@@ -355,6 +355,23 @@ namespace TasksOnTime
 			return result;
 		}
 
+		public void Cancel(string taskName)
+		{
+			foreach (var key in TaskHistoryList.Keys)
+			{
+				var item = TaskHistoryList.RetryGetValue(key);
+				if (item != null
+					&& taskName.Equals(item.Name)
+					&& item.StartedDate.HasValue
+					&& !item.TerminatedDate.HasValue)
+				{
+					Logger.LogDebug("Cancel activity {0} requested named {1}", key, taskName);
+					item.Context.IsCancelRequested = true;
+					break;
+				}
+			}
+		}
+
 		public void Cancel(Guid key)
 		{
 			var existing = TaskHistoryList.RetryGetValue(key);

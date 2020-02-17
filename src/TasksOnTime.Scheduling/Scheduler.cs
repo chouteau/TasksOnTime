@@ -232,7 +232,7 @@ namespace TasksOnTime.Scheduling
 			lock (Current.ScheduledTaskList.SyncRoot)
 			{
 				task = Current.ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
-				if (task == null)
+				if (task != null)
 				{
 					if (TasksHost.IsRunning(task.Name))
 					{
