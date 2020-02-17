@@ -1,4 +1,10 @@
-﻿4.4.19 .NetFramework 0.1.1 Dotnetcore
+﻿4.4.20 (TaskOnTime)
+Add Cancel Method by taskName on TaskHost ( Version DotNetCore too 0.1.12.0)
+
+1.3.12.1 (Scheduler)
+Add Cancel Method by taskName on Scheduler (Version DotNetCore too 0.1.11)
+
+4.4.19 .NetFramework 0.1.1 Dotnetcore
 Add Progress task notifications
 
 4.3.17.1 (Core)
