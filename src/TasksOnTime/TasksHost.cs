@@ -321,20 +321,37 @@ namespace TasksOnTime
 			return result;
         }
 
-        public static void Cancel(Guid key)
+        public static void Cancel(string taskName)
+		{
+			foreach (var key in Current.TaskHistoryList.Keys)
+			{
+				var item = Current.TaskHistoryList.RetryGetValue(key);
+				if (item != null
+					&& taskName.Equals(item.Name)
+					&& item.StartedDate.HasValue
+					&& !item.TerminatedDate.HasValue)
+				{
+					GlobalConfiguration.Logger.Debug("Cancel activity {0} requested named {1}", key,taskName);
+					item.Context.IsCancelRequested = true;
+					break;
+				}
+			}
+        }
+
+		public static void Cancel(Guid key)
 		{
 			var existing = Current.TaskHistoryList.RetryGetValue(key);
-            if (existing == null)
-            {
-                return;
-            }
-            if (existing.TerminatedDate.HasValue)
-            {
-                return;
-            }
-            GlobalConfiguration.Logger.Debug("Cancel activity {0} requested", key);
-            existing.Context.IsCancelRequested = true;
-        }
+			if (existing == null)
+			{
+				return;
+			}
+			if (existing.TerminatedDate.HasValue)
+			{
+				return;
+			}
+			GlobalConfiguration.Logger.Debug("Cancel activity {0} requested", key);
+			existing.Context.IsCancelRequested = true;
+		}
 
 		public static bool Exists(Guid key)
 		{

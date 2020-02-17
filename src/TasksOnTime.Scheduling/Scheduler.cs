@@ -225,7 +225,28 @@ namespace TasksOnTime.Scheduling
 			}
 		}
 
-        public static void ResetScheduledTaskList()
+		public static void CancelTask(string taskName)
+		{
+			GlobalConfiguration.Logger.Info("Try to Cancel task {0}", taskName);
+			ScheduledTask task = null;
+			lock (Current.ScheduledTaskList.SyncRoot)
+			{
+				task = Current.ScheduledTaskList.FirstOrDefault(i => i.Name == taskName);
+				if (task == null)
+				{
+					if (TasksHost.IsRunning(task.Name))
+					{
+						var h = TasksHost.GetHistory(task.Name).LastOrDefault();
+						if (h != null && h.Context != null)
+						{
+							h.Context.IsCancelRequested = true;
+						}
+					}
+				}
+			}
+		}
+
+		public static void ResetScheduledTaskList()
         {
             lock(Current.ScheduledTaskList.SyncRoot)
             {
