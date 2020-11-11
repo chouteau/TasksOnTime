@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TasksOnTime.Tests
 {
@@ -13,7 +14,7 @@ namespace TasksOnTime.Tests
 
 		// If your activity returns a value, derive from CodeActivity<TResult>
 		// and return the value from the Execute method.
-		public void Execute(ExecutionContext context)
+		public async Task ExecuteAsync(ExecutionContext context)
 		{
             // Obtain the runtime value of the Text input argument
             Text += " tested !";

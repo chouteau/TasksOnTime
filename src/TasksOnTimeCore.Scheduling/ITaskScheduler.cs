@@ -18,6 +18,7 @@ namespace TasksOnTime.Scheduling
 		IEnumerable<ScheduledTask> GetList();
 		int GetScheduledTaskCount();
 		void Remove(string taskName);
+		void RemoveAll();
 		void ResetScheduledTaskList();
 		void Start();
 		void Stop();

@@ -18,7 +18,7 @@ namespace TasksOnTime.Tests
 
         protected ILogger<MyTask> Logger { get;  }
 
-        public void Execute(ExecutionContext context)
+        public async Task ExecuteAsync(ExecutionContext context)
         {
             Logger.LogInformation("Task executed");
         }

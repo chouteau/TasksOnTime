@@ -26,6 +26,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksOnTimeCore.Tests", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksOnTimeCore.Scheduling", "src\TasksOnTimeCore.Scheduling\TasksOnTimeCore.Scheduling.csproj", "{33F64BDA-96AC-4509-AF1E-27D459ADABAA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dotnet4.7", "Dotnet4.7", "{9E31D131-09D4-446E-9CA9-41194051CD1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E9D8BCC7-0FB5-4AE1-99B2-A9A07DCE5C83} = {9E31D131-09D4-446E-9CA9-41194051CD1D}
+		{08DF6BC7-C6C1-46CA-9E10-207EF7D581EC} = {9E31D131-09D4-446E-9CA9-41194051CD1D}
+		{C05976F4-A687-4FD0-9B11-3601C7BF58F6} = {9E31D131-09D4-446E-9CA9-41194051CD1D}
+		{057C4E7B-C0A2-4298-A08C-35E93CDDD1F2} = {9E31D131-09D4-446E-9CA9-41194051CD1D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2EBA41C-4C42-4EC9-9648-5ED28A6A82D1}

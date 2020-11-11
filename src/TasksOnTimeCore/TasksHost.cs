@@ -6,6 +6,7 @@ using System.Text;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace TasksOnTime
 {
@@ -76,7 +77,7 @@ namespace TasksOnTime
 			Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
 		}
 
-		public void ExecuteSubTask<T>(ExecutionContext ctx, Dictionary<string, object> parameters = null)
+		public async System.Threading.Tasks.Task ExecuteSubTask<T>(ExecutionContext ctx, Dictionary<string, object> parameters = null)
 		{
 			var clone = (ExecutionContext)ctx.Clone();
 			clone.Parameters = ctx.Parameters ?? new Dictionary<string, object>();
@@ -89,7 +90,7 @@ namespace TasksOnTime
 			}
 			clone.TaskType = typeof(T);
 			clone.IsSubTask = true;
-			ExecuteTask(clone);
+			await ExecuteTask(clone);
 			if (ctx.Exception != null)
 			{
 				throw ctx.Exception;
@@ -156,42 +157,23 @@ namespace TasksOnTime
 				break;
 			}
 
-			Action<object> executeTask = (state) =>
-			{
-				ExecuteTask((ExecutionContext)state);
-			};
-
-			ExecuteInThreadPool(executeTask, context, delayInMillisecond);
+			RunTask(context, delayInMillisecond);
 		}
 
-		protected virtual void ExecuteInThreadPool(Action<object> executeTask, ExecutionContext context, int? delayInMillisecond = null)
+		protected virtual void RunTask(ExecutionContext context, int? delayInMillisecond = null)
 		{
-			if (!delayInMillisecond.HasValue)
-			{
-				System.Threading.ThreadPool.QueueUserWorkItem(
-					new System.Threading.WaitCallback(executeTask),
-					context);
-			}
-			else
-			{
-				Action<object, bool> timeoutCallback = (state, timeout) =>
-				{
-					executeTask.Invoke(context);
-				};
-
-				System.Threading.ThreadPool.RegisterWaitForSingleObject(
-					new System.Threading.AutoResetEvent(false),
-					new System.Threading.WaitOrTimerCallback(timeoutCallback),
-					context,
-					delayInMillisecond.Value,
-					true);
-			}
+			System.Threading.Tasks.Task.Run(() => ExecuteTask(context, delayInMillisecond));
 		}
 
-		internal void ExecuteTask(ExecutionContext ctx)
+		internal async System.Threading.Tasks.Task ExecuteTask(ExecutionContext ctx, int? delayInMillisecond = null)
 		{
-			var h = TaskHistoryList.RetryGetValue(ctx.Id)
-								?? new TaskHistory();
+			if (delayInMillisecond.HasValue)
+			{
+				await System.Threading.Tasks.Task.Delay(delayInMillisecond.Value);
+			}
+
+			TaskHistoryList.TryGetValue(ctx.Id, out TaskHistory h);
+			h = h ?? new TaskHistory();
 
 			if (ctx.Started != null)
 			{
@@ -223,18 +205,21 @@ namespace TasksOnTime
 			}
 			catch (Exception ex)
 			{
+				ex.Data.Add("Task", ctx.TaskType);
 				Logger.LogError(ex, ex.Message);
+				return;
 			}
 
 			if (taskInstance == null)
 			{
+				Logger.LogWarning($"taskInstance is null for {ctx.TaskType}");
 				return;
 			}
 
 			try
 			{
 				h.StartedDate = DateTime.Now;
-				taskInstance.Execute(ctx);
+				await taskInstance.ExecuteAsync(ctx);
 				h.TerminatedDate = DateTime.Now;
 				if (ctx.IsCancelRequested)
 				{
@@ -311,7 +296,7 @@ namespace TasksOnTime
 
 		public bool IsRunning(Guid key)
 		{
-			TaskHistory task = TaskHistoryList.RetryGetValue(key);
+			TaskHistoryList.TryGetValue(key, out TaskHistory task);
 			if (task != null)
 			{
 				return task.StartedDate.HasValue && !task.TerminatedDate.HasValue;
@@ -324,7 +309,7 @@ namespace TasksOnTime
 			bool result = false;
 			foreach (var key in TaskHistoryList.Keys)
 			{
-				var item = TaskHistoryList.RetryGetValue(key);
+				TaskHistoryList.TryGetValue(key, out TaskHistory item);
 				if (item != null)
 				{
 					if (!item.TerminatedDate.HasValue)
@@ -342,7 +327,7 @@ namespace TasksOnTime
 			bool result = false;
 			foreach (var key in TaskHistoryList.Keys)
 			{
-				var item = TaskHistoryList.RetryGetValue(key);
+				TaskHistoryList.TryGetValue(key, out TaskHistory item);
 				if (item != null
 					&& taskName.Equals(item.Name)
 					&& item.StartedDate.HasValue
@@ -359,7 +344,7 @@ namespace TasksOnTime
 		{
 			foreach (var key in TaskHistoryList.Keys)
 			{
-				var item = TaskHistoryList.RetryGetValue(key);
+				TaskHistoryList.TryGetValue(key, out TaskHistory item);
 				if (item != null
 					&& taskName.Equals(item.Name)
 					&& item.StartedDate.HasValue
@@ -374,7 +359,7 @@ namespace TasksOnTime
 
 		public void Cancel(Guid key)
 		{
-			var existing = TaskHistoryList.RetryGetValue(key);
+			TaskHistoryList.TryGetValue(key, out TaskHistory existing);
 			if (existing == null)
 			{
 				return;
@@ -389,7 +374,8 @@ namespace TasksOnTime
 
 		public bool Exists(Guid key)
 		{
-			return TaskHistoryList.RetryGetValue(key) != null;
+			TaskHistoryList.TryGetValue(key, out TaskHistory history);
+			return history != null;
 		}
 
 		public void Cleanup()
@@ -397,7 +383,7 @@ namespace TasksOnTime
 			var removeList = new ConcurrentBag<Guid>();
 			foreach (var key in TaskHistoryList.Keys)
 			{
-				var item = TaskHistoryList.RetryGetValue(key);
+				TaskHistoryList.TryGetValue(key, out TaskHistory item);
 				if (item == null)
 				{
 					continue;
@@ -417,8 +403,8 @@ namespace TasksOnTime
 
 		public TaskHistory GetHistory(Guid id)
 		{
-			var ai = TaskHistoryList.RetryGetValue(id);
-			return ai;
+			TaskHistoryList.TryGetValue(id, out TaskHistory history);
+			return history;
 		}
 
 		public IEnumerable<TaskHistory> GetHistory(string scheduledTaskName)
@@ -430,7 +416,7 @@ namespace TasksOnTime
 			}
 			foreach (var key in TaskHistoryList.Keys)
 			{
-				var item = TaskHistoryList.RetryGetValue(key);
+				TaskHistoryList.TryGetValue(key, out TaskHistory item);
 				if (item == null)
 				{
 					continue;
@@ -449,7 +435,7 @@ namespace TasksOnTime
 		{
 			foreach (var key in TaskHistoryList.Keys)
 			{
-				var item = TaskHistoryList.RetryGetValue(key);
+				TaskHistoryList.TryGetValue(key, out TaskHistory item);
 				if (item == null)
 				{
 					continue;

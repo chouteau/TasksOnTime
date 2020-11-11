@@ -8,7 +8,7 @@ namespace TasksOnTime.Tests
 {
     public class FailedTask : ITask
     {
-        public void Execute(ExecutionContext context)
+        public async Task ExecuteAsync(ExecutionContext context)
         {
             throw new NotImplementedException();
         }

@@ -33,31 +33,9 @@ namespace TasksOnTime
 			return services;
 		}
 
-		public static U RetryGetValue<T, U>(this ConcurrentDictionary<T, U> dictionary, T key, int loopMax = 3)
+		public static void AddOrUpdateParameter(this ExecutionContext ctx, string key, object value)
 		{
-			U result = default(U);
-			var loop = 0;
-			while (true)
-			{
-				if (loop >= loopMax)
-				{
-					break;
-				}
-
-				if (!dictionary.ContainsKey(key))
-				{
-					break;
-				}
-				if (!dictionary.TryGetValue(key, out result))
-				{
-					System.Threading.Thread.Sleep(500);
-					loop++;
-					continue;
-				}
-
-				break;
-			}
-			return result;
+			ctx.Parameters.AddOrUpdateParameter(key, value);
 		}
 
 		public static void AddOrUpdateParameter(this Dictionary<string, object> parameters, string key, object value)
@@ -74,6 +52,11 @@ namespace TasksOnTime
 			{
 				parameters.Add(key, value);
 			}
+		}
+
+		public static object GetParameter(this ExecutionContext ctx, string key)
+		{
+			return ctx.GetParameter(key);
 		}
 
 		public static object GetParameter(this Dictionary<string, object> parameters, string key)

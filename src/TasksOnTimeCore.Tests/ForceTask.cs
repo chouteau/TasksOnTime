@@ -10,7 +10,7 @@ namespace TasksOnTime.Tests
 {
 	public class ForceTask : ITask
 	{
-		public void Execute(ExecutionContext context)
+		public async Task ExecuteAsync(ExecutionContext context)
 		{
 			Check.That(context.Force).IsTrue();
 		}

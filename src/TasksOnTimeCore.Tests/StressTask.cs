@@ -17,7 +17,7 @@ namespace TasksOnTime.Tests
 
 		protected ILogger<StressTask> Logger { get; }
 
-		public void Execute(ExecutionContext context)
+		public async Task ExecuteAsync(ExecutionContext context)
 		{
 			Logger.LogDebug("Start StressTask with thread {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 			context.Parameters["ThreadId"] = System.Threading.Thread.CurrentThread.ManagedThreadId;

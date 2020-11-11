@@ -19,7 +19,7 @@ namespace TasksOnTime.Tests
 
         protected ILogger<LongTask> Logger { get; }
 
-        public void Execute(ExecutionContext context)
+        public async Task ExecuteAsync(ExecutionContext context)
 		{
 			for (int i = 0; i < 10; i++)
 			{
@@ -28,8 +28,7 @@ namespace TasksOnTime.Tests
                     break;
                 }
                 Logger.LogInformation($"LongTask {i}");
-				System.Threading.Thread.Sleep(1 * 1000);
-
+				await Task.Delay(1 * 1000);
 
                 if (context.Parameters.ContainsKey("count"))
                 {

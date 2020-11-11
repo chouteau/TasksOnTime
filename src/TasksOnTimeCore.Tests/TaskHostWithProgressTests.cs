@@ -36,7 +36,7 @@ namespace TasksOnTime.Tests
 
 			var serviceProvider = serviceCollection.BuildServiceProvider();
 
-			TasksHost = serviceProvider.GetRequiredService<TasksHost>();
+			TasksHost = (TasksHost) serviceProvider.GetRequiredService<ITasksHost>();
 
 			TasksHost.TaskStarted += (s, arg) =>
 			{

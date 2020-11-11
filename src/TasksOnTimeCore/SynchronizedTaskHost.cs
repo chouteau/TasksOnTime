@@ -15,9 +15,9 @@ namespace TasksOnTime
 
 		}
 
-		protected override void ExecuteInThreadPool(Action<object> executeTask, ExecutionContext context, int? delayInMillisecond = null)
+		protected override void RunTask(ExecutionContext context, int? delayInMillisecond = null)
 		{
-			executeTask(context);
+			ExecuteTask(context, null).Wait();
 		}
 	}
 }

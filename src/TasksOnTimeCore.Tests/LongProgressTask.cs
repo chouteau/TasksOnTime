@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TasksOnTime.Tests
 {
 	public class LongProgressTask : ITask
 	{
-		public void Execute(ExecutionContext context)
+		public async Task ExecuteAsync(ExecutionContext context)
 		{
 			context.StartNotification("test", "test task started");
 
@@ -21,7 +22,7 @@ namespace TasksOnTime.Tests
 				{
 					break;
 				}
-				System.Threading.Thread.Sleep(1 * 1000);
+				await Task.Delay(1 * 1000);
 			}
 			context.EndProgressNotification("test");
 			context.CompletedNotification("test", "test task completed");

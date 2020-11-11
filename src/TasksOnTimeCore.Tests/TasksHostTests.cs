@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.Configuration;
 
 using TasksOnTime;
+using System.Security.Cryptography;
 
 namespace TasksOnTime.Tests
 {
@@ -32,7 +33,7 @@ namespace TasksOnTime.Tests
 
 			var serviceProvider = serviceCollection.BuildServiceProvider();
 
-			TasksHost = serviceProvider.GetRequiredService<TasksHost>();
+			TasksHost = (TasksHost) serviceProvider.GetRequiredService<ITasksHost>();
 
 			TasksHost.TaskStarted += (s, arg) =>
 			{
@@ -57,7 +58,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Enqueue()
+		public async Task Enqueue()
 		{
 			var mre = new ManualResetEvent(false);
 			var key = Guid.NewGuid();
@@ -78,7 +79,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Non_Generic_Enqueue()
+		public async Task Non_Generic_Enqueue()
 		{
 			var mre = new ManualResetEvent(false);
 			var key = Guid.NewGuid();
@@ -100,13 +101,13 @@ namespace TasksOnTime.Tests
 
 		[TestMethod]
 		[ExpectedException(typeof(Exception))]
-		public void Enqueue_With_Task_Not_Implements_ITask()
+		public async Task Enqueue_With_Task_Not_Implements_ITask()
 		{
 			TasksHost.Enqueue(typeof(BadTask));
 		}
 
 		[TestMethod]
-		public void Enqueue_And_Cancel()
+		public async Task Enqueue_And_Cancel()
 		{
 			var mre = new ManualResetEvent(false);
 			var key = Guid.NewGuid();
@@ -134,7 +135,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Enqueue_With_Delay()
+		public async Task Enqueue_With_Delay()
 		{
 			var mre = new ManualResetEvent(false);
 			var chrono = new System.Diagnostics.Stopwatch();
@@ -153,7 +154,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Enqueue_Multi_Task()
+		public async Task Enqueue_Multi_Task()
 		{
 			var chrono = new System.Diagnostics.Stopwatch();
 			chrono.Start();
@@ -184,7 +185,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Enqueue_Fail_Task()
+		public async Task Enqueue_Fail_Task()
 		{
 			var id = Guid.NewGuid();
 			var mre = new ManualResetEvent(false);
@@ -202,7 +203,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Enqueue_With_Parameter()
+		public async Task Enqueue_With_Parameter()
 		{
 			var id = Guid.NewGuid();
 			var mre = new ManualResetEvent(false);
@@ -221,13 +222,13 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Cancel_Not_Existing_Task()
+		public async Task Cancel_Not_Existing_Task()
 		{
 			TasksHost.Cancel(Guid.NewGuid());
 		}
 
 		[TestMethod]
-		public void Cancel_Terminated_Task()
+		public async Task Cancel_Terminated_Task()
 		{
 			var id = Guid.NewGuid();
 			var mre = new ManualResetEvent(false);
@@ -241,7 +242,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Task_Exists()
+		public async Task Task_Exists()
 		{
 			var id = Guid.NewGuid();
 			var mre = new ManualResetEvent(false);
@@ -256,7 +257,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Task_Is_Running()
+		public async Task Task_Is_Running()
 		{
 			var id = Guid.NewGuid();
 			var mre = new ManualResetEvent(false);
@@ -268,7 +269,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Tasks_Cleanup()
+		public async Task Tasks_Cleanup()
 		{
 			var id = Guid.NewGuid();
 			var mre = new ManualResetEvent(false);
@@ -284,7 +285,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Get_Not_Exists_History()
+		public async Task Get_Not_Exists_History()
 		{
 			var id = Guid.NewGuid();
 			var h = TasksHost.GetHistory(id);
@@ -292,7 +293,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Stop_TasksHost()
+		public async Task Stop_TasksHost()
 		{
 			TasksHost.Enqueue<MyTask>();
 			TasksHost.Enqueue<MyTask>();
@@ -304,7 +305,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Stress_Tasks()
+		public async Task Stress_Tasks()
 		{
 			int maxThreadPool = 0;
 			int completionPortThreads = 0;
@@ -332,7 +333,7 @@ namespace TasksOnTime.Tests
 			mre.WaitOne();
 			System.Threading.ThreadPool.SetMaxThreads(maxThreadPool, completionPortThreads);
 
-			Check.That(threadIdList.Count).IsGreaterThan(0);
+			Check.That(threadIdList.Count).IsStrictlyGreaterThan(0);
 		}
 
 	}

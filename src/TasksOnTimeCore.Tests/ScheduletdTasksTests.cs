@@ -12,6 +12,7 @@ using NFluent;
 
 using TasksOnTime.Scheduling;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TasksOnTime.Tests
 {
@@ -37,15 +38,15 @@ namespace TasksOnTime.Tests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            Scheduler = serviceProvider.GetRequiredService<TaskScheduler>();
+            Scheduler = (TasksOnTime.Scheduling.TaskScheduler) serviceProvider.GetRequiredService<ITaskScheduler>();
             Scheduler.Start();
 
             Settings = serviceProvider.GetRequiredService<ScheduleSettings>();
             Settings.ScheduledTaskDisabledByDefault = false;
-            TasksHost = serviceProvider.GetRequiredService<TasksHost>();
+            TasksHost = (TasksHost) serviceProvider.GetRequiredService<ITasksHost>();
         }
 
-        protected static TaskScheduler Scheduler { get; set;  }
+        protected static TasksOnTime.Scheduling.TaskScheduler Scheduler { get; set;  }
         protected static ScheduleSettings Settings { get; set; }
         protected static TasksHost TasksHost { get; set; }
 
@@ -58,6 +59,7 @@ namespace TasksOnTime.Tests
         [TestInitialize]
 		public void Initialize()
 		{
+            Scheduler.RemoveAll();
         }
 
         [TestCleanup]
@@ -67,7 +69,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-		public void Add_Sheduled_Task()
+		public async Task Add_Sheduled_Task()
 		{
             var task = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
                             .EveryDay();
@@ -79,21 +81,21 @@ namespace TasksOnTime.Tests
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public void Add_Sheduled_Task_With_Same_Name()
+        public async Task Add_Sheduled_Task_With_Same_Name()
         {
-            var t1 = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
+            var t1 = Scheduler.CreateScheduledTask<MyTask>("TestAdd2")
                         .EveryDay();
 
             Scheduler.Add(t1);
 
-            var t2 = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
+            var t2 = Scheduler.CreateScheduledTask<MyTask>("TestAdd2")
                         .EveryDay();
 
-            Scheduler.Add(t2);
+            Scheduler.Add(t2); // Throw exception
         }
 
         [TestMethod]
-		public void Schedule_Task_And_Start()
+		public async Task Schedule_Task_And_Start()
 		{
             var task = Scheduler.CreateScheduledTask<TextTask>("SimpleTest")
                                 .EveryMinute();
@@ -118,7 +120,7 @@ namespace TasksOnTime.Tests
 		}
 
         [TestMethod]
-        public void Restart_Long_Task_With_Only_Instance_Allowed()
+        public async Task Restart_Long_Task_With_Only_Instance_Allowed()
         {
             var task = Scheduler.CreateScheduledTask<LongTask>("OneInstanceTest")
                             .AllowMultipleInstance(false)
@@ -126,13 +128,13 @@ namespace TasksOnTime.Tests
 
             Scheduler.Add(task);
 
-            System.Threading.Thread.Sleep(9 * 1000);
+            await Task.Delay(9 * 1000);
 
             Check.That(task.StartedCount).Equals(1);
         }
 
         [TestMethod]
-        public void Try_Start_Long_Task_With_Delay()
+        public async Task Try_Start_Long_Task_With_Delay()
         {
             var task = Scheduler.CreateScheduledTask<LongTask>("LongTestWithDelay")
                             .AllowMultipleInstance(false)
@@ -141,62 +143,67 @@ namespace TasksOnTime.Tests
 
             Scheduler.Add(task);
 
-            System.Threading.Thread.Sleep(5 * 1000);
+            await Task.Delay(5 * 1000);
 
             Check.That(task.StartedCount).Equals(0);
         }
 
         [TestMethod]
-        public void Remove_Task()
+        public async Task Remove_Task()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("RemoveTest")
                                 .EverySecond(2);
 
             Scheduler.Add(task);
 
-            System.Threading.Thread.Sleep(1 * 1000);
+            await Task.Delay(1 * 1000);
 
             Scheduler.Remove("RemoveTest");
 
-            System.Threading.Thread.Sleep(4 * 1000);
+            await Task.Delay(4 * 1000);
 
             var count = Scheduler.GetList().Count(i => i.Name == "RemoveTest");
             Check.That(count).Equals(0);
         }
 
 		[TestMethod]
-		public void Remove_Running_Task()
+		public async Task Remove_Running_Task()
 		{
 			var id = Guid.NewGuid();
 			var task = Scheduler.CreateScheduledTask<LongTask>("runningTask")
 							.EverySecond(10);
 
 			Scheduler.Add(task);
-			System.Threading.Thread.Sleep(1 * 1000);
+			await Task.Delay(1 * 1000);
 			Scheduler.Remove("runningTask");
-			System.Threading.Thread.Sleep(5 * 1000);
+
+			await Task.Delay(5 * 1000);
 			var result = Scheduler.GetList().Any(t => t.Name == "runningTask");
+
 			Check.That(result).IsFalse();
 		}
 
 
 		[TestMethod]
-        public void Add_Scheduled_Task_Disabled_By_Config()
+        public async Task Add_Scheduled_Task_Disabled_By_Config()
         {
+            var setting = Settings.ScheduledTaskDisabledByDefault;
             Settings.ScheduledTaskDisabledByDefault = true;
             var task = Scheduler.CreateScheduledTask<MyTask>("configTask")
                                 .EveryMinute();
 
             Scheduler.Add(task);
 
-            System.Threading.Thread.Sleep(1 * 1000);
+            await Task.Delay(1 * 1000);
 
             var t = Scheduler.GetList().SingleOrDefault(i => i.Name == "configTask");
             Check.That(t).IsNull();
+
+            Settings.ScheduledTaskDisabledByDefault = setting;
         }
 
         [TestMethod]
-        public void Can_Run_By_Month()
+        public async Task Can_Run_By_Month()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunMonth")
                             .EveryMonth();
@@ -212,7 +219,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public void Can_Run_By_Day()
+        public async Task Can_Run_By_Day()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunDay")
                             .EveryDay();
@@ -228,7 +235,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public void Can_Run_By_WorkingDay()
+        public async Task Can_Run_By_WorkingDay()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunWorkingDay")
                             .EveryWorkingDay();
@@ -258,7 +265,7 @@ namespace TasksOnTime.Tests
 
 
         [TestMethod]
-        public void Can_Run_By_Hour()
+        public async Task Can_Run_By_Hour()
         {
 			Scheduler.ResetScheduledTaskList();
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunHour")
@@ -266,26 +273,27 @@ namespace TasksOnTime.Tests
 
 			Scheduler.Add(task);
 
-            var canRun = Scheduler.CanRun(DateTime.Now, task);
+            var now = DateTime.Now;
+            var canRun = Scheduler.CanRun(now, task);
             Check.That(canRun).IsTrue();
 
-			Scheduler.SetNextRuningDate(DateTime.Now, task);
+			Scheduler.SetNextRuningDate(now, task);
 			task.StartedCount = 1;
 
-			canRun = Scheduler.CanRun(DateTime.Now, task);
+			canRun = Scheduler.CanRun(now, task);
             Check.That(canRun).IsFalse();
 
 			task.StartedCount = 0;
-			task.NextRunningDate = DateTime.Now.AddMinutes(-1);
-			Scheduler.ProcessNextTasks(DateTime.Now);
+			task.NextRunningDate = now.AddMinutes(-1);
+			Scheduler.ProcessNextTasks(now);
 
-			System.Threading.Thread.Sleep(1 * 1000);
+			await Task.Delay(1 * 1000);
 
 			Check.That(task.StartedCount).Equals(1);
 		}
 
 		[TestMethod]
-        public void Can_Run_By_Minute()
+        public async Task Can_Run_By_Minute()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunMinute")
                             .EveryMinute();
@@ -301,7 +309,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public void Can_Run_By_Second()
+        public async Task Can_Run_By_Second()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunSecond")
                             .EverySecond(2);
@@ -319,14 +327,14 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public void Schedule_Fail_Task()
+        public async Task Schedule_Fail_Task()
         {
             var task = Scheduler.CreateScheduledTask<FailedTask>("failTask")
                             .EveryMinute();
 
             Scheduler.Add(task);
 
-            System.Threading.Thread.Sleep(2 * 1000);
+            await Task.Delay(2 * 1000);
 
             var hList = TasksHost.GetHistory("failTask");
 
@@ -334,22 +342,24 @@ namespace TasksOnTime.Tests
         }
 
 		[TestMethod]
-		public void Scheduled_Task_Is_Running()
+		public async Task Scheduled_Task_Is_Running()
 		{
 			var id = Guid.NewGuid();
 			var task = Scheduler.CreateScheduledTask<LongTask>("runningTask")
 							.EverySecond(10);
 
 			Scheduler.Add(task);
-			System.Threading.Thread.Sleep(1 * 1000);
+			await Task.Delay(1 * 1000);
+
 			var result = TasksHost.IsRunning("runningTask");
 
-			System.Threading.Thread.Sleep(10 * 1000);
+			await Task.Delay(10 * 1000);
+
 			Check.That(result).IsTrue();
 		}
 
 		[TestMethod]
-		public void Scheduled_Task_With_Completed()
+		public async Task Scheduled_Task_With_Completed()
 		{
 			var id = Guid.NewGuid();
 			var task = Scheduler.CreateScheduledTask<ParameterizedOutputTask>("scheduledparameterizedtask")
@@ -370,7 +380,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Scheduled_Task_With_Parameters()
+		public async Task Scheduled_Task_With_Parameters()
 		{
 			var id = Guid.NewGuid();
 			var task = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
@@ -391,13 +401,21 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Scheduled_Same_Task_With_Parameters_And_Different_Name()
+		public async Task Scheduled_Same_Task_With_Parameters_And_Different_Name()
 		{
 			var id = Guid.NewGuid();
-			var task1 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask1", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
+			var task1 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask1", 
+                            new System.Collections.Generic.Dictionary<string, object>() 
+                            { 
+                                { "input", "test" } 
+                            })
 							.EverySecond(10);
 
-			var task2 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask2", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test1" } })
+			var task2 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask2", 
+                            new System.Collections.Generic.Dictionary<string, object>() 
+                            { 
+                                { "input", "test1" } 
+                            })
 				            .EverySecond(10);
 
             var mre1 = new System.Threading.ManualResetEvent(false);
@@ -425,7 +443,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public void Scheduled_Task_With_NextRunningDate()
+		public async Task Scheduled_Task_With_NextRunningDate()
 		{
 			var id = Guid.NewGuid();
 			var nextDate = DateTime.Now.AddHours(1);
@@ -443,11 +461,13 @@ namespace TasksOnTime.Tests
 
 			mre.WaitOne();
 
+            await Task.Delay(1 * 1000);
+
 			Check.That(task.NextRunningDate.Ticks).IsEqualTo(nextDate.Ticks);
 		}
 
 		[TestMethod]
-		public void Force_Scheduled_Task()
+		public async Task Force_Scheduled_Task()
 		{
 			var id = Guid.NewGuid();
 			var nextDate = DateTime.Now.AddHours(1);
