@@ -56,7 +56,7 @@ namespace TasksOnTime
 
 		public static object GetParameter(this ExecutionContext ctx, string key)
 		{
-			return ctx.GetParameter(key);
+			return ctx.Parameters.GetParameter(key);
 		}
 
 		public static object GetParameter(this Dictionary<string, object> parameters, string key)
