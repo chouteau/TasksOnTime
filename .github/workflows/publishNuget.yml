@@ -1,0 +1,37 @@
+name: .NET
+
+on:
+  pull_request:
+    branches: [ prod ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore TasksOnTimeStandard.sln
+    - name: Build
+      run: dotnet build TasksOnTimeStandard.sln --configuration Release --no-restore
+    - name: Test
+      run: dotnet test TasksOnTimeStandard.sln -c Release --no-build --verbosity normal
+    - name: Publish TasksOnTimeCore to nuget
+      uses: rohith/publish-nuget@v2
+      with:
+        PROJECT_FILE_PATH: ${{github.workspace}}\src\TasksOnTimeCore\TasksOnTimeCore.csproj
+        PACKAGE_NAME: TasksOnTimeCore
+        NUGET_SOURCE: https://api.nuget.org
+        NUGET_KEY: ${{secrets.nuget}}
+    - name: Publish TasksOnTimeCore.Scheduling to nuget
+      uses: rohith/publish-nuget@v2
+      with:
+        PROJECT_FILE_PATH: ${{github.workspace}}\src\TasksOnTimeCore.Scheduling\TasksOnTimeCore.Scheduling.csproj
+        PACKAGE_NAME: TasksOnTimeCore.Scheduling
+        NUGET_SOURCE: https://api.nuget.org
+        NUGET_KEY: ${{secrets.nuget}}
