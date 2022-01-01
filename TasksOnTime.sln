@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksOnTime", "src\TasksOnTime\TasksOnTime.csproj", "{E9D8BCC7-0FB5-4AE1-99B2-A9A07DCE5C83}"
 EndProject
@@ -28,7 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksOnTimeCore.Scheduling"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dotnet4.7", "Dotnet4.7", "{9E31D131-09D4-446E-9CA9-41194051CD1D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dotnet3.1", "Dotnet3.1", "{AEE0E52B-9FCF-4D0D-BE5F-A5462E537640}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DotnetStandard", "DotnetStandard", "{AEE0E52B-9FCF-4D0D-BE5F-A5462E537640}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -17,7 +17,7 @@ namespace TasksOnTime.Tests
 
 		protected ILogger<StressTask> Logger { get; }
 
-		public async Task ExecuteAsync(ExecutionContext context)
+		public Task ExecuteAsync(ExecutionContext context)
 		{
 			Logger.LogDebug("Start StressTask with thread {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
 			context.Parameters["ThreadId"] = System.Threading.Thread.CurrentThread.ManagedThreadId;
@@ -82,6 +82,7 @@ namespace TasksOnTime.Tests
 			}
 
 			Logger.LogDebug("Prime number count {0}", primeNumber.Count);
+			return Task.CompletedTask;
 		}
 	}
 }

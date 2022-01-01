@@ -14,10 +14,11 @@ namespace TasksOnTime.Tests
 
 		// If your activity returns a value, derive from CodeActivity<TResult>
 		// and return the value from the Execute method.
-		public async Task ExecuteAsync(ExecutionContext context)
+		public Task ExecuteAsync(ExecutionContext context)
 		{
             // Obtain the runtime value of the Text input argument
             Text += " tested !";
+			return Task.CompletedTask;
 		}
 	}
 }

@@ -10,10 +10,11 @@ namespace TasksOnTime.Tests
 {
     public class ParameterizedTask : ITask
     {
-        public async Task ExecuteAsync(ExecutionContext context)
+        public Task ExecuteAsync(ExecutionContext context)
         {
             var inputParameter = context.Parameters["input"];
             context.Parameters.AddOrUpdateParameter("output", inputParameter);
+            return Task.CompletedTask;
         }
     }
 }

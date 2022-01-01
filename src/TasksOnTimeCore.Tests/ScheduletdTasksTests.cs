@@ -69,7 +69,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-		public async Task Add_Sheduled_Task()
+		public void Add_Sheduled_Task()
 		{
             var task = Scheduler.CreateScheduledTask<MyTask>("TestAdd")
                             .EveryDay();
@@ -81,7 +81,7 @@ namespace TasksOnTime.Tests
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public async Task Add_Sheduled_Task_With_Same_Name()
+        public void Add_Sheduled_Task_With_Same_Name()
         {
             var t1 = Scheduler.CreateScheduledTask<MyTask>("TestAdd2")
                         .EveryDay();
@@ -95,7 +95,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-		public async Task Schedule_Task_And_Start()
+		public void Schedule_Task_And_Start()
 		{
             var task = Scheduler.CreateScheduledTask<TextTask>("SimpleTest")
                                 .EveryMinute();
@@ -203,7 +203,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public async Task Can_Run_By_Month()
+        public void Can_Run_By_Month()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunMonth")
                             .EveryMonth();
@@ -219,7 +219,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public async Task Can_Run_By_Day()
+        public void Can_Run_By_Day()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunDay")
                             .EveryDay();
@@ -235,7 +235,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public async Task Can_Run_By_WorkingDay()
+        public void Can_Run_By_WorkingDay()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunWorkingDay")
                             .EveryWorkingDay();
@@ -293,7 +293,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-        public async Task Can_Run_By_Minute()
+        public void Can_Run_By_Minute()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunMinute")
                             .EveryMinute();
@@ -309,7 +309,7 @@ namespace TasksOnTime.Tests
         }
 
         [TestMethod]
-        public async Task Can_Run_By_Second()
+        public void Can_Run_By_Second()
         {
             var task = Scheduler.CreateScheduledTask<MyTask>("canRunSecond")
                             .EverySecond(2);
@@ -359,7 +359,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public async Task Scheduled_Task_With_Completed()
+		public void Scheduled_Task_With_Completed()
 		{
 			var id = Guid.NewGuid();
 			var task = Scheduler.CreateScheduledTask<ParameterizedOutputTask>("scheduledparameterizedtask")
@@ -380,7 +380,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public async Task Scheduled_Task_With_Parameters()
+		public void Scheduled_Task_With_Parameters()
 		{
 			var id = Guid.NewGuid();
 			var task = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask", new System.Collections.Generic.Dictionary<string, object>() { { "input", "test" } })
@@ -401,7 +401,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public async Task Scheduled_Same_Task_With_Parameters_And_Different_Name()
+		public void Scheduled_Same_Task_With_Parameters_And_Different_Name()
 		{
 			var id = Guid.NewGuid();
 			var task1 = Scheduler.CreateScheduledTask<ParameterizedTask>("scheduledparameterizedtask1", 
@@ -467,7 +467,7 @@ namespace TasksOnTime.Tests
 		}
 
 		[TestMethod]
-		public async Task Force_Scheduled_Task()
+		public void Force_Scheduled_Task()
 		{
 			var id = Guid.NewGuid();
 			var nextDate = DateTime.Now.AddHours(1);

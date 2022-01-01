@@ -14,16 +14,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TasksOnTime
 {
-	public static class Extensions
+	public static class StartupExtensions
 	{
-		public static IServiceCollection AddTasksOnTimeServices([NotNull] this IServiceCollection services, [NotNull] IConfiguration configuration, Action<Settings> settingsExpression = null)
+		public static IServiceCollection AddTasksOnTimeServices(this IServiceCollection services, IConfiguration configuration, Action<Settings> settingsExpression = null)
 		{
 			var defaultSettings = new Settings();
 			configuration.GetSection("TasksOnTime").Bind(defaultSettings);
 			if (settingsExpression != null)
 			{
-				var s = new Settings();
-				settingsExpression.Invoke(s);
+				settingsExpression.Invoke(defaultSettings);
 			}
 			services.AddSingleton(defaultSettings);
 			services.AddSingleton<ITasksHost, TasksHost>();

@@ -10,12 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TasksOnTime.Scheduling
 {
-	public static class Extentions
+	public static class StartupExtentions
 	{
-		public static IServiceCollection AddTasksOnTimeScheduledServices([NotNull] this IServiceCollection services, [NotNull] IConfiguration configuration, Action<ScheduleSettings> settingsExpression = null)
+		public static IServiceCollection AddTasksOnTimeScheduledServices(this IServiceCollection services, IConfiguration configuration, Action<ScheduleSettings> settingsExpression = null)
 		{
 			var defaultSettings = new ScheduleSettings();
 			configuration.GetSection("TasksOnTime").Bind(defaultSettings);
+			settingsExpression?.Invoke(defaultSettings);
 			services.AddSingleton(defaultSettings);
 			services.AddTasksOnTimeServices(configuration);
 			services.AddSingleton<ITaskScheduler, TaskScheduler>();
