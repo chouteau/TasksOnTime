@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-DistributedTasksOnTimeServer-7476CA37-EB84-422B-A476-3EA40DCCE81C</UserSecretsId>
+    <Version>1.0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ariane5.Azure" Version="5.2.18" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+  </ItemGroup>
+</Project>

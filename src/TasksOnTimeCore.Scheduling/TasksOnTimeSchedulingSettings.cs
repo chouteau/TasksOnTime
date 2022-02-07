@@ -5,9 +5,9 @@ using System.Text;
 
 namespace TasksOnTime.Scheduling
 {
-	public class ScheduleSettings : TasksOnTime.Settings
+	public class TasksOnTimeSchedulingSettings : TasksOnTime.TasksOnTimeSettings
 	{
-		public ScheduleSettings()
+		public TasksOnTimeSchedulingSettings()
 		{
 			TaskNameList = new List<string>();
 			IntervalInSeconds = 60; // 1 minute

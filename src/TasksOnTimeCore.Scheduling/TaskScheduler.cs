@@ -16,7 +16,7 @@ namespace TasksOnTime.Scheduling
         public event Action<string> TaskStarted;
         public event Action<string> TaskFinished;
 
-        public TaskScheduler(ScheduleSettings scheduleSettings,
+        public TaskScheduler(TasksOnTimeSchedulingSettings scheduleSettings,
             ILogger<TaskScheduler> logger,
             ITasksHost tasksHost)
         {
@@ -35,7 +35,7 @@ namespace TasksOnTime.Scheduling
         protected bool Terminated { get; set; }
         protected Thread TimerThread { get; set; }
         protected ConcurrentDictionary<string, ScheduledTask> ScheduledTaskList { get; set; }
-        protected ScheduleSettings Settings { get; }
+        protected TasksOnTimeSchedulingSettings Settings { get; }
         protected ILogger<TaskScheduler> Logger { get; }
         protected ITasksHost TasksHost { get; }
 
@@ -101,7 +101,6 @@ namespace TasksOnTime.Scheduling
             task.NextRunningDate = DateTime.MinValue;
             task.CreationDate = DateTime.Now;
             task.StartedCount = 0;
-            task.Enabled = true;
             task.AllowMultipleInstance = true;
             if (parameters != null)
             {
