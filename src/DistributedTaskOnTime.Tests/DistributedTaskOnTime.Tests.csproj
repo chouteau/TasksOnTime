@@ -8,17 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="localconfig\**" />
+    <EmbeddedResource Remove="localconfig\**" />
+    <None Remove="localconfig\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="appsettings.json" />
-    <None Remove="localconfig\appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="localconfig\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
