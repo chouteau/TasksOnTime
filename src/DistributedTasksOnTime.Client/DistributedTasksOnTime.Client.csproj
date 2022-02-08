@@ -5,26 +5,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Version>1.0.8.0</Version>
-  </PropertyGroup>
+		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Ariane5.Azure" Version="5.2.18" />
     <PackageReference Include="TasksOnTimeCore" Version="0.2.17.2" />
   </ItemGroup>
 
-	<Import Project="nuget.props" />
-	<ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
 		<PrivateAssets>all</PrivateAssets>
     </ProjectReference>
   </ItemGroup>
-
-	<!--<ItemGroup>
-		<CopyLocalFilesOutputGroupOutput>true</CopyLocalFilesOutputGroupOutput>
+	
+	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib/net6.0</PackagePath>
 		</Content>
-	</ItemGroup>-->
+	</ItemGroup>
 
 </Project>
