@@ -11,7 +11,7 @@ namespace DistributedTaskOnTime.Tests
 	[TestClass]
 	public class UseCase1
 	{
-		[TestMethod]
+		// [TestMethod]
 		public async Task Register_MyTask()
 		{
 			var host = TestsHelper.CreateTestHostWith1Client(config =>
@@ -25,7 +25,7 @@ namespace DistributedTaskOnTime.Tests
 				});
 			});
 
-			await host.Services.UseDistributedTasksOnTime();
+			await host.Services.UseDistributedTasksOnTimeClient();
 
 			await host.StartAsync();
 
@@ -37,8 +37,6 @@ namespace DistributedTaskOnTime.Tests
 				scheduledTask.Period = ScheduledTaskTimePeriod.Second;
 				scheduledTask.Interval = 5;
 			};
-
-			System.Console.Read();
 		}
 	}
 }

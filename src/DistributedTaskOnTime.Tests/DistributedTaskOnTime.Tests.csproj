@@ -33,8 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTimeClient\DistributedTasksOnTime.Client.csproj" />
-    <ProjectReference Include="..\DistributedTasksOnTimeOrchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
+    <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
+    <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
   </ItemGroup>
 
 </Project>

@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTimeClient\DistributedTasksOnTime.Client.csproj" />
+    <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
   </ItemGroup>
 
 </Project>

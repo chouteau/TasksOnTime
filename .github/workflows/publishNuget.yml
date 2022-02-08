@@ -18,9 +18,9 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore TasksOnTimeStandard.sln
     - name: Build
-      run: dotnet build TasksOnTimeStandard.sln --configuration Release --no-restore
+      run: dotnet build DistributedTasksOnTime.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test TasksOnTimeStandard.sln -c Release --no-build --verbosity normal
+      run: dotnet test DistributedTasksOnTime.sln -c Release --no-build --verbosity normal
     - name: Publish TasksOnTimeCore to nuget
       uses: rohith/publish-nuget@v2
       with:
