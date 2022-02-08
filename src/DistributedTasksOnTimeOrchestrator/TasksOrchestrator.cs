@@ -323,6 +323,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return result;
     }
 
+    public void SaveScheduledTaskList()
+	{
+        var list = ScheduledTaskList.Select(i => i.Value).ToList();
+        DbRepository.PersistScheduledTaskList(list);
+	}
+
     /// <summary>
     /// Recupération de la première tache executable 
     /// dans l'ordre FIFO

@@ -1,4 +1,4 @@
-using DistributedTasksOnTime.Orchestrator;
+using DistributedTasksOnTime.BlazorComponent;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -9,7 +9,29 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Host.AddDistributedTasksOnTimeOrchestrator();
+builder.Host.AddDistributedTasksOnTimeBlazor();
+
+
+if (System.Environment.UserInteractive
+	&& !builder.Environment.IsProduction())
+{
+	builder.Logging.SetMinimumLevel(LogLevel.Trace);
+	builder.Logging.AddConsole();
+	builder.Logging.AddDebug();
+}
+else
+{
+	builder.Logging.SetMinimumLevel(LogLevel.Information);
+}
+builder.Logging.AddFilter((p, c, l) =>
+{
+	if ((c.StartsWith("Microsoft")
+		&& l <= LogLevel.Information))
+	{
+		return false;
+	}
+	return true;
+});
 
 var app = builder.Build();
 

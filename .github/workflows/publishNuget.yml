@@ -35,3 +35,17 @@ jobs:
         PACKAGE_NAME: TasksOnTimeCore.Scheduling
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
+    #- name: Publish TasksOnTimeCore.Client to nuget
+    #  uses: rohith/publish-nuget@v2
+    #  with:
+    #    PROJECT_FILE_PATH: ${{github.workspace}}\src\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj
+    #    PACKAGE_NAME: DistributedTasksOnTime.Client
+    #    NUGET_SOURCE: https://api.nuget.org
+    #    NUGET_KEY: ${{secrets.nuget}}
+    #- name: Publish DistributedTasksOnTime.BlazorComponent to nuget
+    #  uses: rohith/publish-nuget@v2
+    #  with:
+    #    PROJECT_FILE_PATH: ${{github.workspace}}\src\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj
+    #    PACKAGE_NAME: DistributedTasksOnTime.Client
+    #    NUGET_SOURCE: https://api.nuget.org
+    #    NUGET_KEY: ${{secrets.nuget}}

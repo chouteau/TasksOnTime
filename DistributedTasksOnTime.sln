@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		changelog.txt = changelog.txt
 		Enqueue.md = Enqueue.md
 		license.md = license.md
+		.github\workflows\publishNuget.yml = .github\workflows\publishNuget.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -30,9 +31,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTaskOnTime.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.Shared", "src\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj", "{4DA84531-A905-4B9B-B64E-FBC15573EFF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedTasksOnTime.WebApp", "src\DistributedTasksOnTime.WebApp\DistributedTasksOnTime.WebApp.csproj", "{E6863528-299B-4C54-AE62-42FE68ABF13E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.WebApp", "src\DistributedTasksOnTime.WebApp\DistributedTasksOnTime.WebApp.csproj", "{E6863528-299B-4C54-AE62-42FE68ABF13E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedTasksOnTime.DemoClient", "src\DistributedTasksOnTime.DemoClient\DistributedTasksOnTime.DemoClient.csproj", "{1138742D-3D2E-44CF-912E-AD8C3CE3476A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.DemoClient", "src\DistributedTasksOnTime.DemoClient\DistributedTasksOnTime.DemoClient.csproj", "{1138742D-3D2E-44CF-912E-AD8C3CE3476A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedTasksOnTime.BlazorComponent", "src\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj", "{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +79,10 @@ Global
 		{1138742D-3D2E-44CF-912E-AD8C3CE3476A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1138742D-3D2E-44CF-912E-AD8C3CE3476A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1138742D-3D2E-44CF-912E-AD8C3CE3476A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +97,7 @@ Global
 		{4DA84531-A905-4B9B-B64E-FBC15573EFF2} = {6A5D76D2-3B24-44A1-B960-A1FC61C7555D}
 		{E6863528-299B-4C54-AE62-42FE68ABF13E} = {6A5D76D2-3B24-44A1-B960-A1FC61C7555D}
 		{1138742D-3D2E-44CF-912E-AD8C3CE3476A} = {6A5D76D2-3B24-44A1-B960-A1FC61C7555D}
+		{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F} = {6A5D76D2-3B24-44A1-B960-A1FC61C7555D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2EBA41C-4C42-4EC9-9648-5ED28A6A82D1}

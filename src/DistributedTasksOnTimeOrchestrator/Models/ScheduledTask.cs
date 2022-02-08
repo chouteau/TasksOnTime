@@ -16,7 +16,7 @@ public class ScheduledTask
 	public string AssemblyQualifiedName { get; set; }
 	public int StartedCount { get; set; }
 	public bool Enabled { get; set; }
-	public bool AllowMultipleInstance { get; internal set; }
+	public bool AllowMultipleInstance { get; set; }
 	public DateTime NextRunningDate { get; set; }
 	public Dictionary<string, string> Parameters { get; set; }
 }

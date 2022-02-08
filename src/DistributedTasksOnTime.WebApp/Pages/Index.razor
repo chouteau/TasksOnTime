@@ -4,29 +4,4 @@
 
 <h1>Hello, TasksOnTime!</h1>
 
-<table class="table table-bordered">
-	<thead>
-		<tr>
-			<th>Name</th>
-			<th>Next Running Date</th>
-			<th>Allow Multiple instances</th>
-			<th>Period</th>
-			<th>Interval</th>
-			<th>StartedCount</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in scheduledTaskList)
-		{
-			<tr>
-				<td>@item.Name</td>
-				<td>@item.NextRunningDate</td>
-				<td>@item.AllowMultipleInstance</td>
-				<td>@item.Period</td>
-				<td>@item.Interval</td>
-				<td>@item.StartedCount</td>
-			</tr>
-		}
-	</tbody>
-
-</table>
+<ScheduledTaskList></ScheduledTaskList>

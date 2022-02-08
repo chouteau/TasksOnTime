@@ -20,29 +20,6 @@ public static class StartupExtensions
 					configurationBuilder.AddJsonFile(localConfig, true, false);
 				}
 			})
-			.ConfigureLogging((ctx, configure) =>
-			{
-				if (System.Environment.UserInteractive
-					&& !ctx.HostingEnvironment.IsProduction())
-				{
-					configure.SetMinimumLevel(LogLevel.Trace);
-					configure.AddConsole();
-					configure.AddDebug();
-				}
-				else
-				{
-					configure.SetMinimumLevel(LogLevel.Information);
-				}
-				configure.AddFilter((p, c, l) =>
-				{
-					if ((c.StartsWith("Microsoft")
-						&& l <= LogLevel.Information))
-					{
-						return false;
-					}
-					return true;
-				});
-			})
 			.ConfigureServices((ctx, services) =>
 			{
 				services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
