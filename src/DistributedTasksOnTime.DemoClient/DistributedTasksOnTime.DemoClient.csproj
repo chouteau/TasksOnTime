@@ -25,13 +25,14 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
-  </ItemGroup>
-
 	<ItemGroup>
 		<Compile Remove="localconfig\**" />
 		<None Remove="localconfig\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
+	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
 	</ItemGroup>
 
 </Project>
