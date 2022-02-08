@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <Version>1.0.7.0</Version>
+    <Version>1.0.8.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,16 +12,18 @@
     <PackageReference Include="TasksOnTimeCore" Version="0.2.17.2" />
   </ItemGroup>
 
-  <ItemGroup>
+	<Import Project="pack.props" />
+	<ItemGroup>
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
-      <CopyLocal>True</CopyLocal>
+		<PrivateAssets>all</PrivateAssets>
     </ProjectReference>
   </ItemGroup>
 
 	<!--<ItemGroup>
+		<CopyLocalFilesOutputGroupOutput>true</CopyLocalFilesOutputGroupOutput>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
-			<BuildAction>Embedded Resource</BuildAction>
-			<CopyToOutputDirectory>true</CopyToOutputDirectory>
+			<BuildAction>None</BuildAction>
+			<PackagePath>lib/net6.0</PackagePath>
 		</Content>
 	</ItemGroup>-->
 
