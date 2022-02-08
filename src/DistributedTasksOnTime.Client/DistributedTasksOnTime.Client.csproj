@@ -13,13 +13,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
+      <CopyLocal>True</CopyLocal>
+    </ProjectReference>
   </ItemGroup>
 
 	<ItemGroup>
-		<Content Include="DistributedTasksOnTime.Shared.dll">
+		<Content Include="bin\debug\net6.0\DistributedTasksOnTime.Shared.dll">
 			<Pack>true</Pack>
-			<PackageCopyToOutput>true</PackageCopyToOutput>
+			<CopyToOutputDirectory>true</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
