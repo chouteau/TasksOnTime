@@ -20,13 +20,13 @@ public class DistributedTasksOnTimeSettings
 
 	internal IList<DistributedTasksOnTime.TaskRegistrationInfo> ScheduledTaskList { get; }
 
-	public IEnumerable<DistributedTasksOnTime.TaskRegistrationInfo> RegisterScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
+	public DistributedTasksOnTimeSettings RegisterScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
 	{
 		if (!ScheduledTaskList.Any(i => i.TaskName.Equals(taskInfo.TaskName, StringComparison.InvariantCultureIgnoreCase)))
 		{
 			ScheduledTaskList.Add(taskInfo);
 		}
-		return ScheduledTaskList;
+		return this;
 	}
 }
 
