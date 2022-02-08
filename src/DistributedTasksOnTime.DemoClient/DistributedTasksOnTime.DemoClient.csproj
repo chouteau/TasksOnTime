@@ -33,4 +33,8 @@
     <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Remove="localconfig\**" />
+	</ItemGroup>
+
 </Project>
