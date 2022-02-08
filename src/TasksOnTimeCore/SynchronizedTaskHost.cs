@@ -9,7 +9,7 @@ namespace TasksOnTime
 {
 	public class SynchronizedTaskHost : TasksOnTime.TasksHost
 	{
-		public SynchronizedTaskHost(ILogger<TasksHost> logger, IServiceProvider provider, TasksOnTime.Settings settings, IProgressReporter reporter)
+		public SynchronizedTaskHost(ILogger<TasksHost> logger, IServiceProvider provider, TasksOnTime.TasksOnTimeSettings settings, IProgressReporter reporter)
 			: base(logger, provider, settings, reporter)
 		{
 

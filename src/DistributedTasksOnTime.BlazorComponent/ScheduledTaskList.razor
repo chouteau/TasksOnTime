@@ -1,0 +1,52 @@
+﻿@page "/scheduledtasklist"
+@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Next Running Date</th>
+			<th>Allow Multiple instances</th>
+			<th>Period</th>
+			<th>Interval</th>
+			<th>StartedCount</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in scheduledTaskList)
+		{
+			<tr>
+				<td>
+					<a href="/scheduledtask/@item.Name">@item.Name</a>
+				</td>
+				<td>
+					@if (item.NextRunningDate == DateTime.MinValue)
+					{
+						<span>Never</span>
+					}
+					else
+					{
+						<span>@item.NextRunningDate</span>
+					}
+				</td>
+				<td>@item.AllowMultipleInstance</td>
+				<td>@item.Period</td>
+				<td>@item.Interval</td>
+				<td>@item.StartedCount</td>
+				<td>
+					<button class="btn btn-primary" @onclick="() => EditTask(item)">Edit</button>
+					<button class="btn btn-success" @onclick="() => ForceTask(item)" >Force</button>
+					<button class="btn btn-secondary" @onclick="() => CancelTask(item)" >Cancel</button>
+				</td>
+			</tr>
+		}
+	</tbody>
+
+</table>

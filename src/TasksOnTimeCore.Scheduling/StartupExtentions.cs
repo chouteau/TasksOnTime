@@ -12,15 +12,14 @@ namespace TasksOnTime.Scheduling
 {
 	public static class StartupExtentions
 	{
-		public static IServiceCollection AddTasksOnTimeScheduledServices(this IServiceCollection services, IConfiguration configuration, Action<ScheduleSettings> settingsExpression = null)
+		public static IServiceCollection AddTasksOnTimeScheduledServices(this IServiceCollection services, Action<TasksOnTimeSettings> config, Action<TasksOnTimeSchedulingSettings> configScheduling = null)
 		{
-			var defaultSettings = new ScheduleSettings();
-			configuration.GetSection("TasksOnTime").Bind(defaultSettings);
-			settingsExpression?.Invoke(defaultSettings);
+			var defaultSettings = new TasksOnTimeSchedulingSettings();
+			configScheduling?.Invoke(defaultSettings);
 			services.AddSingleton(defaultSettings);
-			services.AddTasksOnTimeServices(configuration);
+
+			services.AddTasksOnTimeServices(config);
 			services.AddSingleton<ITaskScheduler, TaskScheduler>();
-			services.AddLogging();
 			return services;
 		}
 	}

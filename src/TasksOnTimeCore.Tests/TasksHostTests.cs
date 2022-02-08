@@ -29,7 +29,12 @@ namespace TasksOnTime.Tests
 			var configuration = new ConfigurationBuilder()
 										.Build();
 
-			serviceCollection.AddTasksOnTimeServices(configuration);
+			serviceCollection.AddTasksOnTimeServices(config =>
+			{
+				var settings = new TasksOnTime.TasksOnTimeSettings();
+				var section = configuration.GetSection("TasksOnTime");
+				section.Bind(settings);
+			});
 
 			var serviceProvider = serviceCollection.BuildServiceProvider();
 

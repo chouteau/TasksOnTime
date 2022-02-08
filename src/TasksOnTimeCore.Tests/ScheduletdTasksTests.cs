@@ -33,21 +33,31 @@ namespace TasksOnTime.Tests
             var configuration = new ConfigurationBuilder()
                                         .Build();
 
-            serviceCollection.AddTasksOnTimeServices(configuration);
-            serviceCollection.AddTasksOnTimeScheduledServices(configuration);
+            serviceCollection.AddTasksOnTimeScheduledServices(config =>
+            {
+                var settings = new TasksOnTime.TasksOnTimeSettings();
+                var section = configuration.GetSection("TasksOnTime");
+                section.Bind(settings);
+            },
+            schedulingConfig =>
+			{
+                var settings = new TasksOnTime.Scheduling.TasksOnTimeSchedulingSettings();
+                var section = configuration.GetSection("TasksOnTime");
+                section.Bind(settings);
+            });
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             Scheduler = (TasksOnTime.Scheduling.TaskScheduler) serviceProvider.GetRequiredService<ITaskScheduler>();
             Scheduler.Start();
 
-            Settings = serviceProvider.GetRequiredService<ScheduleSettings>();
+            Settings = serviceProvider.GetRequiredService<TasksOnTimeSchedulingSettings>();
             Settings.ScheduledTaskDisabledByDefault = false;
             TasksHost = (TasksHost) serviceProvider.GetRequiredService<ITasksHost>();
         }
 
         protected static TasksOnTime.Scheduling.TaskScheduler Scheduler { get; set;  }
-        protected static ScheduleSettings Settings { get; set; }
+        protected static TasksOnTimeSchedulingSettings Settings { get; set; }
         protected static TasksHost TasksHost { get; set; }
 
         [ClassCleanup()]

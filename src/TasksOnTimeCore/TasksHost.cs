@@ -18,7 +18,7 @@ namespace TasksOnTime
 
 		public TasksHost(ILogger<TasksHost> logger,
 			IServiceProvider serviceProvider,
-			Settings settings,
+			TasksOnTimeSettings settings,
 			IProgressReporter progressReporter)
 		{
 			TaskHistoryList = new ConcurrentDictionary<Guid, TaskHistory>();
@@ -31,7 +31,7 @@ namespace TasksOnTime
 		protected ILogger<TasksHost> Logger { get; }
 		protected IServiceProvider ServiceProvider { get; }
 		internal ConcurrentDictionary<Guid, TaskHistory> TaskHistoryList { get; set; }
-		protected Settings Settings { get; }
+		protected TasksOnTimeSettings Settings { get; }
 		protected IProgressReporter ProgressReporter { get; }
 
 		public void Enqueue(
@@ -310,13 +310,11 @@ namespace TasksOnTime
 			foreach (var key in TaskHistoryList.Keys)
 			{
 				TaskHistoryList.TryGetValue(key, out TaskHistory item);
-				if (item != null)
-				{
-					if (!item.TerminatedDate.HasValue)
-					{
-						result = true;
-						break;
-					}
+				if (item != null
+					&& !item.TerminatedDate.HasValue)
+				{ 
+					result = true;
+					break;
 				}
 			}
 			return result;

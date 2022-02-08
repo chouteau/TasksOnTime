@@ -1,0 +1,42 @@
+﻿@page "/editscheduledtask/{taskName}"
+@using Microsoft.AspNetCore.Components.Forms
+
+<h3>Edit ScheduledTask @scheduledTask.Name</h3>
+
+<EditForm Model="scheduledTask" OnValidSubmit="ValidateAndSave">
+    <ValidationSummary></ValidationSummary>
+    <DataAnnotationsValidator/>
+    <CustomValidator @ref="CustomValidator"></CustomValidator>
+    <div class="mb-3">
+        <label class="form-label">Period :</label>
+        <InputSelect @bind-Value="scheduledTask.Period">
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.None">None</option>
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Second">Second</option>
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Minute">Minute</option>
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Hour">Hour</option>
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Day">Day</option>
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.WorkingDay">WorkingDay</option>
+            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Month">Month</option>
+        </InputSelect>
+        <small>
+            <ValidationMessage For="() => scheduledTask.Period"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Interval :</label>
+        <InputNumber @bind-Value="scheduledTask.Interval" class="form-control" />
+        <small>
+            <ValidationMessage For="() => scheduledTask.Interval"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Allow multiple instances :</label>
+        <InputCheckbox @bind-Value="scheduledTask.AllowMultipleInstance" class="form-check-input" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Enable :</label>
+        <InputCheckbox @bind-Value="scheduledTask.Enabled" class="form-check-input" />
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>

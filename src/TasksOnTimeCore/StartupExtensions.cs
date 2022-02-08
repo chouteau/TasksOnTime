@@ -16,19 +16,19 @@ namespace TasksOnTime
 {
 	public static class StartupExtensions
 	{
-		public static IServiceCollection AddTasksOnTimeServices(this IServiceCollection services, IConfiguration configuration, Action<Settings> settingsExpression = null)
+		public static IServiceCollection AddTasksOnTimeServices(this IServiceCollection services, Action<TasksOnTimeSettings> config = null)
 		{
-			var defaultSettings = new Settings();
-			configuration.GetSection("TasksOnTime").Bind(defaultSettings);
-			if (settingsExpression != null)
-			{
-				settingsExpression.Invoke(defaultSettings);
-			}
+			var defaultSettings = new TasksOnTimeSettings();
+			config?.Invoke(defaultSettings);
 			services.AddSingleton(defaultSettings);
-			services.AddSingleton<ITasksHost, TasksHost>();
-			services.AddSingleton<IProgressReporter, DefaultProgressReporter>();
 
-			services.AddLogging();
+			services.AddSingleton<ITasksHost, TasksHost>();
+			services.AddSingleton(fac =>
+			{
+				var pr = fac.GetService(defaultSettings.ProgresReporterType);
+				return pr as IProgressReporter;
+			});
+
 			return services;
 		}
 

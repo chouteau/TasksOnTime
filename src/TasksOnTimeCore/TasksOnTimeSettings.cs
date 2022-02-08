@@ -5,13 +5,15 @@ using System.Text;
 
 namespace TasksOnTime
 {
-	public class Settings
+	public class TasksOnTimeSettings
 	{
-		public Settings()
+		public TasksOnTimeSettings()
 		{
 			CleanupTimeoutInSeconds = 60 * 10; // 10 minutes
+			ProgresReporterType = typeof(DefaultProgressReporter);
         }
 
 		public int CleanupTimeoutInSeconds { get; set; }
+		public Type ProgresReporterType { get; set; }
 	}
 }
