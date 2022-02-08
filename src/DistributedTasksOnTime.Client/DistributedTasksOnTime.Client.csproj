@@ -12,7 +12,7 @@
     <PackageReference Include="TasksOnTimeCore" Version="0.2.17.2" />
   </ItemGroup>
 
-	<Import Project="pack.props" />
+	<Import Project="nuget.props" />
 	<ItemGroup>
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
 		<PrivateAssets>all</PrivateAssets>
