@@ -13,15 +13,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="appsettings.json">
+    <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="localconfig\appsettings.json">
+    <Content Update="localconfig\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
@@ -34,6 +30,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<Compile Remove="localconfig\**" />
 		<None Remove="localconfig\**" />
 	</ItemGroup>
 
