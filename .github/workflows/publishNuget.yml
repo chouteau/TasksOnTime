@@ -11,16 +11,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+
     - name: Restore dependencies
       run: dotnet restore TasksOnTimeStandard.sln
+
     - name: Build
-      run: dotnet build DistributedTasksOnTime.sln --configuration Release --no-restore
+      run: dotnet build DistributedTasksOnTime.sln --configuration Release
+
     - name: Test
       run: dotnet test DistributedTasksOnTime.sln -c Release --no-build --verbosity normal
+
     - name: Publish TasksOnTimeCore to nuget
       uses: rohith/publish-nuget@v2
       with:
@@ -28,6 +33,7 @@ jobs:
         PACKAGE_NAME: TasksOnTimeCore
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
+
     - name: Publish TasksOnTimeCore.Scheduling to nuget
       uses: rohith/publish-nuget@v2
       with:
@@ -35,6 +41,7 @@ jobs:
         PACKAGE_NAME: TasksOnTimeCore.Scheduling
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
+
     - name: Publish TasksOnTimeCore.Client to nuget
       uses: rohith/publish-nuget@v2
       with:
@@ -42,6 +49,7 @@ jobs:
         PACKAGE_NAME: DistributedTasksOnTime.Client
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
+
     - name: Publish DistributedTasksOnTime.BlazorComponent to nuget
       uses: rohith/publish-nuget@v2
       with:
