@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>1.0.2.0</Version>
+    <Version>1.0.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,8 +19,7 @@
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Orchestrator.dll">
 			<Pack>true</Pack>
-			<CopyToOutputDirectory>true</CopyToOutputDirectory>
-			<PackagePath>lib\dotnet6.0</PackagePath>
+			<PackagePath>lib\net6.0</PackagePath>
 		</Content>
 	</ItemGroup>
 
