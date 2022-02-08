@@ -24,24 +24,24 @@ mre.WaitOne();
 ```c#
 public class ParameterizedTask : ITask
 {
-    public void Execute(ExecutionContext context)
-    {
-        var inputParameter = context.Parameters["input"];
-        context.Parameters.Add("output", "test");
-    }
+	public void Execute(ExecutionContext context)
+	{
+		var inputParameter = context.Parameters["input"];
+		context.Parameters.Add("output", "test");
+	}
 }
 
 var id = Guid.NewGuid();
 var mre = new ManualResetEvent(false);
 TasksHost.Enqueue<ParameterizedTask>(id,
-    new Dictionary<string, object>()
-    {
-        { "input", "test" }
-    }, completed: (dic) =>
-    {
-        var output = dic["output"];
-        mre.Set();
-    });
+	new Dictionary<string, object>()
+	{
+		{ "input", "test" }
+	}, completed: (dic) =>
+	{
+		var output = dic["output"];
+		mre.Set();
+	});
 
 mre.WaitOne();
 ```
@@ -50,22 +50,22 @@ mre.WaitOne();
 ```c#
 public class LongTask : ITask
 {
-    public void Execute(ExecutionContext context)
+	public void Execute(ExecutionContext context)
 	{
-        if (context.IsCancelRequested) // Break on start
-        {
-            break;
-        }
+		if (context.IsCancelRequested) // Break on start
+		{
+			break;
+		}
 
 		for (int i = 0; i < 10; i++)
 		{
-            if (context.IsCancelRequested) // Break on each loop
-            {
-                break;
-            }
-            System.Diagnostics.Debug.Write(i);
+			if (context.IsCancelRequested) // Break on each loop
+			{
+				break;
+			}
+			System.Diagnostics.Debug.Write(i);
 			System.Threading.Thread.Sleep(1 * 1000);
-        }
+		}
 	}
 }
 
