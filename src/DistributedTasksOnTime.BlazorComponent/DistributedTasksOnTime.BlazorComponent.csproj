@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.razor">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>1.0.4.0</Version>
+    <Version>1.0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +20,6 @@
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Orchestrator.dll">
 			<BuildAction>Embedded Resource</BuildAction>
 			<CopyToOutputDirectory>true</CopyToOutputDirectory>
-			<Pack>true</Pack>
 			<PackagePath>lib\net6.0</PackagePath>
 		</Content>
 	</ItemGroup>
