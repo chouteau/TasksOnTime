@@ -42,7 +42,7 @@ var host= Host.CreateDefaultBuilder(args)
 				})
 				.Build();
 
-await host.Services.UseDistributedTasksOnTime();
+await host.Services.UseDistributedTasksOnTimeClient();
 
 await host.RunAsync();
 

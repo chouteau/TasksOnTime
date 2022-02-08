@@ -53,7 +53,7 @@ public static class StartupExtensions
 		return services;
 	}
 
-	public static async Task<IServiceProvider> UseDistributedTasksOnTime(this IServiceProvider serviceProvider)
+	public static async Task<IServiceProvider> UseDistributedTasksOnTimeClient(this IServiceProvider serviceProvider)
 	{
 		var bus = serviceProvider.GetRequiredService<Ariane.IServiceBus>();
 		var settings = serviceProvider.GetRequiredService<DistributedTasksOnTimeSettings>();

@@ -23,9 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DotnetStandard", "DotnetSta
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Distributed", "Distributed", "{6A5D76D2-3B24-44A1-B960-A1FC61C7555D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.Orchestrator", "src\DistributedTasksOnTimeOrchestrator\DistributedTasksOnTime.Orchestrator.csproj", "{977F32B1-1576-4DB4-8E76-F04B7F15173D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.Orchestrator", "src\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj", "{977F32B1-1576-4DB4-8E76-F04B7F15173D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.Client", "src\DistributedTasksOnTimeClient\DistributedTasksOnTime.Client.csproj", "{A49E1097-28F1-4CB3-A11A-DDAF649D6EE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.Client", "src\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj", "{A49E1097-28F1-4CB3-A11A-DDAF649D6EE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTaskOnTime.Tests", "src\DistributedTaskOnTime.Tests\DistributedTaskOnTime.Tests.csproj", "{6326E2F5-A2FD-458D-8C2A-4DB845C4066C}"
 EndProject
