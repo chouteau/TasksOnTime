@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <Version>1.0.3.0</Version>
+    <Version>1.0.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,8 @@
 
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
+			<BuildAction>Embedded Resource</BuildAction>
+			<CopyToOutputDirectory>true</CopyToOutputDirectory>
 			<Pack>true</Pack>
 			<PackagePath>lib\net6.0</PackagePath>
 		</Content>
