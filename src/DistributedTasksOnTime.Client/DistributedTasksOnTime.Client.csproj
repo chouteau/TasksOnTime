@@ -16,4 +16,11 @@
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Include="DistributedTasksOnTime.Shared.dll">
+			<Pack>true</Pack>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</Content>
+	</ItemGroup>
+
 </Project>
