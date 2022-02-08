@@ -5,21 +5,35 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>1.0.5.0</Version>
+    <Version>1.0.6.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
+	<ItemGroup>
+		<PackageReference Include="Ariane5.Azure" Version="5.2.18" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj">
+		  <PrivateAssets>all</PrivateAssets>
+	  </ProjectReference>
+		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
   </ItemGroup>
 
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Orchestrator.dll">
-			<BuildAction>Embedded Resource</BuildAction>
-			<CopyToOutputDirectory>true</CopyToOutputDirectory>
+			<BuildAction>None</BuildAction>
+			<PackagePath>lib\net6.0</PackagePath>
+		</Content>
+		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
+			<BuildAction>None</BuildAction>
 			<PackagePath>lib\net6.0</PackagePath>
 		</Content>
 	</ItemGroup>
