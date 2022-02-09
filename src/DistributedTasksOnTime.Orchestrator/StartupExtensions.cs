@@ -2,7 +2,7 @@
 
 public static class StartupExtensions
 {
-	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, Action<Ariane.IRegister> arianeRegister = null)
+	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, Action<DistributedTasksOnTimeServerSettings> config = null, Action<Ariane.IRegister> arianeRegister = null)
 	{
 		var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
@@ -10,8 +10,8 @@ public static class StartupExtensions
 			.ConfigureAppConfiguration((ctx, configurationBuilder) =>
 			{
 				configurationBuilder.SetBasePath(currentFolder)
-						.AddJsonFile("appSettings.json", false, true)
-						.AddJsonFile($"appSettings.{ctx.HostingEnvironment.EnvironmentName}.json", true, true)
+						.AddJsonFile("appSettings.json", true, false)
+						.AddJsonFile($"appSettings.{ctx.HostingEnvironment.EnvironmentName}.json", true, false)
 						.AddEnvironmentVariables();
 
 				var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
@@ -29,8 +29,15 @@ public static class StartupExtensions
 				services.AddHostedService<MainWorker>();
 
 				var settings = new DistributedTasksOnTimeServerSettings();
-				var section = ctx.Configuration.GetSection("DistributedTasksOnTime");
-				section.Bind(settings);
+				if (config == null)
+				{
+					var section = ctx.Configuration.GetSection("DistributedTasksOnTime");
+					section.Bind(settings);
+				}
+				else
+				{
+					config.Invoke(settings);
+				}
 				services.AddSingleton(settings);
 
 				if (settings.StoreFolder.StartsWith(@".\"))

@@ -10,9 +10,9 @@ namespace DistributedTasksOnTime.BlazorComponent
 {
 	public static class StartupExtensions
 	{
-		public static IHostBuilder AddDistributedTasksOnTimeBlazor(this IHostBuilder builder)
+		public static IHostBuilder AddDistributedTasksOnTimeBlazor(this IHostBuilder builder, Action<DistributedTasksOnTimeServerSettings> config = null, Action<Ariane.IRegister> arianeRegister = null)
 		{
-			builder.AddDistributedTasksOnTimeOrchestrator();
+			builder.AddDistributedTasksOnTimeOrchestrator(config, arianeRegister);
 			return builder;
 		}
 	}
