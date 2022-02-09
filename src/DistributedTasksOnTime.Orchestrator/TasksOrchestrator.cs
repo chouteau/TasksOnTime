@@ -3,6 +3,8 @@
 internal class TasksOrchestrator : ITasksOrchestrator
 {
     public event Action<string> OnHostRegistered;
+    public event Action<TaskState, Models.RunningTask> OnRunningTaskChanged;
+    public event Action<string> OnScheduledTaskStarted;
 
     public TasksOrchestrator(DistributedTasksOnTimeServerSettings scheduleSettings,
         ILogger<TasksOrchestrator> logger,
@@ -39,7 +41,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         this.ScheduledTaskList = new ConcurrentDictionary<string, Models.ScheduledTask>();
         foreach (var item in taskList)
 		{
-            this.ScheduledTaskList.TryAdd(item.Name, item);
+            this.ScheduledTaskList.TryAdd(item.Name.ToLower(), item);
         }
 
         Logger.LogInformation("Start with {0} existing scheduled task", taskList.Count);
@@ -71,13 +73,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
 		foreach (var task in hostInfo.TaskList)
 		{
-            if (ScheduledTaskList.ContainsKey(task.TaskName))
+            if (ScheduledTaskList.ContainsKey(task.TaskName.ToLower()))
             {
                 continue;
             }
 
             var scheduledTask = CreateScheduledTask(task);
-            this.ScheduledTaskList.TryAdd(scheduledTask.Name, scheduledTask);
+            this.ScheduledTaskList.TryAdd(scheduledTask.Name.ToLower(), scheduledTask);
 
         }
         var taskList = ScheduledTaskList.Select(i => i.Value).ToList();
@@ -108,6 +110,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
             existing.Id = distributedTaskInfo.Id;
 		}
 
+        var scheduledTask = ScheduledTaskList.FirstOrDefault(i => i.Key == existing.TaskName.ToLower());
+        if (scheduledTask.Key == null)
+		{
+            // Pas normal du tout
+            Logger.LogWarning("Running task without scheduledTask {0}", distributedTaskInfo.Id);
+        }
+
         if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Enqueued)
 		{
             Logger.LogTrace("Task {0} enqueued", existing.TaskName);
@@ -119,6 +128,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogTrace("Task {0} started", existing.TaskName);
             existing.HostKey = distributedTaskInfo.HostKey;
             existing.RunningDate = distributedTaskInfo.EventDate;
+
+            scheduledTask.Value.StartedCount = scheduledTask.Value.StartedCount + 1;
+            var taskList = ScheduledTaskList.Select(i => i.Value).ToList();
+            DbRepository.PersistScheduledTaskList(taskList);
+
+            OnScheduledTaskStarted?.Invoke(existing.TaskName);
         }
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Terminated)
 		{
@@ -155,85 +170,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
 			{
                 Logger.LogWarning("Progress event without info");
 			}
-            switch (distributedTaskInfo.ProgressInfo.Type)
+            else
 			{
-				case DistributedTasksOnTime.ProgressType.Start:
-                    existing.Logs.Add("Start");
-					break;
-				case DistributedTasksOnTime.ProgressType.Write:
-                    existing.Logs.Add(distributedTaskInfo.ProgressInfo.Subject);
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.StartProgress:
-                    existing.Logs.Add($"StartProgress:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-					{
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.StartContinuousProgress:
-                    existing.Logs.Add($"StartContinuousProgress:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.Progress:
-                    existing.Logs.Add($"Progress:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.EndProgress:
-                    existing.Logs.Add($"EndProgress:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.EndContinuousProgress:
-                    existing.Logs.Add($"EndContinousProgress:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.EntityChanged:
-                    existing.Logs.Add($"EntityChanged:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.Failed:
-                    existing.Logs.Add($"Failed:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.Cancel:
-                    existing.Logs.Add($"Cancel:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				case DistributedTasksOnTime.ProgressType.Completed:
-                    existing.Logs.Add($"Comleted:{distributedTaskInfo.ProgressInfo.Subject}");
-                    if (!string.IsNullOrWhiteSpace(distributedTaskInfo.ProgressInfo.Body))
-                    {
-                        existing.Logs.Add(distributedTaskInfo.ProgressInfo.Body);
-                    }
-                    break;
-				default:
-					break;
-			}
+                existing.ProgressLogs.Add(distributedTaskInfo.ProgressInfo);
+            }
 		}
+
+        OnRunningTaskChanged?.Invoke(distributedTaskInfo.State, existing);
     }
 
     public bool ContainsTask(string taskName)
@@ -243,14 +186,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
             throw new NullReferenceException("taskName is null");
 		}
 
-        taskName = taskName.ToLower();
-
         bool result = false;
         if (ScheduledTaskList == null || ScheduledTaskList.Count == 0)
         {
             return false;
         }
-        result = ScheduledTaskList.ContainsKey(taskName);
+        result = ScheduledTaskList.ContainsKey(taskName.ToLower());
         return result;
     }
 
@@ -282,14 +223,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
             throw new NullReferenceException("task name is null");
         }
 
-        taskName = taskName.ToLower();
-
         Logger.LogInformation("Try to force task {0}", taskName);
             
-        var getResult = ScheduledTaskList.TryGetValue(taskName, out Models.ScheduledTask task);
+        var getResult = ScheduledTaskList.TryGetValue(taskName.ToLower(), out Models.ScheduledTask task);
         if (!getResult)
 		{
-            throw new Exception($"try to get task {taskName} failed");
+            Logger.LogWarning($"try to get task {taskName} failed");
+            return;
 		}
         if (task == null)
         {
@@ -312,7 +252,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
     public IEnumerable<Models.ScheduledTask> GetScheduledTaskList()
     {
         var result = new List<Models.ScheduledTask>();
-        if (ScheduledTaskList == null)
+        if (ScheduledTaskList == null
+            || !ScheduledTaskList.Any())
 		{
             return result;
 		}
@@ -322,6 +263,27 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
         return result;
     }
+
+    public IEnumerable<Models.RunningTask> GetRunningTaskList(string taskName = null)
+    {
+        var result = new List<Models.RunningTask>();
+        if (RunningTaskList == null
+            || !RunningTaskList.Any())
+        {
+            return result;
+        }
+        foreach (var item in RunningTaskList.Values)
+        {
+            if (!string.IsNullOrWhiteSpace(taskName)
+                && !item.TaskName.Equals(taskName, StringComparison.InvariantCulture))
+			{
+                continue;
+			}
+            result.Add(item);
+        }
+        return result;
+    }
+
 
     public void SaveScheduledTaskList()
 	{
@@ -399,7 +361,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
             return false;
         }
 
-        if (scheduledTask.Period == Models.ScheduledTaskTimePeriod.WorkingDay
+        if (scheduledTask.Period ==  ScheduledTaskTimePeriod.None)
+		{
+            return false;
+		}
+
+        if (scheduledTask.Period == ScheduledTaskTimePeriod.WorkingDay
                 && (scheduledTask.NextRunningDate.DayOfWeek == DayOfWeek.Saturday
                 || scheduledTask.NextRunningDate.DayOfWeek == DayOfWeek.Sunday))
         {
@@ -419,22 +386,22 @@ internal class TasksOrchestrator : ITasksOrchestrator
     {
         switch (scheduledTask.Period)
         {
-            case Models.ScheduledTaskTimePeriod.None:
+            case ScheduledTaskTimePeriod.None:
 
                 scheduledTask.NextRunningDate = DateTime.MinValue;
 
                 break;
-            case Models.ScheduledTaskTimePeriod.Month:
+            case ScheduledTaskTimePeriod.Month:
 
                 scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, scheduledTask.StartDay, scheduledTask.StartHour, scheduledTask.StartMinute, 0).AddMonths(scheduledTask.Interval);
 
                 break;
-            case Models.ScheduledTaskTimePeriod.Day:
+            case ScheduledTaskTimePeriod.Day:
 
                 scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, scheduledTask.StartHour, scheduledTask.StartMinute, 0).AddDays(scheduledTask.Interval);
                 break;
 
-            case Models.ScheduledTaskTimePeriod.WorkingDay:
+            case ScheduledTaskTimePeriod.WorkingDay:
 
                 while (true)
                 {
@@ -447,18 +414,18 @@ internal class TasksOrchestrator : ITasksOrchestrator
                     now = now.AddDays(1);
                 }
                 break;
-            case Models.ScheduledTaskTimePeriod.Hour:
+            case ScheduledTaskTimePeriod.Hour:
 
                 scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddHours(scheduledTask.Interval);
 
                 break;
-            case Models.ScheduledTaskTimePeriod.Minute:
+            case ScheduledTaskTimePeriod.Minute:
 
                 scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(scheduledTask.Interval);
 
                 break;
 
-            case Models.ScheduledTaskTimePeriod.Second:
+            case ScheduledTaskTimePeriod.Second:
 
                 scheduledTask.NextRunningDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(scheduledTask.Interval);
                 break;
@@ -473,6 +440,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
         task.AssemblyQualifiedName = taskInfo.AssemblyQualifiedName;
         task.StartedCount = 0;
         task.AllowMultipleInstance = taskInfo.AllowMultipleInstances;
+        task.Period = taskInfo.DefaultPeriod;
+        task.Interval = taskInfo.DefaultInterval;
+        task.Description = taskInfo.Description;
+        task.Parameters = taskInfo.Parameters;
+        task.StartDay = taskInfo.DefaultStartDay;
+        task.StartHour = taskInfo.DefaultStartHour;
+        task.StartMinute = taskInfo.DefaultStartMinute;
 
         return task;
     }

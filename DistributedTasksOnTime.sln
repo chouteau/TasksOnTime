@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.WebA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.DemoClient", "src\DistributedTasksOnTime.DemoClient\DistributedTasksOnTime.DemoClient.csproj", "{1138742D-3D2E-44CF-912E-AD8C3CE3476A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedTasksOnTime.BlazorComponent", "src\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj", "{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedTasksOnTime.BlazorComponent", "src\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj", "{DFF17D40-F84E-4E6F-8703-E7B96FECEB4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

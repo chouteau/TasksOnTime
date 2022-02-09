@@ -14,7 +14,6 @@
 			<th>Next Running Date</th>
 			<th>Allow Multiple instances</th>
 			<th>Period</th>
-			<th>Interval</th>
 			<th>StartedCount</th>
 			<th>Actions</th>
 		</tr>
@@ -24,7 +23,8 @@
 		{
 			<tr>
 				<td>
-					<a href="/scheduledtask/@item.Name">@item.Name</a>
+					<a href="/scheduledtask/@item.Name">@item.Name</a><br/>
+					@item.Description
 				</td>
 				<td>
 					@if (item.NextRunningDate == DateTime.MinValue)
@@ -37,8 +37,25 @@
 					}
 				</td>
 				<td>@item.AllowMultipleInstance</td>
-				<td>@item.Period</td>
-				<td>@item.Interval</td>
+				<td>
+					@item.Period <br/>
+					Interval : @item.Interval <br/>
+					@if (item.Period == ScheduledTaskTimePeriod.Month)
+					{
+						<span>Start Day : @item.StartDay<br/></span>
+					}
+					@if (item.Period != ScheduledTaskTimePeriod.Hour
+						&& item.Period != ScheduledTaskTimePeriod.Minute
+						&& item.Period != ScheduledTaskTimePeriod.Second)
+					{
+						<span>Start Hour : @item.StartHour</span><br/>
+					}
+					@if (item.Period != ScheduledTaskTimePeriod.Minute
+						&& item.Period != ScheduledTaskTimePeriod.Second)
+					{
+						<span>Start Minute : @item.StartMinute</span><br/>
+					}
+				</td>
 				<td>@item.StartedCount</td>
 				<td>
 					<button class="btn btn-primary" @onclick="() => EditTask(item)">Edit</button>

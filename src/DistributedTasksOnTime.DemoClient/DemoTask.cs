@@ -4,14 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using TasksOnTime;
+
 namespace DistributedTasksOnTime.DemoClient
 {
 	internal class DemoTask : TasksOnTime.ITask
 	{
-		public Task ExecuteAsync(TasksOnTime.ExecutionContext context)
+		public async Task ExecuteAsync(TasksOnTime.ExecutionContext context)
 		{
+			context.StartNotification("", "DemoTask Started");
+			await Task.Delay(10 * 1000);
 			Console.WriteLine(DateTime.Now);
-			return Task.CompletedTask;
+			context.WriteNotification("", "Date", $"{DateTime.Now}");
+			await Task.Delay(5 * 1000);
+			context.CompletedNotification("");
 		}
 	}
 }

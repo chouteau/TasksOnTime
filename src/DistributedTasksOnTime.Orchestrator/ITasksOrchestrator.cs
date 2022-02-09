@@ -3,6 +3,8 @@
 public interface ITasksOrchestrator
 {
 	event Action<string> OnHostRegistered;
+	event Action<TaskState, Models.RunningTask> OnRunningTaskChanged;
+	event Action<string> OnScheduledTaskStarted;
 
 	void Start();
 	void Stop();
@@ -16,6 +18,7 @@ public interface ITasksOrchestrator
 	int GetScheduledTaskCount();
 	void SaveScheduledTaskList();
 	int GetRunningTaskCount();
+	IEnumerable<Models.RunningTask> GetRunningTaskList(string taskName = null);
 	IEnumerable<Models.ScheduledTask> GetScheduledTaskList();
 }
 

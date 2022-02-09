@@ -1,3 +1,4 @@
+using DistributedTasksOnTime;
 using DistributedTasksOnTime.Client;
 using DistributedTasksOnTime.Orchestrator.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,12 +17,11 @@ namespace DistributedTaskOnTime.Tests
 		{
 			var host = TestsHelper.CreateTestHostWith1Client(config =>
 			{
-				config.RegisterScheduledTask(new DistributedTasksOnTime.TaskRegistrationInfo
+				config.RegisterScheduledTask<MyTask>(new DistributedTasksOnTime.TaskRegistrationInfo
 				{
 					TaskName = "MyTask",
 					AllowMultipleInstances = false,
 					Enabled = true,
-					AssemblyQualifiedName = typeof(MyTask).AssemblyQualifiedName
 				});
 			});
 

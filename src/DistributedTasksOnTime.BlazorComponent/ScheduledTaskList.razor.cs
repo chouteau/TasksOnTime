@@ -14,10 +14,25 @@ namespace DistributedTasksOnTime.BlazorComponent
 
 		IEnumerable<DistributedTasksOnTime.Orchestrator.Models.ScheduledTask> scheduledTaskList;
 
-		protected override Task OnInitializedAsync()
+		protected override void OnInitialized()
 		{
 			scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
-			return base.OnInitializedAsync();
+			TasksOrchestrator.OnHostRegistered += async s =>
+			{
+				scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
+				await InvokeAsync(() =>
+				{
+					StateHasChanged();
+				});
+			};
+			TasksOrchestrator.OnScheduledTaskStarted += async s =>
+			{
+				scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
+				await InvokeAsync(() =>
+				{
+					StateHasChanged();
+				});
+			};
 		}
 
 		void EditTask(Orchestrator.Models.ScheduledTask task)
