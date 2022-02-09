@@ -3,47 +3,11 @@
 namespace DistributedTasksOnTime.Client;
 public static class StartupExtensions
 {
-	public static IServiceCollection AddDistributedTasksOnTimeClient(this IServiceCollection services,
-		Action<DistributedTasksOnTimeSettings> config,
-		Action<ArianeSettings> arianeConfig = null,
-		Action<Ariane.IRegister> arianeRegister = null)
-	{
-		var settings = new DistributedTasksOnTimeSettings();
-		config.Invoke(settings);
-
-		services.AddDistributedTasksOnTimeClient(settings, arianeConfig, arianeRegister);
-		return services;
-	}
-
 	public static IServiceCollection AddDistributedTasksOnTimeClient(this IServiceCollection services, 
-				DistributedTasksOnTimeSettings settings, 
-				Action<ArianeSettings> arianeConfig = null,
-				Action<Ariane.IRegister> arianeRegister = null)
+				DistributedTasksOnTimeSettings settings)
 	{
 		services.AddSingleton(settings);
 		services.AddTransient<DistributedProgressReporter>();
-
-		services.ConfigureArianeAzure();
-		if (arianeRegister == null)
-		{
-			services.ConfigureAriane(register =>
-			{
-				register.AddAzureQueueWriter(settings.TaskInfoQueueName);
-				register.AddAzureQueueWriter(settings.HostRegistrationQueueName);
-				var topicName = $"{System.Environment.MachineName}.{settings.HostName}";
-				register.AddAzureTopicReader<Readers.CancelTaskReader>(settings.CancelTaskQueueName, topicName);
-
-				foreach (var item in settings.ScheduledTaskList)
-				{
-					var queueName = $"{settings.PrefixQueueName}.{item.TaskName}";
-					register.AddAzureQueueReader<Readers.ProcessTaskReader>(queueName);
-				}
-			}, arianeConfig);
-		}
-		else
-		{
-			services.ConfigureAriane(arianeRegister, arianeConfig);
-		}
 
 		services.AddTasksOnTimeServices(tasksOnTimeConfig =>
 		{
@@ -121,6 +85,21 @@ public static class StartupExtensions
 
 		return serviceProvider;
 	}
+
+	public static void SetupArianeRegisterDistributedTasksOnTimeClient(this IRegister register, DistributedTasksOnTimeSettings settings)
+	{
+		register.AddAzureQueueWriter(settings.TaskInfoQueueName);
+		register.AddAzureQueueWriter(settings.HostRegistrationQueueName);
+		var topicName = $"{System.Environment.MachineName}.{settings.HostName}";
+		register.AddAzureTopicReader<Readers.CancelTaskReader>(settings.CancelTaskQueueName, topicName);
+
+		foreach (var item in settings.ScheduledTaskList)
+		{
+			var queueName = $"{settings.PrefixQueueName}.{item.TaskName}";
+			register.AddAzureQueueReader<Readers.ProcessTaskReader>(queueName);
+		}
+	}
+
 
 }
 

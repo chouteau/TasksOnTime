@@ -339,6 +339,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         procesTask.CreationDate = DateTime.Now;
         procesTask.TaskName = scheduledTask.Name;
         procesTask.FullTypeName = scheduledTask.AssemblyQualifiedName;
+        procesTask.AllowMultipleInstances = scheduledTask.AllowLocalMultipleInstances;
 
         var queueName = $"{Settings.PrefixQueueName}.{scheduledTask.Name}";
         await QueueSender.SendMessage(queueName, procesTask);
@@ -442,6 +443,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         task.AssemblyQualifiedName = taskInfo.AssemblyQualifiedName;
         task.StartedCount = 0;
         task.AllowMultipleInstance = taskInfo.AllowMultipleInstances;
+        task.AllowLocalMultipleInstances = taskInfo.AllowLocalMultipleInstances;
         task.Period = taskInfo.DefaultPeriod;
         task.Interval = taskInfo.DefaultInterval;
         task.Description = taskInfo.Description;

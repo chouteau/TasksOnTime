@@ -32,24 +32,11 @@ namespace DistributedTaskOnTime.Tests
 
 			var clientSection = configuration.GetSection("DistributedTasksOnTime");
 			var clientSettings = new DistributedTasksOnTimeSettings();
+			var serverSettings = new DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings();
 			clientSection.Bind(clientSettings);
+			clientSection.Bind(serverSettings);
 
 			config.Invoke(clientSettings);
-
-			Action<Ariane.IRegister> arianeRegister = (register) =>
-			{
-				var topicName = $"{System.Environment.MachineName}.{clientSettings.HostName}";
-				register.AddAzureTopicReader<DistributedTasksOnTime.Client.Readers.CancelTaskReader>(clientSettings.CancelTaskQueueName, topicName);
-
-				register.AddAzureQueueReader<DistributedTasksOnTime.Orchestrator.Readers.TaskInfoReader>(clientSettings.TaskInfoQueueName);
-				register.AddAzureQueueReader<DistributedTasksOnTime.Orchestrator.Readers.HostRegistrationReader>(clientSettings.HostRegistrationQueueName);
-
-				foreach (var item in clientSettings.ScheduledTaskList)
-				{
-					var queueName = $"{clientSettings.PrefixQueueName}.{item.TaskName}";
-					register.AddAzureQueueReader<DistributedTasksOnTime.Client.Readers.ProcessTaskReader>(queueName);
-				}
-			};
 
 			Action<Ariane.ArianeSettings> arianeConfig = (cfg) =>
 			{
@@ -63,10 +50,18 @@ namespace DistributedTaskOnTime.Tests
 				.ConfigureServices(services =>
 				{
 					services.AddSingleton(clientSettings);
-					services.AddDistributedTasksOnTimeClient(clientSettings, arianeConfig, arianeRegister);
+					services.ConfigureArianeAzure();
+					services.ConfigureAriane(register =>
+					{
+						register.SetupArianeRegisterDistributedTasksOnTimeClient(clientSettings);
+						register.SetupArianeRegisterDistributedTasksOnTimeOrchestrator(serverSettings);
+
+					}, arianeConfig);
+
+					services.AddDistributedTasksOnTimeClient(clientSettings);
 				});
 
-			builder.AddDistributedTasksOnTimeOrchestrator(null, arianeRegister);
+			builder.AddDistributedTasksOnTimeOrchestrator(serverSettings);
 
 			var host = builder.Build();
 			return host;
