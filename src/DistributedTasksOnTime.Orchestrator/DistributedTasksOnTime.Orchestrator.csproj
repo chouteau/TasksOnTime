@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-DistributedTasksOnTimeServer-7476CA37-EB84-422B-A476-3EA40DCCE81C</UserSecretsId>
     <Version>1.0.1.0</Version>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

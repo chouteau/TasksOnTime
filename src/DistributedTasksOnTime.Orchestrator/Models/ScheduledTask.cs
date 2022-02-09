@@ -17,6 +17,7 @@ public class ScheduledTask
 	public int StartedCount { get; set; }
 	public bool Enabled { get; set; }
 	public bool AllowMultipleInstance { get; set; }
+	public bool AllowLocalMultipleInstances { get; set; }
 	public DateTime NextRunningDate { get; set; }
 	public Dictionary<string, string> Parameters { get; set; }
 	public string Description { get; set; }

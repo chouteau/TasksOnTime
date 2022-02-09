@@ -15,13 +15,14 @@
 			<th>Allow Multiple instances</th>
 			<th>Period</th>
 			<th>StartedCount</th>
+			<th>Last State</th>
 			<th>Actions</th>
 		</tr>
 	</thead>
 	<tbody>
 		@foreach (var item in taskInfoList)
 		{
-			var isRunning = item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
+			var isRunning = !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
 			<tr class="@isRunning">
 				<td>
 					<a href="/scheduledtask/@item.ScheduledTask.Name">@item.ScheduledTask.Name</a><br/>
@@ -37,7 +38,10 @@
 						<span>@item.ScheduledTask.NextRunningDate</span>
 					}
 				</td>
-				<td>@item.ScheduledTask.AllowMultipleInstance</td>
+				<td>
+					Global : @item.ScheduledTask.AllowMultipleInstance<br/>
+					Local : @item.ScheduledTask.AllowLocalMultipleInstances<br/>
+				</td>
 				<td>
 					@item.ScheduledTask.Period <br/>
 					Interval : @item.ScheduledTask.Interval <br/>
@@ -59,9 +63,18 @@
 				</td>
 				<td>@item.ScheduledTask.StartedCount</td>
 				<td>
+					@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type
+				</td>
+				<td>
 					<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
-					<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)" >Force</button>
-					<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)" >Cancel</button>
+					@if (item.LastRunningTask.TerminatedDate.HasValue)
+					{
+						<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)" >Force</button>
+					}
+					else
+					{
+						<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)" >Cancel</button>
+					}
 				</td>
 			</tr>
 		}

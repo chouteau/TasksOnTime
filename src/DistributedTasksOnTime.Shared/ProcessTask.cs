@@ -12,5 +12,6 @@ namespace DistributedTasksOnTime
 		public DateTime CreationDate { get; set; } = DateTime.Now;
 		public string FullTypeName { get; set; }
 		public string TaskName { get; set; }
+		public bool AllowMultipleInstances { get; set; }
 	}
 }

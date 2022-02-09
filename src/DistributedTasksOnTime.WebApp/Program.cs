@@ -3,13 +3,42 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 using Ariane;
+using DistributedTasksOnTime.Orchestrator;
+
+var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.SetBasePath(currentFolder)
+		.AddJsonFile("appSettings.json", true, false)
+		.AddJsonFile($"appSettings.{builder.Environment.EnvironmentName}.json", true, false)
+		.AddEnvironmentVariables();
+
+var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
+if (System.IO.File.Exists(localConfig))
+{
+	builder.Configuration.AddJsonFile(localConfig, true, false);
+}
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Host.AddDistributedTasksOnTimeBlazor();
+
+var section = builder.Configuration.GetSection("DistributedTasksOnTime");
+var dtotSettings = new DistributedTasksOnTimeServerSettings();
+section.Bind(dtotSettings);
+
+builder.Host.AddDistributedTasksOnTimeBlazor(dtotSettings);
+
+builder.Services.ConfigureArianeAzure();
+builder.Services.ConfigureAriane(register =>
+{
+	register.SetupArianeRegisterDistributedTasksOnTimeOrchestrator(dtotSettings);
+}, s =>
+{
+	s.DefaultAzureConnectionString = dtotSettings.AzureBusConnectionString;
+});
+
 
 
 if (System.Environment.UserInteractive

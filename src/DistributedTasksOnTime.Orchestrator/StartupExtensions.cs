@@ -2,24 +2,19 @@
 
 public static class StartupExtensions
 {
-	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, Action<DistributedTasksOnTimeServerSettings> config = null, Action<Ariane.IRegister> arianeRegister = null)
+	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, Action<DistributedTasksOnTimeServerSettings> config)
 	{
-		var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
+		var settings = new DistributedTasksOnTimeServerSettings();
+		config(settings);
+		builder.AddDistributedTasksOnTimeOrchestrator(settings);
+		return builder;
+	}
+
+	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, DistributedTasksOnTimeServerSettings settings)
+	{
+		var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location);
 
 		builder
-			.ConfigureAppConfiguration((ctx, configurationBuilder) =>
-			{
-				configurationBuilder.SetBasePath(currentFolder)
-						.AddJsonFile("appSettings.json", true, false)
-						.AddJsonFile($"appSettings.{ctx.HostingEnvironment.EnvironmentName}.json", true, false)
-						.AddEnvironmentVariables();
-
-				var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
-				if (System.IO.File.Exists(localConfig))
-				{
-					configurationBuilder.AddJsonFile(localConfig, true, false);
-				}
-			})
 			.ConfigureServices((ctx, services) =>
 			{
 				services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
@@ -28,16 +23,6 @@ public static class StartupExtensions
 
 				services.AddHostedService<MainWorker>();
 
-				var settings = new DistributedTasksOnTimeServerSettings();
-				if (config == null)
-				{
-					var section = ctx.Configuration.GetSection("DistributedTasksOnTime");
-					section.Bind(settings);
-				}
-				else
-				{
-					config.Invoke(settings);
-				}
 				services.AddSingleton(settings);
 
 				if (settings.StoreFolder.StartsWith(@".\"))
@@ -48,29 +33,16 @@ public static class StartupExtensions
 						System.IO.Directory.CreateDirectory(settings.StoreFolder);
 					}
 				}
-
-				services.ConfigureArianeAzure();
-				Action<Ariane.ArianeSettings> arianeConfig = (cfg) =>
-				{
-					cfg.DefaultAzureConnectionString = settings.AzureBusConnectionString;
-				};
-				if (arianeRegister != null)
-				{
-					services.ConfigureAriane(arianeRegister, arianeConfig);
-				}
-				else
-				{
-					services.ConfigureAriane(register =>
-					{
-						register.AddAzureQueueReader<Readers.TaskInfoReader>(settings.TaskInfoQueueName);
-						register.AddAzureQueueReader<Readers.HostRegistrationReader>(settings.HostRegistrationQueueName);
-						register.AddAzureTopicWriter(settings.CancelTaskQueueName);
-					}, arianeConfig);
-				}
-
 			});
 
 		return builder;
+	}
+
+	public static void SetupArianeRegisterDistributedTasksOnTimeOrchestrator(this IRegister register, DistributedTasksOnTimeServerSettings settings)
+	{
+		register.AddAzureQueueReader<Readers.TaskInfoReader>(settings.TaskInfoQueueName);
+		register.AddAzureQueueReader<Readers.HostRegistrationReader>(settings.HostRegistrationQueueName);
+		register.AddAzureTopicWriter(settings.CancelTaskQueueName);
 	}
 }
 

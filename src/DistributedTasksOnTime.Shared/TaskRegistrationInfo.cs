@@ -11,6 +11,7 @@ namespace DistributedTasksOnTime
 		public string TaskName { get; set; }
 		public string AssemblyQualifiedName { get; set; }
 		public bool AllowMultipleInstances { get; set; } = false;
+		public bool AllowLocalMultipleInstances { get; set; } = false;
 		public string Description { get; set; }
 		public ScheduledTaskTimePeriod DefaultPeriod { get; set; }
 		public int DefaultInterval { get; set; }

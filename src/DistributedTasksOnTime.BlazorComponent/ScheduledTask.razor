@@ -15,7 +15,6 @@
 				<th>TerminatedDate</th>
 				<th>Host</th>
 				<th>IsForced</th>
-				<th>LastState</th>
 			</tr>
 	</thead>
 	<tbody>
@@ -32,8 +31,8 @@
 			</tr>
 			@if (running.ErrorStack != null)
 			{
-				<tr>
-					<td colspan="6">@running.ErrorStack</td>
+				<tr class="table-warning">
+					<td colspan="7">@running.ErrorStack</td>
 				</tr>
 			}
 			@if (running.ProgressLogs.Any())
@@ -41,7 +40,7 @@
 				@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
 				{
 					<tr>
-						<td colspan="6">
+						<td colspan="7">
 							@log.Type : @log.Subject
 							@if (!string.IsNullOrWhiteSpace(log.Body))
 							{
