@@ -27,12 +27,12 @@ var host= Host.CreateDefaultBuilder(args)
 					var clientSettings = new DistributedTasksOnTimeSettings();
 					clientSection.Bind(clientSettings);
 
-					clientSettings.RegisterScheduledTask(new DistributedTasksOnTime.TaskRegistrationInfo
+					clientSettings.RegisterScheduledTask<DistributedTasksOnTime.DemoClient.DemoTask>(new DistributedTasksOnTime.TaskRegistrationInfo
 					{
-						AllowMultipleInstances = false,
 						TaskName = "Demo",
-						AssemblyQualifiedName = typeof(DistributedTasksOnTime.DemoClient.DemoTask).AssemblyQualifiedName,
-						Enabled = true,
+						Description = "Demo task description",
+						DefaultPeriod = DistributedTasksOnTime.ScheduledTaskTimePeriod.Second,
+						DefaultInterval = 30
 					});
 
 					services.AddDistributedTasksOnTimeClient(clientSettings, arianeConfig =>

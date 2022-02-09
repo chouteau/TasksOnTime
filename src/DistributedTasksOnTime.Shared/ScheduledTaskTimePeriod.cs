@@ -1,4 +1,4 @@
-﻿namespace DistributedTasksOnTime.Orchestrator.Models;
+﻿namespace DistributedTasksOnTime;
 
 public enum ScheduledTaskTimePeriod
 {

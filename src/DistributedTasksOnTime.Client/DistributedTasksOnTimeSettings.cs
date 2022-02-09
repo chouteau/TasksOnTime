@@ -20,10 +20,13 @@ public class DistributedTasksOnTimeSettings
 
 	internal IList<DistributedTasksOnTime.TaskRegistrationInfo> ScheduledTaskList { get; }
 
-	public DistributedTasksOnTimeSettings RegisterScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
+	public DistributedTasksOnTimeSettings RegisterScheduledTask<T>(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
 	{
 		if (!ScheduledTaskList.Any(i => i.TaskName.Equals(taskInfo.TaskName, StringComparison.InvariantCultureIgnoreCase)))
 		{
+			var assemblyQualifiedName = typeof(T).AssemblyQualifiedName;
+			var parts = assemblyQualifiedName.Split(',');
+			taskInfo.AssemblyQualifiedName = $"{parts[0]},{parts[1]}";
 			ScheduledTaskList.Add(taskInfo);
 		}
 		return this;

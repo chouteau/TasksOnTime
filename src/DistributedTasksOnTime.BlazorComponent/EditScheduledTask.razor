@@ -1,4 +1,7 @@
 ﻿@page "/editscheduledtask/{taskName}"
+
+<a href="/scheduledtasklist">Liste</a>
+
 @using Microsoft.AspNetCore.Components.Forms
 
 <h3>Edit ScheduledTask @scheduledTask.Name</h3>
@@ -8,15 +11,22 @@
     <DataAnnotationsValidator/>
     <CustomValidator @ref="CustomValidator"></CustomValidator>
     <div class="mb-3">
+        <label class="form-label">Description  :</label>
+        <InputText @bind-Value="scheduledTask.Description" class="form-control"/>
+        <small>
+            <ValidationMessage For="() => scheduledTask.Period"/>
+        </small>
+    </div>
+    <div class="mb-3">
         <label class="form-label">Period :</label>
         <InputSelect @bind-Value="scheduledTask.Period">
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.None">None</option>
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Second">Second</option>
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Minute">Minute</option>
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Hour">Hour</option>
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Day">Day</option>
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.WorkingDay">WorkingDay</option>
-            <option value="@Orchestrator.Models.ScheduledTaskTimePeriod.Month">Month</option>
+            <option value="@ScheduledTaskTimePeriod.None">None</option>
+            <option value="@ScheduledTaskTimePeriod.Second">Second</option>
+            <option value="@ScheduledTaskTimePeriod.Minute">Minute</option>
+            <option value="@ScheduledTaskTimePeriod.Hour">Hour</option>
+            <option value="@ScheduledTaskTimePeriod.Day">Day</option>
+            <option value="@ScheduledTaskTimePeriod.WorkingDay">WorkingDay</option>
+            <option value="@ScheduledTaskTimePeriod.Month">Month</option>
         </InputSelect>
         <small>
             <ValidationMessage For="() => scheduledTask.Period"/>
@@ -29,6 +39,39 @@
             <ValidationMessage For="() => scheduledTask.Interval"/>
         </small>
     </div>
+    @if (scheduledTask.Period == ScheduledTaskTimePeriod.Month)
+    {
+        <div class="mb-3">
+            <label class="form-label">Start Day :</label>
+            <InputNumber @bind-Value="scheduledTask.StartDay" class="form-control" />
+            <small>
+                <ValidationMessage For="() => scheduledTask.StartDay"/>
+            </small>
+        </div>
+    } 
+    @if (scheduledTask.Period != ScheduledTaskTimePeriod.Hour
+        && scheduledTask.Period != ScheduledTaskTimePeriod.Minute
+        && scheduledTask.Period != ScheduledTaskTimePeriod.Second)
+    {
+        <div class="mb-3">
+            <label class="form-label">Start Hour :</label>
+            <InputNumber @bind-Value="scheduledTask.StartHour" class="form-control" />
+            <small>
+                <ValidationMessage For="() => scheduledTask.StartHour"/>
+            </small>
+        </div>
+    }
+    @if (scheduledTask.Period != ScheduledTaskTimePeriod.Minute
+         && scheduledTask.Period != ScheduledTaskTimePeriod.Second)
+    {
+        <div class="mb-3">
+            <label class="form-label">Start Minute :</label>
+            <InputNumber @bind-Value="scheduledTask.StartMinute" class="form-control" />
+            <small>
+                <ValidationMessage For="() => scheduledTask.StartMinute"/>
+            </small>
+        </div>
+    }
     <div class="mb-3">
         <label class="form-label">Allow multiple instances :</label>
         <InputCheckbox @bind-Value="scheduledTask.AllowMultipleInstance" class="form-check-input" />

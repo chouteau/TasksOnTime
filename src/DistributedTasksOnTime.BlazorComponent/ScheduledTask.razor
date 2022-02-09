@@ -1,0 +1,53 @@
+﻿@page "/scheduledtask/{taskname}"
+
+<a href="/scheduledtasklist">Liste</a>
+
+<h3>ScheduledTask @scheduledTask.Name</h3>
+<h4>@scheduledTask.Description</h4>
+
+<table class="table table-bordered">
+	<thead>
+			<tr>
+				<th>CreationDate</th>
+				<th>RunningDate</th>
+				<th>FailedDate</th>
+				<th>CanceledDate</th>
+				<th>TerminatedDate</th>
+				<th>IsForced</th>
+			</tr>
+	</thead>
+	<tbody>
+		@foreach(var running in runningTaskList.OrderByDescending(i => i.CreationDate))
+		{
+			<tr>
+				<td>@running.CreationDate</td>
+				<td>@running.RunningDate</td>
+				<td>@running.FailedDate</td>
+				<td>@running.CanceledDate</td>
+				<td>@running.TerminatedDate</td>
+				<td>@running.IsForced</td>
+			</tr>
+			@if (running.ErrorStack != null)
+			{
+				<tr>
+					<td colspan="6">@running.ErrorStack</td>
+				</tr>
+			}
+			@if (running.ProgressLogs.Any())
+			{
+				@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
+				{
+					<tr>
+						<td colspan="6">
+							@log.Type : @log.Subject
+							@if (!string.IsNullOrWhiteSpace(log.Body))
+							{
+								<span>@log.Body</span>
+							}
+						</td>
+					</tr>
+				}
+			}
+		}	
+	</tbody>
+</table>

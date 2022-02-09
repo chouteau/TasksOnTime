@@ -15,6 +15,6 @@ public class RunningTask
 	public DateTime? FailedDate { get; set; }
 	public string ErrorStack { get; set; }
 	public bool IsForced { get; set; }
-	public List<string> Logs { get; set; } = new();
+	public List<ProgressInfo> ProgressLogs { get; set; } = new();
 }
 

@@ -19,5 +19,6 @@ public class ScheduledTask
 	public bool AllowMultipleInstance { get; set; }
 	public DateTime NextRunningDate { get; set; }
 	public Dictionary<string, string> Parameters { get; set; }
+	public string Description { get; set; }
 }
 
