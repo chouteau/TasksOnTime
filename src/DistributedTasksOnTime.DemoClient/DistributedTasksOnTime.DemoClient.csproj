@@ -7,33 +7,10 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="localconfig\appsettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Update="localconfig\appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
   </ItemGroup>
-
-	<ItemGroup>
-		<Compile Remove="localconfig\**" />
-		<None Remove="localconfig\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="localconfig\appsettings.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
@@ -45,5 +22,9 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="IF EXIST $(ProjectDir)localconfig\appsettings.json xcopy $(ProjectDir)localconfig\appsettings.json $(OutDir)localconfig /Y" />
+	</Target>
 
 </Project>

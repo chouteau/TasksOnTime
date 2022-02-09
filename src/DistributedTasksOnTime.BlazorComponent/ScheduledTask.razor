@@ -13,7 +13,9 @@
 				<th>FailedDate</th>
 				<th>CanceledDate</th>
 				<th>TerminatedDate</th>
+				<th>Host</th>
 				<th>IsForced</th>
+				<th>LastState</th>
 			</tr>
 	</thead>
 	<tbody>
@@ -25,6 +27,7 @@
 				<td>@running.FailedDate</td>
 				<td>@running.CanceledDate</td>
 				<td>@running.TerminatedDate</td>
+				<td>@running.HostKey</td>
 				<td>@running.IsForced</td>
 			</tr>
 			@if (running.ErrorStack != null)

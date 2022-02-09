@@ -12,9 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="localconfig\appsettings.json">
+    <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="IF EXIST $(ProjectDir)localconfig\appsettings.json xcopy $(ProjectDir)localconfig\appsettings.json $(OutDir)localconfig /Y" />
+	</Target>
+
 
 </Project>

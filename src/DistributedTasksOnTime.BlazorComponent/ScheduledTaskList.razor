@@ -19,48 +19,49 @@
 		</tr>
 	</thead>
 	<tbody>
-		@foreach (var item in scheduledTaskList)
+		@foreach (var item in taskInfoList)
 		{
-			<tr>
+			var isRunning = item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
+			<tr class="@isRunning">
 				<td>
-					<a href="/scheduledtask/@item.Name">@item.Name</a><br/>
-					@item.Description
+					<a href="/scheduledtask/@item.ScheduledTask.Name">@item.ScheduledTask.Name</a><br/>
+					@item.ScheduledTask.Description
 				</td>
 				<td>
-					@if (item.NextRunningDate == DateTime.MinValue)
+					@if (item.ScheduledTask.NextRunningDate == DateTime.MinValue)
 					{
 						<span>Never</span>
 					}
 					else
 					{
-						<span>@item.NextRunningDate</span>
+						<span>@item.ScheduledTask.NextRunningDate</span>
 					}
 				</td>
-				<td>@item.AllowMultipleInstance</td>
+				<td>@item.ScheduledTask.AllowMultipleInstance</td>
 				<td>
-					@item.Period <br/>
-					Interval : @item.Interval <br/>
-					@if (item.Period == ScheduledTaskTimePeriod.Month)
+					@item.ScheduledTask.Period <br/>
+					Interval : @item.ScheduledTask.Interval <br/>
+					@if (item.ScheduledTask.Period == ScheduledTaskTimePeriod.Month)
 					{
-						<span>Start Day : @item.StartDay<br/></span>
+						<span>Start Day : @item.ScheduledTask.StartDay<br/></span>
 					}
-					@if (item.Period != ScheduledTaskTimePeriod.Hour
-						&& item.Period != ScheduledTaskTimePeriod.Minute
-						&& item.Period != ScheduledTaskTimePeriod.Second)
+					@if (item.ScheduledTask.Period != ScheduledTaskTimePeriod.Hour
+						&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Minute
+						&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Second)
 					{
-						<span>Start Hour : @item.StartHour</span><br/>
+						<span>Start Hour : @item.ScheduledTask.StartHour</span><br/>
 					}
-					@if (item.Period != ScheduledTaskTimePeriod.Minute
-						&& item.Period != ScheduledTaskTimePeriod.Second)
+					@if (item.ScheduledTask.Period != ScheduledTaskTimePeriod.Minute
+						&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Second)
 					{
-						<span>Start Minute : @item.StartMinute</span><br/>
+						<span>Start Minute : @item.ScheduledTask.StartMinute</span><br/>
 					}
 				</td>
-				<td>@item.StartedCount</td>
+				<td>@item.ScheduledTask.StartedCount</td>
 				<td>
-					<button class="btn btn-primary" @onclick="() => EditTask(item)">Edit</button>
-					<button class="btn btn-success" @onclick="() => ForceTask(item)" >Force</button>
-					<button class="btn btn-secondary" @onclick="() => CancelTask(item)" >Cancel</button>
+					<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
+					<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)" >Force</button>
+					<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)" >Cancel</button>
 				</td>
 			</tr>
 		}

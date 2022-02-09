@@ -108,6 +108,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogWarning("Running task not found with id {0}", distributedTaskInfo.Id);
             existing = new Models.RunningTask();
             existing.Id = distributedTaskInfo.Id;
+            existing.TaskName = "unknown";
 		}
 
         var scheduledTask = ScheduledTaskList.FirstOrDefault(i => i.Key == existing.TaskName.ToLower());
@@ -115,6 +116,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 		{
             // Pas normal du tout
             Logger.LogWarning("Running task without scheduledTask {0}", distributedTaskInfo.Id);
+            return;
         }
 
         if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Enqueued)
@@ -236,7 +238,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogWarning("force unknown task {0}", taskName);
             return;
         }
-        await EnqueueTask(task);
+        await EnqueueTask(task, true);
     }
 
     public int GetScheduledTaskCount()
