@@ -43,6 +43,15 @@ public static class StartupExtensions
 
 			bus.Send(settings.TaskInfoQueueName, taskInfo);
 		};
+		//taskHost.TaskCanceled += (s, taskId) =>
+		//{
+		//	var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
+		//	taskInfo.Id = taskId;
+		//	taskInfo.State = DistributedTasksOnTime.TaskState.Canceled;
+		//	taskInfo.HostKey = settings.HostKey;
+
+		//	bus.Send(settings.TaskInfoQueueName, taskInfo);
+		//};
 		taskHost.TaskTerminated += (s, taskId) =>
 		{
 			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
