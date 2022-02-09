@@ -22,7 +22,7 @@
 	<tbody>
 		@foreach (var item in taskInfoList)
 		{
-			var isRunning = !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
+			var isRunning = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
 			<tr class="@isRunning">
 				<td>
 					<a href="/scheduledtask/@item.ScheduledTask.Name">@item.ScheduledTask.Name</a><br/>
@@ -63,11 +63,15 @@
 				</td>
 				<td>@item.ScheduledTask.StartedCount</td>
 				<td>
-					@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type
+					@if (item.LastRunningTask != null)
+					{
+						<span>@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type</span>
+					}
 				</td>
 				<td>
 					<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
-					@if (item.LastRunningTask.TerminatedDate.HasValue)
+					@if (item.LastRunningTask != null
+						&& item.LastRunningTask.TerminatedDate.HasValue)
 					{
 						<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)" >Force</button>
 					}

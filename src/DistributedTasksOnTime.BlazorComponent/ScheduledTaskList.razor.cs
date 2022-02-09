@@ -70,8 +70,7 @@ namespace DistributedTasksOnTime.BlazorComponent
 				{
 					((List<TaskInfo>)taskInfoList).Add(new TaskInfo
 					{
-						ScheduledTask = scheduledTask,
-						LastRunningTask = new()
+						ScheduledTask = scheduledTask
 					});
 				}
 			}

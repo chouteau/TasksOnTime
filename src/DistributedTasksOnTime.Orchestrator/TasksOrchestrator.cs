@@ -65,23 +65,28 @@ internal class TasksOrchestrator : ITasksOrchestrator
         if (HostList.ContainsKey(hostInfo.Key))
 		{
             Logger.LogInformation("Host already registered {0}", hostInfo.Key);
-            return;
 		}
-        HostList.TryAdd(hostInfo.Key, hostInfo);
-        var list = HostList.Select(i => i.Value).ToList();
-        DbRepository.PersistHostRegistrationList(list);
-
-		foreach (var task in hostInfo.TaskList)
+		else
 		{
-            if (ScheduledTaskList.ContainsKey(task.TaskName.ToLower()))
-            {
-                continue;
-            }
-
-            var scheduledTask = CreateScheduledTask(task);
-            this.ScheduledTaskList.TryAdd(scheduledTask.Name.ToLower(), scheduledTask);
-
+            HostList.TryAdd(hostInfo.Key, hostInfo);
+            var list = HostList.Select(i => i.Value).ToList();
+            DbRepository.PersistHostRegistrationList(list);
         }
+
+        foreach (var task in hostInfo.TaskList)
+		{
+            var existing = ScheduledTaskList.FirstOrDefault(i => i.Key == task.TaskName.ToLower());
+            if (existing.Key != null)
+            {
+                existing.Value.AssemblyQualifiedName = task.AssemblyQualifiedName;
+            }
+			else
+			{
+                var scheduledTask = CreateScheduledTask(task);
+                this.ScheduledTaskList.TryAdd(scheduledTask.Name.ToLower(), scheduledTask);
+            }
+        }
+
         var taskList = ScheduledTaskList.Select(i => i.Value).ToList();
         DbRepository.PersistScheduledTaskList(taskList);
 
@@ -148,7 +153,6 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogTrace("Task {0} canceling", existing.TaskName);
             existing.HostKey = distributedTaskInfo.HostKey;
             existing.CancelingDate = distributedTaskInfo.EventDate;
-            existing.TerminatedDate = DateTime.Now;
         }
         else if (distributedTaskInfo.State ==  DistributedTasksOnTime.TaskState.Canceled)
 		{
@@ -207,7 +211,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         taskName = taskName.ToLower();
 
         Logger.LogInformation("Try to Cancel task {0}", taskName);
-        var task = RunningTaskList.FirstOrDefault(i => i.Value.TaskName == taskName 
+        var task = RunningTaskList.FirstOrDefault(i => taskName.Equals(i.Value.TaskName, StringComparison.InvariantCultureIgnoreCase)
                             && !i.Value.TerminatedDate.HasValue);
 
         if (task.Value != null)

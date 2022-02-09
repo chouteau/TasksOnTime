@@ -15,6 +15,7 @@ namespace TasksOnTime
 		public event EventHandler<Guid> TaskStarted;
 		public event EventHandler<Guid> TaskTerminated;
 		public event EventHandler<Guid> TaskFailed;
+		public event EventHandler<Guid> TaskCanceled;
 
 		public TasksHost(ILogger<TasksHost> logger,
 			IServiceProvider serviceProvider,
@@ -224,6 +225,7 @@ namespace TasksOnTime
 				if (ctx.IsCancelRequested)
 				{
 					h.CanceledDate = DateTime.Now;
+					TaskCanceled?.Invoke(this, ctx.Id);
 				}
 			}
 			catch (Exception ex)
