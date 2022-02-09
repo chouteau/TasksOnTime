@@ -66,7 +66,7 @@ namespace DistributedTaskOnTime.Tests
 					services.AddDistributedTasksOnTimeClient(clientSettings, arianeConfig, arianeRegister);
 				});
 
-			builder.AddDistributedTasksOnTimeOrchestrator(arianeRegister);
+			builder.AddDistributedTasksOnTimeOrchestrator(null, arianeRegister);
 
 			var host = builder.Build();
 			return host;
