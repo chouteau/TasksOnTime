@@ -9,6 +9,7 @@ namespace TasksOnTime
 		event EventHandler<Guid> TaskFailed;
 		event EventHandler<Guid> TaskStarted;
 		event EventHandler<Guid> TaskTerminated;
+		event EventHandler<Guid> TaskCanceled;
 
 		void Cancel(Guid key);
 		void Cleanup();

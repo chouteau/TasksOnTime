@@ -284,7 +284,8 @@ namespace TasksOnTime
 				{
 					ctx.Dispose();
 
-					if (taskInstance is IDisposable)
+					var disposable = taskInstance as IDisposable;
+					if (disposable != null)
 					{
 						((IDisposable)taskInstance).Dispose();
 					}
@@ -409,7 +410,7 @@ namespace TasksOnTime
 
 		public IEnumerable<TaskHistory> GetHistory(string scheduledTaskName)
 		{
-			var result = new ConcurrentBag<TaskHistory>(); ;
+			var result = new ConcurrentBag<TaskHistory>(); 
 			if (string.IsNullOrWhiteSpace(scheduledTaskName))
 			{
 				return result;
