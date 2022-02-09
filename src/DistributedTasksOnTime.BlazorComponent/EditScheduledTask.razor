@@ -1,15 +1,14 @@
 ﻿@page "/editscheduledtask/{taskName}"
 
-<a href="/scheduledtasklist">Liste</a>
-
 @using Microsoft.AspNetCore.Components.Forms
+<a href="/scheduledtasklist">Liste</a>
 
 <h3>Edit ScheduledTask @scheduledTask.Name</h3>
 
 <EditForm Model="scheduledTask" OnValidSubmit="ValidateAndSave">
     <ValidationSummary></ValidationSummary>
     <DataAnnotationsValidator/>
-    <CustomValidator @ref="CustomValidator"></CustomValidator>
+    <DistributedTasksOnTime.BlazorComponent.CustomValidator @ref="CustomValidator"></DistributedTasksOnTime.BlazorComponent.CustomValidator>
     <div class="mb-3">
         <label class="form-label">Description  :</label>
         <InputText @bind-Value="scheduledTask.Description" class="form-control"/>
@@ -73,16 +72,16 @@
         </div>
     }
     <div class="mb-3">
-        <label class="form-label">Allow multiple instances :</label>
         <InputCheckbox @bind-Value="scheduledTask.AllowMultipleInstance" class="form-check-input" />
+        <label class="form-label">Allow multiple instances</label>
     </div>
     <div class="mb-3">
-        <label class="form-label">Allow local multiple instances :</label>
         <InputCheckbox @bind-Value="scheduledTask.AllowLocalMultipleInstances" class="form-check-input" />
+        <label class="form-label">Allow local multiple instances</label>
     </div>
     <div class="mb-3">
-        <label class="form-label">Enable :</label>
         <InputCheckbox @bind-Value="scheduledTask.Enabled" class="form-check-input" />
+        <label class="form-label">Enable</label>
     </div>
     <br/>
     <button type="submit" class="btn btn-primary">Save</button>

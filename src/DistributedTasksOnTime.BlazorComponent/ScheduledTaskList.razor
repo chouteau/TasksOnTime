@@ -70,8 +70,9 @@
 				</td>
 				<td>
 					<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
-					@if (item.LastRunningTask != null
-						&& item.LastRunningTask.TerminatedDate.HasValue)
+					@if (item.LastRunningTask == null
+						|| (item.LastRunningTask != null
+						&& item.LastRunningTask.TerminatedDate.HasValue))
 					{
 						<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)" >Force</button>
 					}

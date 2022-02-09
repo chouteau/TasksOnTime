@@ -23,6 +23,7 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Include="localconfig\appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
