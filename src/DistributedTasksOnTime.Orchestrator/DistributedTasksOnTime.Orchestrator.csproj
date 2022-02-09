@@ -16,4 +16,10 @@
   <ItemGroup>
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="localconfig\appsettings.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
