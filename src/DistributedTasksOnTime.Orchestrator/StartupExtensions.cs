@@ -28,10 +28,10 @@ public static class StartupExtensions
 				if (settings.StoreFolder.StartsWith(@".\"))
 				{
 					settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder.Replace(@".\", ""));
-					if (!System.IO.Directory.Exists(settings.StoreFolder))
-					{
-						System.IO.Directory.CreateDirectory(settings.StoreFolder);
-					}
+				}
+				if (!System.IO.Directory.Exists(settings.StoreFolder))
+				{
+					System.IO.Directory.CreateDirectory(settings.StoreFolder);
 				}
 			});
 
