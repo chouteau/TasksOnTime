@@ -13,5 +13,6 @@ namespace DistributedTasksOnTime
 		public string FullTypeName { get; set; }
 		public string TaskName { get; set; }
 		public bool AllowMultipleInstances { get; set; }
+		public bool IsForced { get; set; } = false;
 	}
 }
