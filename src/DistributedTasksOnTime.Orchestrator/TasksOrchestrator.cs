@@ -344,6 +344,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         procesTask.TaskName = scheduledTask.Name;
         procesTask.FullTypeName = scheduledTask.AssemblyQualifiedName;
         procesTask.AllowMultipleInstances = scheduledTask.AllowLocalMultipleInstances;
+        procesTask.IsForced = isForced; 
 
         var queueName = $"{Settings.PrefixQueueName}.{scheduledTask.Name}";
         await QueueSender.SendMessage(queueName, procesTask);
