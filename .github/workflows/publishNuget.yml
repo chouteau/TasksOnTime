@@ -16,6 +16,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+      env:
+        NUGET_AUTH_TOKEN: '%NUGET_AUTH_TOKEN%'
 
     - name: Restore dependencies
       run: dotnet restore TasksOnTimeStandard.sln
@@ -25,6 +27,12 @@ jobs:
 
     - name: Test
       run: dotnet test src\TasksOnTimeCore.Tests\TasksOnTimeCore.Tests.csproj -c Release --no-build --verbosity normal
+
+    - name: Pack TasksOnTimeCore
+      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\TasksOnTimeCore\TasksOnTimeCore.csproj --output .
+
+    - name: Push Nuget
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.nuget}} --skip-duplicate
 
     - name: Publish TasksOnTimeCore to nuget
       uses: brandedoutcast/publish-nuget@v2.5.5
