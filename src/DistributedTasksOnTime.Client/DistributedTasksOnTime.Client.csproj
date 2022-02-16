@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <PackageId>DistributedTasksOnTime.Client</PackageId>
+	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
     <Version>1.0.15.0</Version>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>

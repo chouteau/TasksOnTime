@@ -31,37 +31,15 @@ jobs:
     - name: Pack TasksOnTimeCore
       run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\TasksOnTimeCore\TasksOnTimeCore.csproj --output .
 
+    - name: Pack TasksOnTimeCore.Scheduling
+      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\TasksOnTimeCore.Scheduling\TasksOnTimeCore.Scheduling.csproj --output .
+
+    - name: Pack DistributedTasksOnTime.Client
+      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj --output .
+
+    - name: Pack DistributedTasksOnTime.BlazorComponent
+      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj --output .
+
     - name: Push Nuget
       run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.nuget}} --skip-duplicate
 
-    - name: Publish TasksOnTimeCore to nuget
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: ${{github.workspace}}\src\TasksOnTimeCore\TasksOnTimeCore.csproj
-        PACKAGE_NAME: TasksOnTimeCore
-        NUGET_SOURCE: https://api.nuget.org
-        NUGET_KEY: ${{secrets.nuget}}
-
-    - name: Publish TasksOnTimeCore.Scheduling to nuget
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: ${{github.workspace}}\src\TasksOnTimeCore.Scheduling\TasksOnTimeCore.Scheduling.csproj
-        PACKAGE_NAME: TasksOnTimeCore.Scheduling
-        NUGET_SOURCE: https://api.nuget.org
-        NUGET_KEY: ${{secrets.nuget}}
-
-    - name: Publish TasksOnTimeCore.Client to nuget
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: ${{github.workspace}}\src\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj
-        PACKAGE_NAME: DistributedTasksOnTime.Client
-        NUGET_SOURCE: https://api.nuget.org
-        NUGET_KEY: ${{secrets.nuget}}
-
-    - name: Publish DistributedTasksOnTime.BlazorComponent to nuget
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: ${{github.workspace}}\src\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj
-        PACKAGE_NAME: DistributedTasksOnTime.Client
-        NUGET_SOURCE: https://api.nuget.org
-        NUGET_KEY: ${{secrets.nuget}}

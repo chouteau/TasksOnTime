@@ -363,6 +363,11 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
     internal bool CanRun(DateTime now, Models.ScheduledTask scheduledTask)
     {
+        if (!scheduledTask.Enabled)
+		{
+            return false;
+		}
+
         var runningTask = RunningTaskList.FirstOrDefault(
                         i => i.Value.TaskName == scheduledTask.Name
                         && !i.Value.TerminatedDate.HasValue);

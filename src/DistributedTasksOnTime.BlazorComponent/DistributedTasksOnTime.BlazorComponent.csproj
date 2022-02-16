@@ -5,6 +5,8 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
+	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Version>1.0.14.0</Version>
   </PropertyGroup>
 
