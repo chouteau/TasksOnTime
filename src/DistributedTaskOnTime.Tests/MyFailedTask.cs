@@ -7,15 +7,13 @@ using TasksOnTime;
 
 namespace DistributedTaskOnTime.Tests
 {
-	internal class MyTask : TasksOnTime.ITask
+	internal class MyFailedTask : ITask
 	{
 		public Task ExecuteAsync(ExecutionContext context)
 		{
 			context.StartNotification("test", "Start MyTask");
-			Console.WriteLine(DateTime.Now);
 			StaticCounter.Increment();
-			context.CompletedNotification("test", "MyTask Completed");
-			return Task.CompletedTask;
+			throw new Exception("Failed");
 		}
 	}
 }

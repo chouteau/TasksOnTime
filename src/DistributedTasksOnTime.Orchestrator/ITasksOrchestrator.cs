@@ -16,7 +16,7 @@ public interface ITasksOrchestrator
 	Task CancelTask(string taskName);
 	Task ForceTask(string taskName);
 	int GetScheduledTaskCount();
-	void SaveScheduledTaskList();
+	void SaveScheduledTaskList(Models.ScheduledTask scheduledTask = null);
 	int GetRunningTaskCount();
 	IEnumerable<Models.RunningTask> GetRunningTaskList(string taskName = null);
 	IEnumerable<Models.ScheduledTask> GetScheduledTaskList();

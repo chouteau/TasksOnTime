@@ -10,5 +10,6 @@ public class DistributedTasksOnTimeServerSettings
 	public int TimerInSecond { get; set; } = 15;
 	public string AzureBusConnectionString { get; set; }
 	public string StoreFolder { get; set; } = @".\DistributedTasksOnTimeServer";
+	public string ScheduledTaskListBlazorPage { get; set; } = "/scheduledtasklist";
 }
 

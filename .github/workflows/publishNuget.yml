@@ -24,7 +24,7 @@ jobs:
       run: dotnet build DistributedTasksOnTime.sln --configuration Release
 
     - name: Test
-      run: dotnet test DistributedTasksOnTime.sln -c Release --no-build --verbosity normal
+      run: dotnet test src\TasksOnTimeCore.Tests\TasksOnTimeCore.Tests.csproj -c Release --no-build --verbosity normal
 
     - name: Publish TasksOnTimeCore to nuget
       uses: rohith/publish-nuget@v2
