@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -21,10 +21,6 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="localconfig\appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -43,5 +39,9 @@
     <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
   </ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="IF EXIST $(ProjectDir)localconfig\appsettings.json xcopy $(ProjectDir)localconfig\appsettings.json $(OutDir)localconfig /Y" />
+	</Target>
 
 </Project>
