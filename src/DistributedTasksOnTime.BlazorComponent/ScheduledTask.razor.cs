@@ -11,6 +11,7 @@ namespace DistributedTasksOnTime.BlazorComponent
 	{
 		[Parameter] public string TaskName { get; set; }
 		[Inject] DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
+		[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
 		Orchestrator.Models.ScheduledTask scheduledTask = new();
 		List<Orchestrator.Models.RunningTask> runningTaskList = new();

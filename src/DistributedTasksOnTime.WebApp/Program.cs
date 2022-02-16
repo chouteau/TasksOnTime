@@ -26,6 +26,7 @@ builder.Services.AddServerSideBlazor();
 
 var section = builder.Configuration.GetSection("DistributedTasksOnTime");
 var dtotSettings = new DistributedTasksOnTimeServerSettings();
+dtotSettings.ScheduledTaskListBlazorPage = "/";
 section.Bind(dtotSettings);
 
 builder.Host.AddDistributedTasksOnTimeBlazor(dtotSettings);
@@ -38,8 +39,6 @@ builder.Services.ConfigureAriane(register =>
 {
 	s.DefaultAzureConnectionString = dtotSettings.AzureBusConnectionString;
 });
-
-
 
 if (System.Environment.UserInteractive
 	&& !builder.Environment.IsProduction())

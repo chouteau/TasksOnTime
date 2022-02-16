@@ -12,7 +12,7 @@ namespace DistributedTasksOnTime.BlazorComponent
 		[Parameter] public string TaskName { get; set; }
 		[Inject] DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
 		[Inject] NavigationManager NavigationManager { get; set; }
-
+		[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 		CustomValidator CustomValidator { get; set; } = new();
 		
 		DistributedTasksOnTime.Orchestrator.Models.ScheduledTask scheduledTask = new();
@@ -26,8 +26,8 @@ namespace DistributedTasksOnTime.BlazorComponent
 
 		void ValidateAndSave()
 		{
-			TasksOrchestrator.SaveScheduledTaskList();
-			NavigationManager.NavigateTo("/scheduledtasklist");
+			TasksOrchestrator.SaveScheduledTaskList(scheduledTask);
+			NavigationManager.NavigateTo(Settings.ScheduledTaskListBlazorPage);
 		}
 	}
 }

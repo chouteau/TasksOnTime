@@ -19,14 +19,10 @@ namespace DistributedTaskOnTime.Tests
 		{
 			var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
-			var configurationBuilder = new ConfigurationBuilder()
-						.AddJsonFile("appSettings.json");
-
 			var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
-			if (System.IO.File.Exists(localConfig))
-			{
-				configurationBuilder.AddJsonFile(localConfig, true, false);
-			}
+			var configurationBuilder = new ConfigurationBuilder()
+						.AddJsonFile("appSettings.json")
+						.AddJsonFile(localConfig, true, false);
 
 			var configuration = configurationBuilder.Build();
 
@@ -38,14 +34,6 @@ namespace DistributedTaskOnTime.Tests
 
 			config.Invoke(clientSettings);
 
-			Action<Ariane.ArianeSettings> arianeConfig = (cfg) =>
-			{
-				cfg.DefaultAzureConnectionString = clientSettings.AzureBusConnectionString;
-				cfg.UniqueTopicNameForTest = "test";
-				cfg.UniquePrefixName = "test.";
-				cfg.WorkSynchronized = true;
-			};
-
 			var builder = Host.CreateDefaultBuilder()
 				.ConfigureServices(services =>
 				{
@@ -56,11 +44,15 @@ namespace DistributedTaskOnTime.Tests
 						register.SetupArianeRegisterDistributedTasksOnTimeClient(clientSettings);
 						register.SetupArianeRegisterDistributedTasksOnTimeOrchestrator(serverSettings);
 
-					}, arianeConfig);
+					}, cfg =>
+					{
+						cfg.DefaultAzureConnectionString = clientSettings.AzureBusConnectionString;
+					});
 
 					services.AddDistributedTasksOnTimeClient(clientSettings);
 				});
 
+			serverSettings.TimerInSecond = 2;
 			builder.AddDistributedTasksOnTimeOrchestrator(serverSettings);
 
 			var host = builder.Build();

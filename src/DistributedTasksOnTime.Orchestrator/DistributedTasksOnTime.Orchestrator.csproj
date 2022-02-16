@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-DistributedTasksOnTimeServer-7476CA37-EB84-422B-A476-3EA40DCCE81C</UserSecretsId>
-    <Version>1.0.2.0</Version>
+    <Version>1.0.3.0</Version>
     <OutputType>Library</OutputType>
   </PropertyGroup>
 

@@ -291,8 +291,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
     }
 
 
-    public void SaveScheduledTaskList()
+    public void SaveScheduledTaskList(Models.ScheduledTask scheduledTask = null)
 	{
+        if (scheduledTask != null)
+		{
+            SetNextRuningDate(DateTime.Now, scheduledTask);
+		}
         var list = ScheduledTaskList.Select(i => i.Value).ToList();
         DbRepository.PersistScheduledTaskList(list);
 	}
