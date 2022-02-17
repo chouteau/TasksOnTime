@@ -25,7 +25,10 @@ public class MainWorker : BackgroundService
 	{
 		while (!stoppingToken.IsCancellationRequested)
 		{
-			await TasksOrchestrator.EnqueueNextTasks(DateTime.Now);
+			if (Settings.Enable)
+			{
+				await TasksOrchestrator.EnqueueNextTasks(DateTime.Now);
+			}
 			await Task.Delay(Settings.TimerInSecond * 1000, stoppingToken);
 		}
 	}
