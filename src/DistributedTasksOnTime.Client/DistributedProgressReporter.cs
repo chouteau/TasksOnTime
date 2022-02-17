@@ -15,7 +15,7 @@ public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 	protected Ariane.IServiceBus Bus { get; }
 	protected DistributedTasksOnTimeSettings Settings { get; }
 
-	public void Notify(TasksOnTime.ProgressInfo info)
+	public async Task Notify(TasksOnTime.ProgressInfo info)
 	{
 		Logger.LogTrace(info.Subject);
 		var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
@@ -35,7 +35,7 @@ public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 			Type = (DistributedTasksOnTime.ProgressType)Enum.Parse(typeof(DistributedTasksOnTime.ProgressType), $"{info.Type}"),
 		};
 
-		Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo).Wait();
+		await Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo);
 	}
 }
 
