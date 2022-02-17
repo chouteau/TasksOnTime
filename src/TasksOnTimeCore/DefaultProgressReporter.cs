@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TasksOnTime
 {
@@ -14,9 +15,10 @@ namespace TasksOnTime
 
 		protected ILogger<DefaultProgressReporter> Logger { get; }
 
-		public void Notify(ProgressInfo info)
+		public Task Notify(ProgressInfo info)
 		{
 			Logger.LogDebug(info.Subject);
+			return Task.CompletedTask;
 		}
 	}
 }

@@ -15,7 +15,7 @@ public class CancelTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime.
 	protected TasksOnTime.ITasksHost Host { get; }
 	protected DistributedTasksOnTimeSettings Settings { get; }
 
-	public override Task ProcessMessageAsync(DistributedTasksOnTime.CancelTask message)
+	public override async Task ProcessMessageAsync(DistributedTasksOnTime.CancelTask message)
 	{
 		var history = Host.GetHistory(message.Id);
 		if (history != null
@@ -25,12 +25,10 @@ public class CancelTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime.
 			taskInfo.Id = message.Id;
 			taskInfo.State = DistributedTasksOnTime.TaskState.Canceling;
 
-			Bus.Send(Settings.TaskInfoQueueName, taskInfo);
+			await Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo);
 
 			Host.Cancel(message.Id);
 		}
-
-		return Task.CompletedTask;
 	}
 }
 

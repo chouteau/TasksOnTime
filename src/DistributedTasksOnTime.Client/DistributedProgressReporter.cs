@@ -35,7 +35,7 @@ public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 			Type = (DistributedTasksOnTime.ProgressType)Enum.Parse(typeof(DistributedTasksOnTime.ProgressType), $"{info.Type}"),
 		};
 
-		Bus.Send(Settings.TaskInfoQueueName, taskInfo);
+		Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo).Wait();
 	}
 }
 

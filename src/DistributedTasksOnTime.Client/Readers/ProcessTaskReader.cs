@@ -15,7 +15,7 @@ public class ProcessTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime
 	protected TasksOnTime.ITasksHost Host { get; }
 	protected DistributedTasksOnTimeSettings Settings { get; }
 
-	public override Task ProcessMessageAsync(DistributedTasksOnTime.ProcessTask message)
+	public override async Task ProcessMessageAsync(DistributedTasksOnTime.ProcessTask message)
 	{
 		var type = Type.GetType(message.FullTypeName);
 		Host.Enqueue(message.Id, type, force : message.IsForced);
@@ -25,8 +25,6 @@ public class ProcessTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime
 		taskInfo.HostKey = Settings.HostKey;
 		taskInfo.State = DistributedTasksOnTime.TaskState.Enqueued;
 
-		Bus.Send(Settings.TaskInfoQueueName, taskInfo);
-
-		return Task.CompletedTask;
+		await Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo);
 	}
 }

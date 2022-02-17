@@ -30,38 +30,38 @@ public static class StartupExtensions
 		registrationInfo.State = DistributedTasksOnTime.HostRegistrationState.Started;
 		registrationInfo.TaskList = settings.ScheduledTaskList;
 
-		bus.Send(settings.HostRegistrationQueueName, registrationInfo);
+		await bus.SendAsync(settings.HostRegistrationQueueName, registrationInfo);
 
 		var taskHost = serviceProvider.GetRequiredService<TasksOnTime.ITasksHost>();
 
-		taskHost.TaskStarted += (s, taskId) =>
+		taskHost.TaskStarted += async (s, taskId) =>
 		{
 			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
 			taskInfo.Id = taskId;
 			taskInfo.State = DistributedTasksOnTime.TaskState.Started;
 			taskInfo.HostKey = settings.HostKey;
 
-			bus.Send(settings.TaskInfoQueueName, taskInfo);
+			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
 		};
-		taskHost.TaskCanceled += (s, taskId) =>
+		taskHost.TaskCanceled += async (s, taskId) =>
 		{
 			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
 			taskInfo.Id = taskId;
 			taskInfo.State = DistributedTasksOnTime.TaskState.Canceled;
 			taskInfo.HostKey = settings.HostKey;
 
-			bus.Send(settings.TaskInfoQueueName, taskInfo);
+			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
 		};
-		taskHost.TaskTerminated += (s, taskId) =>
+		taskHost.TaskTerminated += async (s, taskId) =>
 		{
 			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
 			taskInfo.Id = taskId;
 			taskInfo.HostKey = settings.HostKey;
 			taskInfo.State = DistributedTasksOnTime.TaskState.Terminated;
 
-			bus.Send(settings.TaskInfoQueueName, taskInfo);
+			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
 		};
-		taskHost.TaskFailed += (s, taskId) =>
+		taskHost.TaskFailed += async (s, taskId) =>
 		{
 			var history = taskHost.GetHistory(taskId);
 
@@ -71,7 +71,7 @@ public static class StartupExtensions
 			taskInfo.HostKey = settings.HostKey;
 			taskInfo.ErrorStack = history.Exception.StackTrace;
 
-			bus.Send(settings.TaskInfoQueueName, taskInfo);
+			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
 		};
 
 		return serviceProvider;
@@ -87,7 +87,7 @@ public static class StartupExtensions
 		registrationInfo.HostName = settings.HostName;
 		registrationInfo.State = DistributedTasksOnTime.HostRegistrationState.Stopped;
 
-		bus.Send(settings.HostRegistrationQueueName, registrationInfo);
+		await bus.SendAsync(settings.HostRegistrationQueueName, registrationInfo);
 		await Task.Delay(1 * 1000);
 
 		await bus.StopReadingAsync();
