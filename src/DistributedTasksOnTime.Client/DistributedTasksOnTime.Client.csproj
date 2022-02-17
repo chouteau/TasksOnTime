@@ -6,12 +6,12 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.0.15.0</Version>
+    <Version>1.0.16.0</Version>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ariane5.Azure" Version="5.2.18" />
+    <PackageReference Include="Ariane5.Azure" Version="6.0.19" />
     <PackageReference Include="TasksOnTimeCore" Version="1.2.18.2" />
   </ItemGroup>
 
