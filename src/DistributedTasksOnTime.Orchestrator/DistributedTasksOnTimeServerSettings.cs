@@ -5,6 +5,7 @@ public class DistributedTasksOnTimeServerSettings
 	public string TaskInfoQueueName { get; set; }
 	public string HostRegistrationQueueName { get; set; }
 	public string CancelTaskQueueName { get; set; }
+	public bool Enable { get; set; } = true;
 
 	public string PrefixQueueName { get; set; } = "DistributedTasksOnTime";
 	public int TimerInSecond { get; set; } = 15;

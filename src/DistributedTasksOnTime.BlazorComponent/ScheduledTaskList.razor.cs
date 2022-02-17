@@ -17,6 +17,7 @@ namespace DistributedTasksOnTime.BlazorComponent
 	{
 		[Inject] DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
 		[Inject] NavigationManager NavigationManager { get; set; }
+		[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
 		IEnumerable<TaskInfo> taskInfoList;
 
