@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TasksOnTime.Tests
 {
@@ -14,7 +15,7 @@ namespace TasksOnTime.Tests
 
 		protected ILogger<ConsoleProgressReporter> Logger { get; }
 
-		public void Notify(ProgressInfo info)
+		public Task Notify(ProgressInfo info)
 		{
 			Logger.LogInformation($"Type : {info.Type}");
 			Logger.LogInformation($"Subject : {info.Subject}");
@@ -27,6 +28,7 @@ namespace TasksOnTime.Tests
 			Logger.LogInformation($"Index : {info.Index}");
 			Logger.LogInformation($"TotalCount : {info.TotalCount}");
 			Logger.LogInformation("--");
+			return Task.CompletedTask;
 		}
 
 	}
