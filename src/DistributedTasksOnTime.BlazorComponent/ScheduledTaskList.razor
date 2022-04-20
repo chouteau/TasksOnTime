@@ -13,7 +13,6 @@
 	</EditForm>
 </div>
 
-
 <table class="table table-bordered">
 	<thead>
 		<tr>
@@ -27,7 +26,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		@foreach (var item in taskInfoList)
+		@foreach (var item in taskInfoList.OrderBy(i => i.ScheduledTask.Name))
 		{
 			var isRunning = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
 			<tr class="@isRunning">
@@ -72,7 +71,38 @@
 				<td>
 					@if (item.LastRunningTask != null)
 					{
-						<span>@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type</span>
+						if (item.LastRunningTask.ProgressLogs.Any())
+						{
+							<span>@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type</span>
+						}
+						else if (item.LastRunningTask.CancelingDate.HasValue)
+						{
+							<span>Canceling</span>
+						}
+						else if (item.LastRunningTask.CanceledDate.HasValue)
+						{
+							<span>Canceled</span>
+						}
+						else if (item.LastRunningTask.FailedDate.HasValue)
+						{
+							<span class="alert">Failed</span>
+							@if (!string.IsNullOrWhiteSpace(item.LastRunningTask.ErrorStack))
+							{
+								<span>@string.Format("{0}", new MarkupString(item.LastRunningTask.ErrorStack.Replace("\r\n","<br/>")))</span>
+							}
+						}
+						else if (item.LastRunningTask.TerminatedDate.HasValue)
+						{
+							<span>Completed</span>
+						}
+						else if (item.LastRunningTask.RunningDate.HasValue)
+						{
+							<span>Running</span>
+						}
+						else if (item.LastRunningTask.EnqueuedDate.HasValue)
+						{
+							<span>Enqueued</span>
+						}
 					}
 				</td>
 				<td>

@@ -1,14 +1,18 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 
 namespace DistributedTasksOnTime.Orchestrator;
 
 internal class QueueSender 
 {
 	public QueueSender(DistributedTasksOnTimeServerSettings settings,
-		ILogger<QueueSender> logger)
+		ILogger<QueueSender> logger,
+		ExistingQueues existingQueues)
 	{
 		this.Settings = settings;
 		this.Logger	= logger;
+		this.ExistingQueues = existingQueues;
+
 		ServiceBusClient = new ServiceBusClient(settings.AzureBusConnectionString, new ServiceBusClientOptions()
 		{
 			TransportType = ServiceBusTransportType.AmqpTcp,
@@ -24,6 +28,7 @@ internal class QueueSender
 	protected DistributedTasksOnTimeServerSettings Settings { get; }
 	protected ServiceBusClient ServiceBusClient { get; }
 	protected ILogger Logger { get; }
+	protected ExistingQueues ExistingQueues { get; }
 
 	public async Task SendMessage<T>(string queueName, T message)
 	{
