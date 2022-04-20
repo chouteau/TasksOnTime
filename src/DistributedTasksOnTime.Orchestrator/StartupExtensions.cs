@@ -7,6 +7,7 @@ public static class StartupExtensions
 		var settings = new DistributedTasksOnTimeServerSettings();
 		config(settings);
 		builder.AddDistributedTasksOnTimeOrchestrator(settings);
+
 		return builder;
 	}
 
@@ -20,6 +21,7 @@ public static class StartupExtensions
 				services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
 				services.AddTransient<Repository.IDbRepository, Repository.FileDbRepository>();
 				services.AddTransient<QueueSender>();
+				services.AddSingleton(new ExistingQueues());
 
 				services.AddHostedService<MainWorker>();
 

@@ -19,42 +19,47 @@ namespace DistributedTasksOnTime.BlazorComponent
 		[Inject] NavigationManager NavigationManager { get; set; }
 		[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
-		IEnumerable<TaskInfo> taskInfoList;
+		List<TaskInfo> taskInfoList = new();
+
+		protected override void OnAfterRender(bool firstRender)
+		{
+			if (firstRender)
+			{
+				TasksOrchestrator.OnHostRegistered += async s =>
+				{
+					LoadTaskInfoList();
+					await InvokeAsync(() =>
+					{
+						StateHasChanged();
+					});
+				};
+				TasksOrchestrator.OnScheduledTaskStarted += async s =>
+				{
+					LoadTaskInfoList();
+					await InvokeAsync(() =>
+					{
+						StateHasChanged();
+					});
+				};
+				TasksOrchestrator.OnRunningTaskChanged += async (s, r) =>
+				{
+					await InvokeAsync(() =>
+					{
+						LoadTaskInfoList();
+						var current = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == r.TaskName);
+						if (current != null)
+						{
+							current.LastRunningTask = r;
+						}
+						StateHasChanged();
+					});
+				};
+			}
+		}
 
 		protected override void OnInitialized()
 		{
-			taskInfoList = new List<TaskInfo>();
 			LoadTaskInfoList();
-			TasksOrchestrator.OnHostRegistered += async s =>
-			{
-				LoadTaskInfoList();
-				await InvokeAsync(() =>
-				{
-					StateHasChanged();
-				});
-			};
-			TasksOrchestrator.OnScheduledTaskStarted += async s =>
-			{
-				LoadTaskInfoList();
-				await InvokeAsync(() =>
-				{
-					StateHasChanged();
-				});
-			};
-			TasksOrchestrator.OnRunningTaskChanged += async (s, r) =>
-			{
-				await InvokeAsync(() =>
-				{
-					LoadTaskInfoList();
-					var current = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == r.TaskName);
-					if (current != null)
-					{
-						current.LastRunningTask = r;
-					}
-					StateHasChanged();
-				});
-			};
-
 		}
 
 		void LoadTaskInfoList()
@@ -69,10 +74,17 @@ namespace DistributedTasksOnTime.BlazorComponent
 				}
 				else
 				{
-					((List<TaskInfo>)taskInfoList).Add(new TaskInfo
+					taskInfo = new TaskInfo
 					{
 						ScheduledTask = scheduledTask
-					});
+					};
+					taskInfoList.Add(taskInfo);
+				}
+
+				var history = TasksOrchestrator.GetRunningTaskList(taskInfo.ScheduledTask.Name);
+				if (history.Any())
+				{
+					taskInfo.LastRunningTask = history.Last();
 				}
 			}
 		}

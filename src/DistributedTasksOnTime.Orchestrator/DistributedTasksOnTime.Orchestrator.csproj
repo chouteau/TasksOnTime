@@ -5,12 +5,12 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-DistributedTasksOnTimeServer-7476CA37-EB84-422B-A476-3EA40DCCE81C</UserSecretsId>
-    <Version>1.0.5.0</Version>
+    <Version>1.0.6.0</Version>
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ariane5.Azure" Version="6.0.19" />
+    <PackageReference Include="Ariane5.Azure" Version="6.0.21" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
   </ItemGroup>
 
