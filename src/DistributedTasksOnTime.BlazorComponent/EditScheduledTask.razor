@@ -72,6 +72,13 @@
         </div>
     }
     <div class="mb-3">
+        <label class="form-label">Process Mode :</label>
+        <InputSelect class="form-select" @bind-Value="@scheduledTask.ProcessMode">
+			<option value="@ProcessMode.Exclusive">Exclusive</option>
+			<option value="@ProcessMode.AllInstances">AllInstances</option>
+        </InputSelect>
+    </div>
+    <div class="mb-3">
         <InputCheckbox @bind-Value="scheduledTask.AllowMultipleInstance" class="form-check-input" />
         <label class="form-label">Allow multiple instances</label>
     </div>

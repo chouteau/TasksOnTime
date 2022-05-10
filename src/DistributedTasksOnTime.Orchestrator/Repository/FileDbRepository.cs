@@ -2,7 +2,7 @@
 
 internal class FileDbRepository : IDbRepository
 {
-	JsonSerializerOptions _options = new JsonSerializerOptions();
+	readonly JsonSerializerOptions _options = new JsonSerializerOptions();
 
 	public FileDbRepository(DistributedTasksOnTimeServerSettings settings,
 		ILogger<FileDbRepository> logger)

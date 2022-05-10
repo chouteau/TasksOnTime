@@ -21,5 +21,6 @@ public class ScheduledTask
 	public DateTime NextRunningDate { get; set; }
 	public Dictionary<string, string> Parameters { get; set; }
 	public string Description { get; set; }
+	public ProcessMode ProcessMode { get; set; }
 }
 

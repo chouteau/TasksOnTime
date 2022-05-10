@@ -44,6 +44,15 @@ var host= Host.CreateDefaultBuilder(args)
 						DefaultInterval = 1
 					});
 
+					clientSettings.RegisterScheduledTask<DistributedTasksOnTime.DemoClient.TopicDemoTask>(new DistributedTasksOnTime.TaskRegistrationInfo
+					{
+						TaskName = "TopicDemoTask",
+						Description = "Topic Demo task description",
+						DefaultPeriod = DistributedTasksOnTime.ScheduledTaskTimePeriod.Minute,
+						DefaultInterval = 1,
+						ProcessMode = DistributedTasksOnTime.ProcessMode.AllInstances
+					});
+
 					services.ConfigureArianeAzure();
 					services.ConfigureAriane(register =>
 					{
