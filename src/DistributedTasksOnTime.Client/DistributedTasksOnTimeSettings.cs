@@ -21,6 +21,7 @@ public class DistributedTasksOnTimeSettings
 	internal IList<DistributedTasksOnTime.TaskRegistrationInfo> ScheduledTaskList { get; }
 
 	public DistributedTasksOnTimeSettings RegisterScheduledTask<T>(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
+		where T : ITask
 	{
 		if (!ScheduledTaskList.Any(i => i.TaskName.Equals(taskInfo.TaskName, StringComparison.InvariantCultureIgnoreCase)))
 		{

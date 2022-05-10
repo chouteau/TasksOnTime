@@ -105,7 +105,14 @@ public static class StartupExtensions
 		foreach (var item in settings.ScheduledTaskList)
 		{
 			var queueName = $"{settings.PrefixQueueName}.{item.TaskName}";
-			register.AddAzureQueueReader<Readers.ProcessTaskReader>(queueName);
+			if (item.ProcessMode == ProcessMode.Exclusive)
+			{
+				register.AddAzureQueueReader<Readers.ProcessTaskReader>(queueName);
+			}
+			else
+			{
+				register.AddAzureTopicReader<Readers.ProcessTaskReader>(queueName,topicName);
+			}
 		}
 	}
 

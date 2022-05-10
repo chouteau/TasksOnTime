@@ -29,5 +29,12 @@ namespace DistributedTasksOnTime.BlazorComponent
 			TasksOrchestrator.SaveScheduledTaskList(scheduledTask);
 			NavigationManager.NavigateTo(Settings.ScheduledTaskListBlazorPage);
 		}
+
+		void ChangeProcessMode(ChangeEventArgs e)
+		{
+			var selectedModeString = e.Value.ToString();
+			var selectedMode = (ProcessMode)Enum.Parse(typeof(ProcessMode), selectedModeString);
+			scheduledTask.ProcessMode = selectedMode;
+		}
 	}
 }
