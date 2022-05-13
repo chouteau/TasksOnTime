@@ -7,7 +7,7 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-    <Version>1.0.18.0</Version>
+    <Version>1.0.19.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +29,17 @@
 		</ProjectReference>
   </ItemGroup>
 
+
+	<ItemGroup>
+	  <Content Remove="bin\Debug\net6.0\\DistributedTasksOnTime.Orchestrator.dll" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Orchestrator.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib\net6.0</PackagePath>
 		</Content>
+		<Content Remove="bin\Debug\net6.0\\DistributedTasksOnTime.Shared.dll" />
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib\net6.0</PackagePath>
