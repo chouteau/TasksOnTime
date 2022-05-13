@@ -6,7 +6,7 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.0.20.0</Version>
+    <Version>1.0.21.0</Version>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
 	</PropertyGroup>
 
@@ -19,6 +19,10 @@
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
 		<PrivateAssets>all</PrivateAssets>
     </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="bin\Debug\net6.0\DistributedTasksOnTime.Shared.dll" />
   </ItemGroup>
 	
 	<ItemGroup>
