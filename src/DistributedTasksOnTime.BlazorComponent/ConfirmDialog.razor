@@ -1,0 +1,19 @@
+﻿<div class="modal @modalClass" tabindex="-1" role="dialog" style="display:@modalDisplay; overflow-y: auto;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">@Title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="() => Confirm(false)">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+         @body
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" @onclick="() => Confirm(true)">Accepter</button>
+        <button type="button" class="btn btn-secondary" @onclick="() => Confirm(false)" data-dismiss="modal">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>

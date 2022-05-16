@@ -14,6 +14,8 @@ public interface ITasksOrchestrator
 	void NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo);
 	bool ContainsTask(string taskName);
 	Task CancelTask(string taskName);
+	Task DeleteTask(string taskName);
+
 	Task ForceTask(string taskName);
 	int GetScheduledTaskCount();
 	void SaveScheduledTaskList(Models.ScheduledTask scheduledTask = null);
