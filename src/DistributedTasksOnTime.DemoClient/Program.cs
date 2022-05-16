@@ -44,6 +44,14 @@ var host= Host.CreateDefaultBuilder(args)
 						DefaultInterval = 1
 					});
 
+					clientSettings.RegisterScheduledTask<DistributedTasksOnTime.DemoClient.CancelableTask>(new DistributedTasksOnTime.TaskRegistrationInfo
+					{
+						TaskName = "CancelableDemoTask4",
+						Description = "Cancelable Demo4 task description",
+						DefaultPeriod = DistributedTasksOnTime.ScheduledTaskTimePeriod.Minute,
+						DefaultInterval = 1
+					});
+
 					clientSettings.RegisterScheduledTask<DistributedTasksOnTime.DemoClient.TopicDemoTask>(new DistributedTasksOnTime.TaskRegistrationInfo
 					{
 						TaskName = "TopicDemoTask",

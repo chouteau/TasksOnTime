@@ -1,107 +1,111 @@
-﻿using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace DistributedTasksOnTime.BlazorComponent;
 
-namespace DistributedTasksOnTime.BlazorComponent
+public partial class ScheduledTaskList
 {
-	public class TaskInfo
+	[Inject] 
+	DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
+	[Inject] 
+	NavigationManager NavigationManager { get; set; }
+	[Inject] 
+	DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
+
+	List<TaskInfo> taskInfoList = new();
+	ConfirmDialog confirmDeleteTask;
+	Toast toast;
+
+	protected override void OnAfterRender(bool firstRender)
 	{
-		public Orchestrator.Models.ScheduledTask ScheduledTask { get; set; }
-		public Orchestrator.Models.RunningTask LastRunningTask { get; set; }
+		if (firstRender)
+		{
+			TasksOrchestrator.OnHostRegistered += async s =>
+			{
+				LoadTaskInfoList();
+				await InvokeAsync(() =>
+				{
+					StateHasChanged();
+				});
+			};
+			TasksOrchestrator.OnScheduledTaskStarted += async s =>
+			{
+				await InvokeAsync(() =>
+				{
+					StateHasChanged();
+				});
+			};
+			TasksOrchestrator.OnRunningTaskChanged += async (s, r) =>
+			{
+				await InvokeAsync(() =>
+				{
+					var current = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == r.TaskName);
+					if (current != null)
+					{
+						current.LastRunningTask = r;
+					}
+					StateHasChanged();
+				});
+			};
+		}
 	}
 
-	public partial class ScheduledTaskList
+	protected override void OnInitialized()
 	{
-		[Inject] DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
-		[Inject] NavigationManager NavigationManager { get; set; }
-		[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
+		LoadTaskInfoList();
+	}
 
-		List<TaskInfo> taskInfoList = new();
-
-		protected override void OnAfterRender(bool firstRender)
+	void LoadTaskInfoList()
+	{
+		var scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
+		foreach (var scheduledTask in scheduledTaskList)
 		{
-			if (firstRender)
+			var taskInfo = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == scheduledTask.Name);
+			if (taskInfo != null)
 			{
-				TasksOrchestrator.OnHostRegistered += async s =>
+				taskInfo.ScheduledTask = scheduledTask;
+			}
+			else
+			{
+				taskInfo = new TaskInfo
 				{
-					LoadTaskInfoList();
-					await InvokeAsync(() =>
-					{
-						StateHasChanged();
-					});
+					ScheduledTask = scheduledTask
 				};
-				TasksOrchestrator.OnScheduledTaskStarted += async s =>
-				{
-					LoadTaskInfoList();
-					await InvokeAsync(() =>
-					{
-						StateHasChanged();
-					});
-				};
-				TasksOrchestrator.OnRunningTaskChanged += async (s, r) =>
-				{
-					await InvokeAsync(() =>
-					{
-						LoadTaskInfoList();
-						var current = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == r.TaskName);
-						if (current != null)
-						{
-							current.LastRunningTask = r;
-						}
-						StateHasChanged();
-					});
-				};
+				taskInfoList.Add(taskInfo);
+			}
+
+			var history = TasksOrchestrator.GetRunningTaskList(taskInfo.ScheduledTask.Name);
+			if (history.Any())
+			{
+				taskInfo.LastRunningTask = history.Last();
 			}
 		}
+	}
 
-		protected override void OnInitialized()
-		{
-			LoadTaskInfoList();
-		}
+	void EditTask(Orchestrator.Models.ScheduledTask task)
+	{
+		NavigationManager.NavigateTo($"/editscheduledtask/{task.Name}", true);
+	}
 
-		void LoadTaskInfoList()
-		{
-			var scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
-			foreach (var scheduledTask in scheduledTaskList)
-			{
-				var taskInfo = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == scheduledTask.Name);
-				if (taskInfo != null)
-				{
-					taskInfo.ScheduledTask = scheduledTask;
-				}
-				else
-				{
-					taskInfo = new TaskInfo
-					{
-						ScheduledTask = scheduledTask
-					};
-					taskInfoList.Add(taskInfo);
-				}
+	void ForceTask(Orchestrator.Models.ScheduledTask task)
+	{
+		TasksOrchestrator.ForceTask(task.Name);
+	}
 
-				var history = TasksOrchestrator.GetRunningTaskList(taskInfo.ScheduledTask.Name);
-				if (history.Any())
-				{
-					taskInfo.LastRunningTask = history.Last();
-				}
-			}
-		}
+	void CancelTask(Orchestrator.Models.ScheduledTask task)
+	{
+		TasksOrchestrator.CancelTask(task.Name);
+	}
 
-		void EditTask(Orchestrator.Models.ScheduledTask task)
-		{
-			NavigationManager.NavigateTo($"/editscheduledtask/{task.Name}", true);
-		}
+	void ConfirmDeleteTask(Orchestrator.Models.ScheduledTask task)
+	{
+		confirmDeleteTask.Tag = task;
+		confirmDeleteTask.ShowDialog($"Are you sure you want to delete task '{task.Name}'?");
+	}
 
-		void ForceTask(Orchestrator.Models.ScheduledTask task)
-		{
-			TasksOrchestrator.ForceTask(task.Name);
-		}
-
-		void CancelTask(Orchestrator.Models.ScheduledTask task)
-		{
-			TasksOrchestrator.CancelTask(task.Name);
-		}
+	async Task DeleteTask(object tag)
+	{
+		var task = (Orchestrator.Models.ScheduledTask)tag;
+		await TasksOrchestrator.DeleteTask(task.Name);
+		toast.Show("Task deleted", ToastLevel.Info);
+		LoadTaskInfoList();
+		StateHasChanged();
 	}
 }

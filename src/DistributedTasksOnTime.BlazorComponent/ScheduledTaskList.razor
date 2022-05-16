@@ -1,14 +1,5 @@
-﻿
-@using System.Net.Http
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.JSInterop
-
-<div class="row">
-	<EditForm Model="@Settings">
+﻿<div class="row">
+	<EditForm Model="Settings">
 		<InputCheckbox @bind-Value="Settings.Enable" /> Scheduling Enabled<br/>
 	</EditForm>
 </div>
@@ -28,8 +19,12 @@
 	<tbody>
 		@foreach (var item in taskInfoList.OrderBy(i => i.ScheduledTask.Name))
 		{
-			var isRunning = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
-			<tr class="@isRunning">
+			var cssState = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
+			if (!item.ScheduledTask.Enabled)
+			{
+				cssState = "table-secondary";
+			}
+			<tr class="@cssState">
 				<td>
 					<a href="/scheduledtask/@item.ScheduledTask.Name">@item.ScheduledTask.Name</a><br/>
 					@item.ScheduledTask.Description
@@ -117,9 +112,13 @@
 					{
 						<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)" >Cancel</button>
 					}
+					<button class="btn btn-warning" @onclick="() => ConfirmDeleteTask(item.ScheduledTask)" >Delete</button>
 				</td>
 			</tr>
 		}
 	</tbody>
 
 </table>
+
+<ConfirmDialog @ref="confirmDeleteTask" Title="Confirm delete ?" Accept="DeleteTask"/>
+<Toast @ref="toast"/>

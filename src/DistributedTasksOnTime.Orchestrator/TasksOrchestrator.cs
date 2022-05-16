@@ -222,6 +222,23 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
+    public Task DeleteTask(string taskName)
+    {
+        if (taskName == null)
+        {
+            throw new NullReferenceException("task name is null");
+        }
+
+        taskName = taskName.ToLower();
+
+        Logger.LogInformation("Try to Delete task {0}", taskName);
+        if (ScheduledTaskList.TryRemove(taskName, out var removeTask))
+		{
+            SaveScheduledTaskList();
+        }
+        return Task.CompletedTask;
+    }
+
     public async Task ForceTask(string taskName)
     {
         if (taskName == null)

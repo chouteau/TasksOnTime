@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="bin\Debug\net6.0\DistributedTasksOnTime.Shared.dll" />
+    <Content Remove="bin\Debug\net6.0\\DistributedTasksOnTime.Shared.dll" />
   </ItemGroup>
 	
 	<ItemGroup>
