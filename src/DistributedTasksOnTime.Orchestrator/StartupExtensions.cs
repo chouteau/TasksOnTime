@@ -44,6 +44,7 @@ public static class StartupExtensions
 	{
 		register.AddAzureQueueReader<Readers.TaskInfoReader>(settings.TaskInfoQueueName);
 		register.AddAzureQueueReader<Readers.HostRegistrationReader>(settings.HostRegistrationQueueName);
+		register.AddAzureQueueReader<Readers.ForceTaskReader>(settings.ForceTaskQueueName);
 		register.AddAzureTopicWriter(settings.CancelTaskQueueName);
 	}
 }
