@@ -241,9 +241,9 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
     public async Task ForceTask(string taskName)
     {
-        if (taskName == null)
+        if (string.IsNullOrWhiteSpace(taskName))
         {
-            throw new NullReferenceException("task name is null");
+            throw new NullReferenceException("task name is null or empty");
         }
 
         Logger.LogInformation("Try to force task {0}", taskName);
@@ -257,6 +257,14 @@ internal class TasksOrchestrator : ITasksOrchestrator
         if (task == null)
         {
             Logger.LogWarning("force unknown task {0}", taskName);
+            return;
+        }
+		var runningTask = RunningTaskList.FirstOrDefault(i => i.Value.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        if (runningTask.Value != null
+            && !runningTask.Value.TerminatedDate.HasValue
+            && !task.AllowMultipleInstance)
+		{
+            Logger.LogWarning("force task {taskName} canceled because task is already started and not completed ", taskName);
             return;
         }
         await EnqueueTask(task, true);

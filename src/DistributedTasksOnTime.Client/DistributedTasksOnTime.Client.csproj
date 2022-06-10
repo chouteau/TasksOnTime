@@ -6,7 +6,7 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.0.21.0</Version>
+    <Version>1.0.22.0</Version>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
 	</PropertyGroup>
 
