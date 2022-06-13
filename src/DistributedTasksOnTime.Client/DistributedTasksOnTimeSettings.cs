@@ -14,6 +14,8 @@ public class DistributedTasksOnTimeSettings
 	public string AzureBusConnectionString { get; set; }
 
 	public string HostName { get; set; }
+	public string ForceTaskQueueName { get; set; }
+	
 	public Type ExistingProgressReporter { get; set; }
 
 	public string HostKey => $"{System.Environment.MachineName}.{HostName}";

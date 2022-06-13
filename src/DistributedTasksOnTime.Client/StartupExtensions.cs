@@ -8,6 +8,7 @@ public static class StartupExtensions
 	{
 		services.AddSingleton(settings);
 		services.AddTransient<DistributedProgressReporter>();
+		services.AddTransient<IForceTaskService, ForceTaskService>();
 
 		services.AddTasksOnTimeServices(tasksOnTimeConfig =>
 		{
@@ -99,6 +100,8 @@ public static class StartupExtensions
 	{
 		register.AddAzureQueueWriter(settings.TaskInfoQueueName);
 		register.AddAzureQueueWriter(settings.HostRegistrationQueueName);
+		register.AddAzureQueueWriter(settings.ForceTaskQueueName);
+		
 		var topicName = $"{System.Environment.MachineName}.{settings.HostName}";
 		register.AddAzureTopicReader<Readers.CancelTaskReader>(settings.CancelTaskQueueName, topicName);
 
