@@ -421,10 +421,8 @@ namespace TasksOnTime.Scheduling
                     scheduledTask.IsQueued = false;
                     try
                     {
-                        if (scheduledTask.Completed != null)
-                        {
-                            scheduledTask.Completed(dic);
-                        }
+                        scheduledTask?.Completed(dic);
+                        TaskFinished?.Invoke(scheduledTask.Name);
                     }
                     catch (Exception ex)
                     {
@@ -450,28 +448,22 @@ namespace TasksOnTime.Scheduling
                 {
                     scheduledTask.Exception = ex;
                     Logger.LogError(ex, ex.Message);
-                    if (TaskFailed != null)
+                    try
                     {
-                        try
-                        {
-                            TaskFailed.Invoke(scheduledTask.Name, ex);
-                        }
-                        catch { }
+                        TaskFailed?.Invoke(scheduledTask.Name, ex);
                     }
+                    catch { }
                 },
                 null,
                 () =>
                 {
                     Logger.LogDebug("scheduled task {0} started", scheduledTask.Name);
                     scheduledTask.StartedCount += 1;
-                    if (TaskStarted != null)
+                    try
                     {
-                        try
-                        {
-                            TaskStarted.Invoke(scheduledTask.Name);
-                        }
-                        catch { }
+                        TaskStarted?.Invoke(scheduledTask.Name);
                     }
+                    catch { }
                 },
                 true,
                 scheduledTask.IsForced);

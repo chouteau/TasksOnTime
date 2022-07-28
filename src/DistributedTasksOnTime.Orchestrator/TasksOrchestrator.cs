@@ -120,7 +120,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         if (scheduledTask.Key == null)
 		{
             // Pas normal du tout
-            Logger.LogWarning("Running task without scheduledTask {0}", distributedTaskInfo.Id);
+            Logger.LogTrace("Running task without scheduledTask {0}", distributedTaskInfo.Id);
             return;
         }
 
