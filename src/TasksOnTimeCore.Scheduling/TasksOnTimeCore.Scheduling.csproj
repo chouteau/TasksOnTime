@@ -3,9 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>TasksOnTime.Scheduling</RootNamespace>
-    <Version>1.2.17.1</Version>
+    <Version>1.2.18.2</Version>
 	  <PackageId>TasksOnTimeCore.Scheduling</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
+	  <PackageReleaseNotes>
+		  1.2.18.2 Fix : scheduledTask.Completed return Object reference not set to an instance of an object
+	  </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

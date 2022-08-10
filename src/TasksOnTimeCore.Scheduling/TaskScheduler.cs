@@ -421,7 +421,7 @@ namespace TasksOnTime.Scheduling
                     scheduledTask.IsQueued = false;
                     try
                     {
-                        scheduledTask?.Completed(dic);
+                        scheduledTask.Completed?.Invoke(dic);
                         TaskFinished?.Invoke(scheduledTask.Name);
                     }
                     catch (Exception ex)
