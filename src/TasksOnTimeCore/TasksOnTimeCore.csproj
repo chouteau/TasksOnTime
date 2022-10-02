@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>TasksOnTime</RootNamespace>
-    <Version>1.2.19.2</Version>
+    <Version>1.2.20.2</Version>
 	  <PackageId>TasksOnTimeCore</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
 	  <IncludeSymbols>true</IncludeSymbols>
