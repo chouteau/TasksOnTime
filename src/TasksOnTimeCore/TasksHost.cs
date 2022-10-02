@@ -360,17 +360,25 @@ namespace TasksOnTime
 
 		public void Cancel(Guid key)
 		{
-			TaskHistoryList.TryGetValue(key, out TaskHistory existing);
-			if (existing == null)
+			if (TaskHistoryList.TryGetValue(key, out TaskHistory existing))
 			{
-				return;
+				if (existing == null)
+				{
+					Logger.LogDebug("Activity {0} not found", key);
+					return;
+				}
+				if (existing.TerminatedDate.HasValue)
+				{
+					Logger.LogDebug("Activity {0} is terminated", key);
+					return;
+				}
+				Logger.LogDebug("Cancel activity {0} requested", key);
+				existing.Context.IsCancelRequested = true;
 			}
-			if (existing.TerminatedDate.HasValue)
+			else
 			{
-				return;
-			}
-			Logger.LogDebug("Cancel activity {0} requested", key);
-			existing.Context.IsCancelRequested = true;
+				Logger.LogDebug("Try to get activity {0} failed", key);
+			};
 		}
 
 		public bool Exists(Guid key)
