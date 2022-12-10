@@ -1,4 +1,4 @@
-﻿namespace DistributedTasksOnTime.Orchestrator.Repository;
+﻿namespace DistributedTasksOnTime.Persistence;
 
 public interface IDbRepository
 {

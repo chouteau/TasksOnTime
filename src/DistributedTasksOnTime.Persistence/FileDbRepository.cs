@@ -1,10 +1,15 @@
-﻿namespace DistributedTasksOnTime.Orchestrator.Repository;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using Microsoft.Extensions.Logging;
+
+namespace DistributedTasksOnTime.Persistence;
 
 internal class FileDbRepository : IDbRepository
 {
 	readonly JsonSerializerOptions _options = new JsonSerializerOptions();
 
-	public FileDbRepository(DistributedTasksOnTimeServerSettings settings,
+	public FileDbRepository(PersistenceSettings settings,
 		ILogger<FileDbRepository> logger)
 	{
 		this.Settings = settings;
@@ -13,7 +18,7 @@ internal class FileDbRepository : IDbRepository
 		_options.WriteIndented = true;
 	}
 
-	protected DistributedTasksOnTimeServerSettings Settings { get; }
+	protected PersistenceSettings Settings { get; }
 	protected ILogger Logger { get; }
 
 	public List<HostRegistrationInfo> GetHostRegistrationList()
@@ -25,7 +30,7 @@ internal class FileDbRepository : IDbRepository
 		}
 		var content = File.ReadAllText(fileName);
 		var result = JsonSerializer.Deserialize<List<HostRegistrationInfo>>(content, _options);
-		return result;
+		return result!;
 	}
 
 	public List<Models.ScheduledTask> GetScheduledTaskList()
@@ -37,7 +42,7 @@ internal class FileDbRepository : IDbRepository
 		}
 		var content = File.ReadAllText(fileName);
 		var result = JsonSerializer.Deserialize<List<Models.ScheduledTask>>(content, _options);
-		return result;
+		return result!;
 	}
 
 	public void PersistHostRegistrationList(List<HostRegistrationInfo> list)

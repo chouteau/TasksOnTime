@@ -6,8 +6,8 @@ public partial class ScheduledTask
 	[Inject] DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
 	[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
-	Orchestrator.Models.ScheduledTask scheduledTask = new();
-	List<Orchestrator.Models.RunningTask> runningTaskList = new();
+    Persistence.Models.ScheduledTask scheduledTask = new();
+	List<Persistence.Models.RunningTask> runningTaskList = new();
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -15,6 +15,10 @@ public partial class ScheduledTask
 		{
 			TasksOrchestrator.OnRunningTaskChanged += async (s, r) =>
 			{
+				if (r.TaskName != TaskName)
+				{
+					return;
+				}
 				await InvokeAsync(() =>
 				{
 					runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName).ToList();

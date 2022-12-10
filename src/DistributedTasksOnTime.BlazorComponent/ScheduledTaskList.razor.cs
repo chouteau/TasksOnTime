@@ -9,6 +9,7 @@ public partial class ScheduledTaskList
 	[Inject] 
 	DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
+
 	List<TaskInfo> taskInfoList = new();
 	ConfirmDialog confirmDeleteTask;
 	Toast toast;
@@ -79,22 +80,22 @@ public partial class ScheduledTaskList
 		}
 	}
 
-	void EditTask(Orchestrator.Models.ScheduledTask task)
+	void EditTask(Persistence.Models.ScheduledTask task)
 	{
 		NavigationManager.NavigateTo($"/editscheduledtask/{task.Name}", true);
 	}
 
-	void ForceTask(Orchestrator.Models.ScheduledTask task)
+	void ForceTask(Persistence.Models.ScheduledTask task)
 	{
 		TasksOrchestrator.ForceTask(task.Name);
 	}
 
-	void CancelTask(Orchestrator.Models.ScheduledTask task)
+	void CancelTask(Persistence.Models.ScheduledTask task)
 	{
 		TasksOrchestrator.CancelTask(task.Name);
 	}
 
-	void ConfirmDeleteTask(Orchestrator.Models.ScheduledTask task)
+	void ConfirmDeleteTask(Persistence.Models.ScheduledTask task)
 	{
 		confirmDeleteTask.Tag = task;
 		confirmDeleteTask.ShowDialog($"Are you sure you want to delete task '{task.Name}'?");
@@ -102,7 +103,7 @@ public partial class ScheduledTaskList
 
 	async Task DeleteTask(object tag)
 	{
-		var task = (Orchestrator.Models.ScheduledTask)tag;
+		var task = (Persistence.Models.ScheduledTask)tag;
 		await TasksOrchestrator.DeleteTask(task.Name);
 		toast.Show("Task deleted", ToastLevel.Info);
 		LoadTaskInfoList();

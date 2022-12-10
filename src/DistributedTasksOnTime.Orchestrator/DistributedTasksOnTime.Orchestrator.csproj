@@ -4,7 +4,6 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-DistributedTasksOnTimeServer-7476CA37-EB84-422B-A476-3EA40DCCE81C</UserSecretsId>
     <Version>1.0.9.0</Version>
     <OutputType>Library</OutputType>
   </PropertyGroup>
@@ -15,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DistributedTasksOnTime.Persistence\DistributedTasksOnTime.Persistence.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
   </ItemGroup>
 
@@ -22,5 +22,9 @@
     <Content Update="localconfig\appsettings.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Repository\" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 using DistributedTasksOnTime;
 using DistributedTasksOnTime.Client;
 using DistributedTasksOnTime.Orchestrator;
-using DistributedTasksOnTime.Orchestrator.Models;
+using DistributedTasksOnTime.Persistence.Models;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,7 +29,7 @@ namespace DistributedTaskOnTime.Tests
 				});
 			});
 
-			var configDbRepository = host.Services.GetRequiredService<DistributedTasksOnTime.Orchestrator.Repository.IDbRepository>();
+			var configDbRepository = host.Services.GetRequiredService<DistributedTasksOnTime.Persistence.IDbRepository>();
 			configDbRepository.PersistScheduledTaskList(new System.Collections.Generic.List<ScheduledTask>());
 			configDbRepository.PersistHostRegistrationList(new System.Collections.Generic.List<HostRegistrationInfo>());
 

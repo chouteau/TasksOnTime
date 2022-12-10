@@ -19,7 +19,10 @@ public static class StartupExtensions
 			.ConfigureServices((ctx, services) =>
 			{
 				services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
-				services.AddTransient<Repository.IDbRepository, Repository.FileDbRepository>();
+				services.AddPersistence(config =>
+				{
+					config.StoreFolder = settings.StoreFolder;
+				});
 				services.AddTransient<QueueSender>();
 				services.AddSingleton(new ExistingQueues());
 

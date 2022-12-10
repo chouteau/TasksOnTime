@@ -3,12 +3,12 @@
 internal class TasksOrchestrator : ITasksOrchestrator
 {
     public event Action<string> OnHostRegistered;
-    public event Action<TaskState, Models.RunningTask> OnRunningTaskChanged;
+    public event Action<TaskState, Persistence.Models.RunningTask> OnRunningTaskChanged;
     public event Action<string> OnScheduledTaskStarted;
 
     public TasksOrchestrator(DistributedTasksOnTimeServerSettings scheduleSettings,
         ILogger<TasksOrchestrator> logger,
-        Repository.IDbRepository dbRepository,
+        Persistence.IDbRepository dbRepository,
         QueueSender queueSender)
     {
         this.Settings = scheduleSettings;
@@ -18,13 +18,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
     }
 
     protected ConcurrentDictionary<string, DistributedTasksOnTime.HostRegistrationInfo> HostList { get; set; }
-    protected ConcurrentDictionary<string, Models.ScheduledTask> ScheduledTaskList { get; set; }
+    protected ConcurrentDictionary<string, Persistence.Models.ScheduledTask> ScheduledTaskList { get; set; }
     protected ConcurrentDictionary<string, DistributedTasksOnTime.ProcessTask> TaskOrderList { get; set; }
-    protected ConcurrentDictionary<Guid, Models.RunningTask> RunningTaskList { get; set; }
+    protected ConcurrentDictionary<Guid, Persistence.Models.RunningTask> RunningTaskList { get; set; }
 
     protected DistributedTasksOnTimeServerSettings Settings { get; }
     protected ILogger Logger { get; }
-    protected Repository.IDbRepository DbRepository { get; }
+    protected Persistence.IDbRepository DbRepository { get; }
     protected QueueSender QueueSender { get; }
 
     public void Start()
@@ -38,7 +38,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         Logger.LogInformation("Start with {0} existing host", hostList.Count);
 
         var taskList = DbRepository.GetScheduledTaskList();
-        this.ScheduledTaskList = new ConcurrentDictionary<string, Models.ScheduledTask>();
+        this.ScheduledTaskList = new ConcurrentDictionary<string, Persistence.Models.ScheduledTask>();
         foreach (var item in taskList)
 		{
             this.ScheduledTaskList.TryAdd(item.Name.ToLower(), item);
@@ -46,7 +46,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
         Logger.LogInformation("Start with {0} existing scheduled task", taskList.Count);
 
-        RunningTaskList = new ConcurrentDictionary<Guid, Models.RunningTask>();
+        RunningTaskList = new ConcurrentDictionary<Guid, Persistence.Models.RunningTask>();
     }
 
     public void Stop()
@@ -111,7 +111,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         if (existing == null) // <- pas normal
 		{
             Logger.LogWarning("Running task not found with id {0}", distributedTaskInfo.Id);
-            existing = new Models.RunningTask();
+            existing = new Persistence.Models.RunningTask();
             existing.Id = distributedTaskInfo.Id;
             existing.TaskName = "unknown";
 		}
@@ -248,7 +248,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
         Logger.LogInformation("Try to force task {0}", taskName);
             
-        var getResult = ScheduledTaskList.TryGetValue(taskName.ToLower(), out Models.ScheduledTask task);
+        var getResult = ScheduledTaskList.TryGetValue(taskName.ToLower(), out Persistence.Models.ScheduledTask task);
         if (!getResult)
 		{
             Logger.LogWarning($"try to get task {taskName} failed");
@@ -280,9 +280,9 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return RunningTaskList.Count(i => !i.Value.TerminatedDate.HasValue);
     }
 
-    public IEnumerable<Models.ScheduledTask> GetScheduledTaskList()
+    public IEnumerable<Persistence.Models.ScheduledTask> GetScheduledTaskList()
     {
-        var result = new List<Models.ScheduledTask>();
+        var result = new List<Persistence.Models.ScheduledTask>();
         if (ScheduledTaskList == null
             || !ScheduledTaskList.Any())
 		{
@@ -295,9 +295,9 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return result;
     }
 
-    public IEnumerable<Models.RunningTask> GetRunningTaskList(string taskName = null)
+    public IEnumerable<Persistence.Models.RunningTask> GetRunningTaskList(string taskName = null)
     {
-        var result = new List<Models.RunningTask>();
+        var result = new List<Persistence.Models.RunningTask>();
         if (RunningTaskList == null
             || !RunningTaskList.Any())
         {
@@ -316,7 +316,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
     }
 
 
-    public void SaveScheduledTaskList(Models.ScheduledTask scheduledTask = null)
+    public void SaveScheduledTaskList(Persistence.Models.ScheduledTask scheduledTask = null)
 	{
         if (scheduledTask != null)
 		{
@@ -365,7 +365,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    internal async virtual Task EnqueueTask(Models.ScheduledTask scheduledTask, bool isForced = false)
+    internal async virtual Task EnqueueTask(Persistence.Models.ScheduledTask scheduledTask, bool isForced = false)
     {
         var procesTask = new DistributedTasksOnTime.ProcessTask();
         procesTask.Id = Guid.NewGuid();
@@ -378,7 +378,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         var queueName = $"{Settings.PrefixQueueName}.{scheduledTask.Name}";
         await QueueSender.SendMessage(queueName, procesTask);
 
-        var runningTask = new Models.RunningTask();
+        var runningTask = new Persistence.Models.RunningTask();
         runningTask.Id = procesTask.Id;
         runningTask.TaskName = scheduledTask.Name;
         runningTask.IsForced = isForced;
@@ -386,7 +386,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         RunningTaskList.TryAdd(runningTask.Id, runningTask);
     }
 
-    internal bool CanRun(DateTime now, Models.ScheduledTask scheduledTask)
+    internal bool CanRun(DateTime now, Persistence.Models.ScheduledTask scheduledTask)
     {
         if (!scheduledTask.Enabled)
 		{
@@ -424,7 +424,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return false;
     }
 
-    internal void SetNextRuningDate(DateTime now, Models.ScheduledTask scheduledTask)
+    internal void SetNextRuningDate(DateTime now, Persistence.Models.ScheduledTask scheduledTask)
     {
         switch (scheduledTask.Period)
         {
@@ -474,9 +474,9 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    private Models.ScheduledTask CreateScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
+    private Persistence.Models.ScheduledTask CreateScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
     {
-        var task = new Models.ScheduledTask();
+        var task = new Persistence.Models.ScheduledTask();
         task.Name = taskInfo.TaskName;
         task.Enabled = taskInfo.Enabled;
         task.AssemblyQualifiedName = taskInfo.AssemblyQualifiedName;

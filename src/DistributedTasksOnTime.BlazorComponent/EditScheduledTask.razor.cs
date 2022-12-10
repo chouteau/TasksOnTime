@@ -8,7 +8,7 @@ public partial class EditScheduledTask
 	[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 	CustomValidator CustomValidator { get; set; } = new();
 	
-	DistributedTasksOnTime.Orchestrator.Models.ScheduledTask scheduledTask = new();
+	DistributedTasksOnTime.Persistence.Models.ScheduledTask scheduledTask = new();
 
 	protected override void OnInitialized()
 	{

@@ -12,14 +12,10 @@ var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Loc
 var host= Host.CreateDefaultBuilder(args)
 				.ConfigureAppConfiguration(configurationBuilder =>
 				{
-					configurationBuilder
-						.AddJsonFile("appSettings.json");
-
-					var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
-					if (System.IO.File.Exists(localConfig))
-					{
-						configurationBuilder.AddJsonFile(localConfig, true, false);
-					}
+                    var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
+                    configurationBuilder
+                        .AddJsonFile("appSettings.json")
+						.AddJsonFile(localConfig, true, false);
 
 				})
 				.ConfigureServices((ctx, services) =>

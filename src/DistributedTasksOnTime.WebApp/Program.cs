@@ -9,16 +9,12 @@ var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Loc
 
 var builder = WebApplication.CreateBuilder(args);
 
+var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
 builder.Configuration.SetBasePath(currentFolder)
 		.AddJsonFile("appSettings.json", true, false)
 		.AddJsonFile($"appSettings.{builder.Environment.EnvironmentName}.json", true, false)
-		.AddEnvironmentVariables();
-
-var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
-if (System.IO.File.Exists(localConfig))
-{
-	builder.Configuration.AddJsonFile(localConfig, true, false);
-}
+        .AddJsonFile(localConfig, true, false)
+        .AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
