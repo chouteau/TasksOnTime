@@ -1,4 +1,4 @@
-﻿namespace DistributedTasksOnTime.Persistence.Models;
+﻿namespace DistributedTasksOnTime;
 
 public class ScheduledTask 
 {
@@ -20,7 +20,7 @@ public class ScheduledTask
 	public bool AllowLocalMultipleInstances { get; set; }
 	public DateTime NextRunningDate { get; set; }
 	public Dictionary<string, string> Parameters { get; set; }
-	public string? Description { get; set; }
+	public string Description { get; set; }
 	public ProcessMode ProcessMode { get; set; }
 }
 

@@ -6,17 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
+namespace DistributedTasksOnTime.SqlitePersistence.Datas
 {
     [Table("HostRegistration")]
     internal class HostRegistrationData
     {
         [Key]
         public Guid Id { get; set; }
+        public string UniqueKey { get; set; } = null!;
         public string MachineName { get; set; } = null!;
         public string HostName { get; set; } = null!;
         public HostRegistrationState State { get; set; }
-        [NotMapped]
-        public string Key => $"{MachineName}.{HostName}";
+        public DateTime CreationDate { get; set; } = DateTime.Now;
     }
 }

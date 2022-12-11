@@ -1,4 +1,6 @@
-﻿namespace DistributedTasksOnTime.Persistence.Models;
+﻿using System.ComponentModel;
+
+namespace DistributedTasksOnTime;
 
 public class RunningTask
 {
@@ -12,7 +14,7 @@ public class RunningTask
 	public DateTime? CanceledDate { get; set; }
 	public DateTime? TerminatedDate { get; set; }
 	public DateTime? FailedDate { get; set; }
-	public string? ErrorStack { get; set; }
+	public string ErrorStack { get; set; }
 	public bool IsForced { get; set; }
 	public List<ProgressInfo> ProgressLogs { get; set; } = new();
 }

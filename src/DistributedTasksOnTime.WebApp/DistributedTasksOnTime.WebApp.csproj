@@ -19,7 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DistributedTasksOnTime.BlazorComponent\DistributedTasksOnTime.BlazorComponent.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
-    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+    <ProjectReference Include="..\DistributedTasksOnTime.SqlitePersistence\DistributedTasksOnTime.SqlitePersistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

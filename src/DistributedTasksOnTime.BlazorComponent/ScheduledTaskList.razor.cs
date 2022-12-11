@@ -80,22 +80,22 @@ public partial class ScheduledTaskList
 		}
 	}
 
-	void EditTask(Persistence.Models.ScheduledTask task)
+	void EditTask(DistributedTasksOnTime.ScheduledTask task)
 	{
 		NavigationManager.NavigateTo($"/editscheduledtask/{task.Name}", true);
 	}
 
-	void ForceTask(Persistence.Models.ScheduledTask task)
+	void ForceTask(DistributedTasksOnTime.ScheduledTask task)
 	{
 		TasksOrchestrator.ForceTask(task.Name);
 	}
 
-	void CancelTask(Persistence.Models.ScheduledTask task)
+	void CancelTask(DistributedTasksOnTime.ScheduledTask task)
 	{
 		TasksOrchestrator.CancelTask(task.Name);
 	}
 
-	void ConfirmDeleteTask(Persistence.Models.ScheduledTask task)
+	void ConfirmDeleteTask(DistributedTasksOnTime.ScheduledTask task)
 	{
 		confirmDeleteTask.Tag = task;
 		confirmDeleteTask.ShowDialog($"Are you sure you want to delete task '{task.Name}'?");
@@ -103,10 +103,15 @@ public partial class ScheduledTaskList
 
 	async Task DeleteTask(object tag)
 	{
-		var task = (Persistence.Models.ScheduledTask)tag;
+		var task = (DistributedTasksOnTime.ScheduledTask)tag;
 		await TasksOrchestrator.DeleteTask(task.Name);
 		toast.Show("Task deleted", ToastLevel.Info);
 		LoadTaskInfoList();
 		StateHasChanged();
+	}
+
+	void ResetRunningTasks()
+	{
+		TasksOrchestrator.ResetRunningTasks();
 	}
 }

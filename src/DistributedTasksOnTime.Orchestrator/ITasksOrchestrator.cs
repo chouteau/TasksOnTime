@@ -3,7 +3,7 @@
 public interface ITasksOrchestrator
 {
 	event Action<string> OnHostRegistered;
-	event Action<TaskState, Persistence.Models.RunningTask> OnRunningTaskChanged;
+	event Action<TaskState, RunningTask> OnRunningTaskChanged;
 	event Action<string> OnScheduledTaskStarted;
 
 	void Start();
@@ -18,9 +18,10 @@ public interface ITasksOrchestrator
 
 	Task ForceTask(string taskName);
 	int GetScheduledTaskCount();
-	void SaveScheduledTaskList(Persistence.Models.ScheduledTask scheduledTask = null);
+	void SaveScheduledTask(ScheduledTask scheduledTask = null);
 	int GetRunningTaskCount();
-	IEnumerable<Persistence.Models.RunningTask> GetRunningTaskList(string taskName = null);
-	IEnumerable<Persistence.Models.ScheduledTask> GetScheduledTaskList();
+	IEnumerable<RunningTask> GetRunningTaskList(string taskName = null, bool withProgress = false);
+	void ResetRunningTasks();
+	IEnumerable<ScheduledTask> GetScheduledTaskList();
 }
 

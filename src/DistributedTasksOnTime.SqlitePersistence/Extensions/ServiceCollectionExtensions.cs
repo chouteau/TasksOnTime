@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace DistributedTasksOnTime.Persistence.Extensions;
+namespace DistributedTasksOnTime.SqlitePersistence.Extensions;
 
 public static class ServiceCollectionExtensions
 {

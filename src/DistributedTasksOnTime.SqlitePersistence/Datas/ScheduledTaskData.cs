@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
+namespace DistributedTasksOnTime.SqlitePersistence.Datas
 {
     [Table("ScheduledTask")]
     internal class ScheduledTaskData
@@ -25,8 +25,10 @@ namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
         public bool AllowMultipleInstance { get; set; }
         public bool AllowLocalMultipleInstances { get; set; }
         public DateTime NextRunningDate { get; set; }
-        public string? Parameters { get; set; }
+        public string? SerializedParameters { get; set; }
         public string? Description { get; set; }
         public ProcessMode ProcessMode { get; set; }
+        public DateTime CreationDate { get; set; } = DateTime.Now;
+        public DateTime LastUpdate { get; set; } = DateTime.Now;
     }
 }

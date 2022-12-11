@@ -1,6 +1,7 @@
 ﻿<div class="row">
 	<EditForm Model="Settings">
 		<InputCheckbox @bind-Value="Settings.Enable" /> Scheduling Enabled<br/>
+		<button @onclick="ResetRunningTasks" class="btn btn-danger">Reset running tasks</button>
 	</EditForm>
 </div>
 

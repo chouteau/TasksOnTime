@@ -2,6 +2,6 @@
 
 public class TaskInfo
 {
-	public Persistence.Models.ScheduledTask ScheduledTask { get; set; }
-	public Persistence.Models.RunningTask LastRunningTask { get; set; }
+	public DistributedTasksOnTime.ScheduledTask ScheduledTask { get; set; }
+	public DistributedTasksOnTime.RunningTask LastRunningTask { get; set; }
 }

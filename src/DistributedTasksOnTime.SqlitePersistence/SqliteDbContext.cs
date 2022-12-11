@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace DistributedTasksOnTime.Persistence.Sqlite
+namespace DistributedTasksOnTime.SqlitePersistence
 {
     internal class SqliteDbContext : DbContext
     {

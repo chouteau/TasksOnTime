@@ -6,30 +6,33 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.0.23.0</Version>
+    <Version>1.1.24.0</Version>
+	  <PackageReleaseNotes>
+		  1.1.24.0 : Open persistence for any repositories
+	  </PackageReleaseNotes>
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
 	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Ariane5.Azure" Version="6.0.22" />
-    <PackageReference Include="TasksOnTimeCore" Version="1.2.19.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
-		<PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
-  </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="bin\Debug\net6.0\\DistributedTasksOnTime.Shared.dll" />
-  </ItemGroup>
-	
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib/net6.0</PackagePath>
 		</Content>
+		<Content Include="$(OutputPath)\TasksOnTimeCore.dll">
+			<BuildAction>None</BuildAction>
+			<PackagePath>lib/net6.0</PackagePath>
+		</Content>
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+	  <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
 	</ItemGroup>
 
 </Project>

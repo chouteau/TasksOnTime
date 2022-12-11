@@ -3,12 +3,12 @@
 internal class TasksOrchestrator : ITasksOrchestrator
 {
     public event Action<string> OnHostRegistered;
-    public event Action<TaskState, Persistence.Models.RunningTask> OnRunningTaskChanged;
+    public event Action<TaskState, RunningTask> OnRunningTaskChanged;
     public event Action<string> OnScheduledTaskStarted;
 
     public TasksOrchestrator(DistributedTasksOnTimeServerSettings scheduleSettings,
         ILogger<TasksOrchestrator> logger,
-        Persistence.IDbRepository dbRepository,
+        IDbRepository dbRepository,
         QueueSender queueSender)
     {
         this.Settings = scheduleSettings;
@@ -17,107 +17,51 @@ internal class TasksOrchestrator : ITasksOrchestrator
         this.QueueSender = queueSender;
     }
 
-    protected ConcurrentDictionary<string, DistributedTasksOnTime.HostRegistrationInfo> HostList { get; set; }
-    protected ConcurrentDictionary<string, Persistence.Models.ScheduledTask> ScheduledTaskList { get; set; }
-    protected ConcurrentDictionary<string, DistributedTasksOnTime.ProcessTask> TaskOrderList { get; set; }
-    protected ConcurrentDictionary<Guid, Persistence.Models.RunningTask> RunningTaskList { get; set; }
-
     protected DistributedTasksOnTimeServerSettings Settings { get; }
     protected ILogger Logger { get; }
-    protected Persistence.IDbRepository DbRepository { get; }
+    protected IDbRepository DbRepository { get; }
     protected QueueSender QueueSender { get; }
 
     public void Start()
 	{
-        var hostList = DbRepository.GetHostRegistrationList();
-        this.HostList = new ConcurrentDictionary<string, DistributedTasksOnTime.HostRegistrationInfo>();
-        foreach (var item in hostList)
-		{
-            this.HostList.TryAdd(item.Key, item);
-		}
-        Logger.LogInformation("Start with {0} existing host", hostList.Count);
-
-        var taskList = DbRepository.GetScheduledTaskList();
-        this.ScheduledTaskList = new ConcurrentDictionary<string, Persistence.Models.ScheduledTask>();
-        foreach (var item in taskList)
-		{
-            this.ScheduledTaskList.TryAdd(item.Name.ToLower(), item);
-        }
-
-        Logger.LogInformation("Start with {0} existing scheduled task", taskList.Count);
-
-        RunningTaskList = new ConcurrentDictionary<Guid, Persistence.Models.RunningTask>();
     }
 
     public void Stop()
 	{
         Logger.LogWarning("TasksOrchestrator stopping");
-
-        var taskList = ScheduledTaskList.Select(i => i.Value).ToList();
-        DbRepository.PersistScheduledTaskList(taskList);
-
-        var hostList = HostList.Select(i => i.Value).ToList();
-        DbRepository.PersistHostRegistrationList(hostList);
+        DbRepository.PersistAll();
 	}
 
     public void RegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo)
 	{
-        if (HostList.ContainsKey(hostInfo.Key))
-		{
-            Logger.LogInformation("Host already registered {0}", hostInfo.Key);
-		}
-		else
-		{
-            HostList.TryAdd(hostInfo.Key, hostInfo);
-            var list = HostList.Select(i => i.Value).ToList();
-            DbRepository.PersistHostRegistrationList(list);
-        }
-
         foreach (var task in hostInfo.TaskList)
 		{
-            var existing = ScheduledTaskList.FirstOrDefault(i => i.Key == task.TaskName.ToLower());
-            if (existing.Key != null)
-            {
-                existing.Value.AssemblyQualifiedName = task.AssemblyQualifiedName;
-            }
-			else
-			{
-                var scheduledTask = CreateScheduledTask(task);
-                this.ScheduledTaskList.TryAdd(scheduledTask.Name.ToLower(), scheduledTask);
-            }
+            var scheduledTask = CreateScheduledTask(task);
+            DbRepository.SaveScheduledTask(scheduledTask);
         }
-
-        var taskList = ScheduledTaskList.Select(i => i.Value).ToList();
-        DbRepository.PersistScheduledTaskList(taskList);
+        DbRepository.SaveHostRegistration(hostInfo);
 
         OnHostRegistered?.Invoke(hostInfo.Key);
     }
 
     public void UnRegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo)
 	{
-        if (!HostList.ContainsKey(hostInfo.Key))
-        {
-            return;
-        }
-        HostList.TryRemove(hostInfo.Key, out var remove);
-        var list = HostList.Select(i => i.Value).ToList();
-        DbRepository.PersistHostRegistrationList(list);
-        Logger.LogWarning("Host {0} unregistered", hostInfo.Key);
+        DbRepository.DeleteHostRegistration(hostInfo.Key);
     }
 
     public void NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo)
 	{
-        RunningTaskList.TryGetValue(distributedTaskInfo.Id, out var existing);
-        if (existing == null) // <- pas normal
+        var runningTask = DbRepository.GetRunningTaskList(true).SingleOrDefault(i => i.Id == distributedTaskInfo.Id);
+        if (runningTask == null) // <- pas normal
 		{
             Logger.LogWarning("Running task not found with id {0}", distributedTaskInfo.Id);
-            existing = new Persistence.Models.RunningTask();
-            existing.Id = distributedTaskInfo.Id;
-            existing.TaskName = "unknown";
+            runningTask = new RunningTask();
+            runningTask.Id = distributedTaskInfo.Id;
+            runningTask.TaskName = "unknown";
 		}
 
-        var scheduledTask = ScheduledTaskList.FirstOrDefault(i => i.Key == existing.TaskName.ToLower());
-        if (scheduledTask.Key == null)
+        var scheduledTask = DbRepository.GetScheduledTaskList().SingleOrDefault(i => i.Name.Equals(runningTask.TaskName, StringComparison.InvariantCultureIgnoreCase));
+        if (scheduledTask == null)
 		{
             // Pas normal du tout
             Logger.LogTrace("Running task without scheduledTask {0}", distributedTaskInfo.Id);
@@ -126,63 +70,65 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
         if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Enqueued)
 		{
-            Logger.LogTrace("Task {0} enqueued", existing.TaskName);
-            existing.HostKey = distributedTaskInfo.HostKey;
-            existing.EnqueuedDate = distributedTaskInfo.EventDate;
+            Logger.LogTrace("Task {0} enqueued", runningTask.TaskName);
+            runningTask.HostKey = distributedTaskInfo.HostKey;
+            runningTask.EnqueuedDate = distributedTaskInfo.EventDate;
 		}
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Started)
 		{
-            Logger.LogTrace("Task {0} started", existing.TaskName);
-            existing.HostKey = distributedTaskInfo.HostKey;
-            existing.RunningDate = distributedTaskInfo.EventDate;
+            Logger.LogTrace("Task {0} started", runningTask.TaskName);
+            runningTask.HostKey = distributedTaskInfo.HostKey;
+            runningTask.RunningDate = distributedTaskInfo.EventDate;
 
-            scheduledTask.Value.StartedCount = scheduledTask.Value.StartedCount + 1;
-            var taskList = ScheduledTaskList.Select(i => i.Value).ToList();
-            DbRepository.PersistScheduledTaskList(taskList);
+            scheduledTask.StartedCount = scheduledTask.StartedCount + 1;
+            DbRepository.SaveScheduledTask(scheduledTask);
 
-            OnScheduledTaskStarted?.Invoke(existing.TaskName);
+            OnScheduledTaskStarted?.Invoke(runningTask.TaskName);
         }
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Terminated)
 		{
-            Logger.LogTrace("Task {0} terminated", existing.TaskName);
-            existing.HostKey = distributedTaskInfo.HostKey;
-            existing.TerminatedDate = distributedTaskInfo.EventDate;
+            Logger.LogTrace("Task {0} terminated", runningTask.TaskName);
+            runningTask.HostKey = distributedTaskInfo.HostKey;
+            runningTask.TerminatedDate = distributedTaskInfo.EventDate;
         }
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Canceling)
         {
-            Logger.LogTrace("Task {0} canceling", existing.TaskName);
-            existing.HostKey = distributedTaskInfo.HostKey;
-            existing.CancelingDate = distributedTaskInfo.EventDate;
+            Logger.LogTrace("Task {0} canceling", runningTask.TaskName);
+            runningTask.HostKey = distributedTaskInfo.HostKey;
+            runningTask.CancelingDate = distributedTaskInfo.EventDate;
         }
         else if (distributedTaskInfo.State ==  DistributedTasksOnTime.TaskState.Canceled)
 		{
-            Logger.LogTrace("Task {0} canceled", existing.TaskName);
-            existing.HostKey = distributedTaskInfo.HostKey;
-            existing.CanceledDate = distributedTaskInfo.EventDate;
-            existing.TerminatedDate = DateTime.Now;
+            Logger.LogTrace("Task {0} canceled", runningTask.TaskName);
+            runningTask.HostKey = distributedTaskInfo.HostKey;
+            runningTask.CanceledDate = distributedTaskInfo.EventDate;
+            runningTask.TerminatedDate = DateTime.Now;
         }
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Failed)
         {
-            Logger.LogTrace("Task {0} failed with stack {1}", existing.TaskName, distributedTaskInfo.ErrorStack);
-            existing.HostKey = distributedTaskInfo.HostKey;
-            existing.FailedDate = distributedTaskInfo.EventDate;
-            existing.TerminatedDate = DateTime.Now;
-            existing.ErrorStack = distributedTaskInfo.ErrorStack;
+            Logger.LogTrace("Task {0} failed with stack {1}", runningTask.TaskName, distributedTaskInfo.ErrorStack);
+            runningTask.HostKey = distributedTaskInfo.HostKey;
+            runningTask.FailedDate = distributedTaskInfo.EventDate;
+            runningTask.TerminatedDate = DateTime.Now;
+            runningTask.ErrorStack = distributedTaskInfo.ErrorStack;
         }
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Progress)
 		{
-            Logger.LogTrace("Task {0} progress", existing.TaskName);
+            Logger.LogTrace("Task {0} progress", runningTask.TaskName);
             if (distributedTaskInfo.ProgressInfo == null)
 			{
                 Logger.LogWarning("Progress event without info");
 			}
             else
 			{
-                existing.ProgressLogs.Add(distributedTaskInfo.ProgressInfo);
+                runningTask.ProgressLogs.Add(distributedTaskInfo.ProgressInfo);
+                DbRepository.SaveProgressInfo(distributedTaskInfo.ProgressInfo);
             }
 		}
 
-        OnRunningTaskChanged?.Invoke(distributedTaskInfo.State, existing);
+        DbRepository.SaveRunningTask(runningTask);
+
+        OnRunningTaskChanged?.Invoke(distributedTaskInfo.State, runningTask);
     }
 
     public bool ContainsTask(string taskName)
@@ -193,11 +139,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 		}
 
         bool result = false;
-        if (ScheduledTaskList == null || ScheduledTaskList.Count == 0)
-        {
-            return false;
-        }
-        result = ScheduledTaskList.ContainsKey(taskName.ToLower());
+        result = DbRepository.GetScheduledTaskList().SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase)) != null;
         return result;
     }
 
@@ -211,13 +153,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
         taskName = taskName.ToLower();
 
         Logger.LogInformation("Try to Cancel task {0}", taskName);
-        var task = RunningTaskList.FirstOrDefault(i => taskName.Equals(i.Value.TaskName, StringComparison.InvariantCultureIgnoreCase)
-                            && !i.Value.TerminatedDate.HasValue);
+        var task = DbRepository.GetRunningTaskList().FirstOrDefault(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
+                            && !i.TerminatedDate.HasValue);
 
-        if (task.Value != null)
+        if (task != null)
 		{
             var cancelTask = new DistributedTasksOnTime.CancelTask();
-            cancelTask.Id = task.Key;
+            cancelTask.Id = task.Id;
             await QueueSender.SendMessage(Settings.CancelTaskQueueName, cancelTask);
         }
     }
@@ -232,10 +174,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         taskName = taskName.ToLower();
 
         Logger.LogInformation("Try to Delete task {0}", taskName);
-        if (ScheduledTaskList.TryRemove(taskName, out var removeTask))
-		{
-            SaveScheduledTaskList();
-        }
+        DbRepository.DeleteScheduledTask(taskName);
         return Task.CompletedTask;
     }
 
@@ -248,82 +187,59 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
         Logger.LogInformation("Try to force task {0}", taskName);
             
-        var getResult = ScheduledTaskList.TryGetValue(taskName.ToLower(), out Persistence.Models.ScheduledTask task);
-        if (!getResult)
-		{
-            Logger.LogWarning($"try to get task {taskName} failed");
-            return;
-		}
-        if (task == null)
+        var scheduledTask = DbRepository.GetScheduledTaskList().SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        if (scheduledTask == null)
         {
             Logger.LogWarning("force unknown task {0}", taskName);
             return;
         }
-		var runningTask = RunningTaskList.FirstOrDefault(i => i.Value.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
-        if (runningTask.Value != null
-            && !runningTask.Value.TerminatedDate.HasValue
-            && !task.AllowMultipleInstance)
+		var runningTask = DbRepository.GetRunningTaskList().FirstOrDefault(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        if (runningTask!= null
+            && !runningTask.TerminatedDate.HasValue
+            && !scheduledTask.AllowMultipleInstance)
 		{
             Logger.LogWarning("force task {taskName} canceled because task is already started and not completed ", taskName);
             return;
         }
-        await EnqueueTask(task, true);
+        await EnqueueTask(scheduledTask, true);
     }
 
     public int GetScheduledTaskCount()
     {
-        return ScheduledTaskList.Count;
+        return DbRepository.GetScheduledTaskList().Count;
     }
 
     public int GetRunningTaskCount()
     {
-        return RunningTaskList.Count(i => !i.Value.TerminatedDate.HasValue);
+        return DbRepository.GetRunningTaskList().Count(i => !i.TerminatedDate.HasValue);
     }
 
-    public IEnumerable<Persistence.Models.ScheduledTask> GetScheduledTaskList()
+    public IEnumerable<ScheduledTask> GetScheduledTaskList()
     {
-        var result = new List<Persistence.Models.ScheduledTask>();
-        if (ScheduledTaskList == null
-            || !ScheduledTaskList.Any())
-		{
-            return result;
-		}
-        foreach (var item in ScheduledTaskList)
-        {
-            result.Add(item.Value);
-        }
-        return result;
+        return DbRepository.GetScheduledTaskList();
     }
 
-    public IEnumerable<Persistence.Models.RunningTask> GetRunningTaskList(string taskName = null)
+    public IEnumerable<RunningTask> GetRunningTaskList(string taskName = null, bool withProgress = false)
     {
-        var result = new List<Persistence.Models.RunningTask>();
-        if (RunningTaskList == null
-            || !RunningTaskList.Any())
+        if (taskName == null)
         {
-            return result;
+            return DbRepository.GetRunningTaskList(withProgress);
         }
-        foreach (var item in RunningTaskList.Values)
-        {
-            if (!string.IsNullOrWhiteSpace(taskName)
-                && !item.TaskName.Equals(taskName, StringComparison.InvariantCulture))
-			{
-                continue;
-			}
-            result.Add(item);
-        }
-        return result;
+        return DbRepository.GetRunningTaskList(withProgress).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
     }
 
+    public void ResetRunningTasks()
+    {
+        DbRepository.ResetRunningTasks();
+    }
 
-    public void SaveScheduledTaskList(Persistence.Models.ScheduledTask scheduledTask = null)
+    public void SaveScheduledTask(ScheduledTask scheduledTask = null)
 	{
         if (scheduledTask != null)
 		{
             SetNextRuningDate(DateTime.Now, scheduledTask);
 		}
-        var list = ScheduledTaskList.Select(i => i.Value).ToList();
-        DbRepository.PersistScheduledTaskList(list);
+        DbRepository.SaveScheduledTask(scheduledTask);
 	}
 
     /// <summary>
@@ -333,9 +249,9 @@ internal class TasksOrchestrator : ITasksOrchestrator
     /// <returns></returns>
     public async virtual Task EnqueueNextTasks(DateTime now)
     {
-        var query = from t in ScheduledTaskList
-                    where CanRun(now, t.Value)
-                    select t.Value;
+        var query = from t in DbRepository.GetScheduledTaskList()
+                    where CanRun(now, t)
+                    select t;
 
         var list = query.ToList();
 
@@ -354,8 +270,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
                 Logger.LogDebug("Try to start scheduled task {0}", task.Name);
                 await EnqueueTask(task);
                 SetNextRuningDate(DateTime.Now, task);
-                var currentList = ScheduledTaskList.Select(i => i.Value).ToList();
-                DbRepository.PersistScheduledTaskList(currentList);
+                DbRepository.SaveScheduledTask(task);
             }
             catch (Exception ex)
             {
@@ -365,7 +280,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    internal async virtual Task EnqueueTask(Persistence.Models.ScheduledTask scheduledTask, bool isForced = false)
+    internal async virtual Task EnqueueTask(ScheduledTask scheduledTask, bool isForced = false)
     {
         var procesTask = new DistributedTasksOnTime.ProcessTask();
         procesTask.Id = Guid.NewGuid();
@@ -378,27 +293,27 @@ internal class TasksOrchestrator : ITasksOrchestrator
         var queueName = $"{Settings.PrefixQueueName}.{scheduledTask.Name}";
         await QueueSender.SendMessage(queueName, procesTask);
 
-        var runningTask = new Persistence.Models.RunningTask();
+        var runningTask = new RunningTask();
         runningTask.Id = procesTask.Id;
         runningTask.TaskName = scheduledTask.Name;
         runningTask.IsForced = isForced;
 
-        RunningTaskList.TryAdd(runningTask.Id, runningTask);
+        DbRepository.SaveRunningTask(runningTask);
     }
 
-    internal bool CanRun(DateTime now, Persistence.Models.ScheduledTask scheduledTask)
+    internal bool CanRun(DateTime now, ScheduledTask scheduledTask)
     {
         if (!scheduledTask.Enabled)
 		{
             return false;
 		}
 
-        var runningTask = RunningTaskList.FirstOrDefault(
-                        i => i.Value.TaskName == scheduledTask.Name
-                        && !i.Value.TerminatedDate.HasValue);
+        var runningTask = DbRepository.GetRunningTaskList().FirstOrDefault(
+                        i => i.TaskName == scheduledTask.Name
+                        && !i.TerminatedDate.HasValue);
 
         if (!scheduledTask.AllowMultipleInstance
-            && runningTask.Value != null)
+            && runningTask != null)
         {
             return false;
         }
@@ -424,7 +339,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return false;
     }
 
-    internal void SetNextRuningDate(DateTime now, Persistence.Models.ScheduledTask scheduledTask)
+    internal void SetNextRuningDate(DateTime now, ScheduledTask scheduledTask)
     {
         switch (scheduledTask.Period)
         {
@@ -474,9 +389,9 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    private Persistence.Models.ScheduledTask CreateScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
+    private ScheduledTask CreateScheduledTask(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
     {
-        var task = new Persistence.Models.ScheduledTask();
+        var task = new ScheduledTask();
         task.Name = taskInfo.TaskName;
         task.Enabled = taskInfo.Enabled;
         task.AssemblyQualifiedName = taskInfo.AssemblyQualifiedName;

@@ -1,6 +1,9 @@
 ﻿using Ariane;
 using DistributedTasksOnTime.Client;
+using DistributedTasksOnTime.JsonFilePersistence;
 using DistributedTasksOnTime.Orchestrator;
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +25,7 @@ namespace DistributedTaskOnTime.Tests
 			var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
 			var configurationBuilder = new ConfigurationBuilder()
 						.AddJsonFile("appSettings.json")
-						.AddJsonFile(localConfig, true, false);
+						.AddJsonFile(localConfig, false, false);
 
 			var configuration = configurationBuilder.Build();
 
@@ -34,12 +37,11 @@ namespace DistributedTaskOnTime.Tests
 
 			config.Invoke(clientSettings);
 
-			var builder = Host.CreateDefaultBuilder()
-				.ConfigureServices(services =>
-				{
-					services.AddSingleton(clientSettings);
-					services.ConfigureArianeAzure();
-					services.ConfigureAriane(register =>
+			var builder = WebApplication.CreateBuilder();
+
+            builder.Services.AddSingleton(clientSettings);
+            builder.Services.ConfigureArianeAzure();
+            builder.Services.ConfigureAriane(register =>
 					{
 						register.SetupArianeRegisterDistributedTasksOnTimeClient(clientSettings);
 						register.SetupArianeRegisterDistributedTasksOnTimeOrchestrator(serverSettings);
@@ -49,11 +51,14 @@ namespace DistributedTaskOnTime.Tests
 						cfg.DefaultAzureConnectionString = clientSettings.AzureBusConnectionString;
 					});
 
-					services.AddDistributedTasksOnTimeClient(clientSettings);
-				});
+			builder.Services.AddDistributedTasksOnTimeClient(clientSettings);
 
 			serverSettings.TimerInSecond = 2;
 			builder.AddDistributedTasksOnTimeOrchestrator(serverSettings);
+			builder.Services.AddTasksOnTimeJsonFilePersistence(config =>
+			{
+				config.StoreFolder = @".\";
+			});
 
 			var host = builder.Build();
 			return host;

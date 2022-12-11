@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
+namespace DistributedTasksOnTime.SqlitePersistence.Datas
 {
     [Table("ProgressInfo")]
     internal class ProgressInfoData
@@ -21,9 +21,9 @@ namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
         public string? Body { get; set; }
         public string? EntityName { get; set; }
         public string? EntityId { get; set; }
-        public object? Entity { get; set; }
+        public string? SerializedEntity { get; set; }
         public int? TotalCount { get; set; }
-        public int? Index { get; set; }
+        public int? ProgressIndex { get; set; }
 
     }
 }

@@ -5,7 +5,7 @@
 <h3>ScheduledTask @scheduledTask.Name</h3>
 <h4>@scheduledTask.Description</h4>
 
-<table class="table table-bordered">
+<table class="table table-bordered table-condensed table-hover">
 	<thead>
 			<tr>
 				<th>CreationDate</th>
@@ -20,7 +20,7 @@
 	<tbody>
 		@foreach(var running in runningTaskList.OrderByDescending(i => i.CreationDate))
 		{
-			<tr>
+			<tr class="table-secondary">
 				<td>@running.CreationDate</td>
 				<td>@running.RunningDate</td>
 				<td>@running.FailedDate</td>
@@ -31,24 +31,27 @@
 			</tr>
 			@if (running.ErrorStack != null)
 			{
-				<tr class="table-warning">
+				<tr class="table-danger">
 					<td colspan="7">@running.ErrorStack</td>
 				</tr>
 			}
-			@if (running.ProgressLogs.Any())
+			@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
 			{
-				@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
-				{
-					<tr>
-						<td colspan="7">
-							@log.Type : @log.Subject
-							@if (!string.IsNullOrWhiteSpace(log.Body))
-							{
-								<span>@log.Body</span>
-							}
-						</td>
-					</tr>
-				}
+				<tr>
+					<td>
+						@log.CreationDate
+					</td>
+					<td>
+						@log.GroupName
+					</td>
+					<td colspan="5">
+						@log.Type : @log.Subject
+						@if (!string.IsNullOrWhiteSpace(log.Body))
+						{
+							<span>@log.Body</span>
+						}
+					</td>
+				</tr>
 			}
 		}	
 	</tbody>

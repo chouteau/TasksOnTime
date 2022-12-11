@@ -4,27 +4,24 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.0.9.0</Version>
+    <Version>1.1.10.0</Version>
+	  <PackageReleaseNotes>
+		  1.1.10.0 : Open persistence for any repositories
+	  </PackageReleaseNotes>
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ariane5.Azure" Version="6.0.21" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="Ariane5.Azure" Version="6.0.22" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedTasksOnTime.Persistence\DistributedTasksOnTime.Persistence.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="localconfig\appsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\" />
-  </ItemGroup>
 </Project>

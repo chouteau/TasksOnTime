@@ -57,6 +57,15 @@ var host= Host.CreateDefaultBuilder(args)
 						ProcessMode = DistributedTasksOnTime.ProcessMode.AllInstances
 					});
 
+					clientSettings.RegisterScheduledTask<DistributedTasksOnTime.DemoClient.FailTask>(new DistributedTasksOnTime.TaskRegistrationInfo
+					{
+						TaskName = "FailTask",
+						Description = "task fail after 10 secondes",
+						DefaultPeriod = DistributedTasksOnTime.ScheduledTaskTimePeriod.Minute,
+						DefaultInterval = 1,
+						ProcessMode = DistributedTasksOnTime.ProcessMode.AllInstances
+					});
+
 					services.ConfigureArianeAzure();
 					services.ConfigureAriane(register =>
 					{

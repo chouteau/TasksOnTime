@@ -7,8 +7,8 @@ public partial class EditScheduledTask
 	[Inject] NavigationManager NavigationManager { get; set; }
 	[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 	CustomValidator CustomValidator { get; set; } = new();
-	
-	DistributedTasksOnTime.Persistence.Models.ScheduledTask scheduledTask = new();
+
+	DistributedTasksOnTime.ScheduledTask scheduledTask = new();
 
 	protected override void OnInitialized()
 	{
@@ -19,7 +19,7 @@ public partial class EditScheduledTask
 
 	void ValidateAndSave()
 	{
-		TasksOrchestrator.SaveScheduledTaskList(scheduledTask);
+		TasksOrchestrator.SaveScheduledTask(scheduledTask);
 		NavigationManager.NavigateTo(Settings.ScheduledTaskListBlazorPage);
 	}
 

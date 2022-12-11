@@ -13,7 +13,7 @@ namespace DistributedTasksOnTime.WebApp.Pages
             {
                 TasksOrchestrator.OnRunningTaskChanged += (s, t) =>
                 {
-                    t.
+                    
                 };
             }
         }

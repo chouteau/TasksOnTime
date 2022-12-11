@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
+namespace DistributedTasksOnTime.SqlitePersistence.Datas
 {
     [Table("RunningTask")]
     internal class RunningTaskData
@@ -14,7 +14,7 @@ namespace DistributedTasksOnTime.Persistence.Sqlite.Datas
         [Key]
         public Guid Id { get; set; }
         public string TaskName { get; set; } = null!;
-        public string HostKey { get; set; } = null!;
+        public string? HostKey { get; set; } = null!;
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime? EnqueuedDate { get; set; }
         public DateTime? RunningDate { get; set; }

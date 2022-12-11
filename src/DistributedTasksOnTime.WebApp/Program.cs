@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 using Ariane;
 using DistributedTasksOnTime.Orchestrator;
+using DistributedTasksOnTime.SqlitePersistence;
 
 var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
@@ -25,7 +26,11 @@ var dtotSettings = new DistributedTasksOnTimeServerSettings();
 dtotSettings.ScheduledTaskListBlazorPage = "/";
 section.Bind(dtotSettings);
 
-builder.Host.AddDistributedTasksOnTimeBlazor(dtotSettings);
+builder.AddDistributedTasksOnTimeBlazor(dtotSettings);
+builder.Services.AddTasksOnTimeSqlitePersistence(config =>
+{
+	config.StoreFolder = dtotSettings.StoreFolder;
+});
 
 builder.Services.ConfigureArianeAzure();
 builder.Services.ConfigureAriane(register =>
@@ -75,6 +80,8 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+await app.Services.UseTasksOnTimeSqlitePersistence();
 
 var bus = app.Services.GetRequiredService<Ariane.IServiceBus>();
 await bus.StartReadingAsync();

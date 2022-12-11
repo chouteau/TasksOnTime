@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DistributedTasksOnTime.Persistence.Sqlite
+namespace DistributedTasksOnTime.SqlitePersistence
 {
     public class SqliteSettings
     {
@@ -12,7 +12,9 @@ namespace DistributedTasksOnTime.Persistence.Sqlite
 
         public string DbFileName { get; set; } = "tasksontime.db";
 
-        public string ConnectionString
+        public int DayCountOfRentention { get; set; } = 7;
+
+        internal string ConnectionString
         {
             get
             {
