@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="localconfig\appsettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="localconfig\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
