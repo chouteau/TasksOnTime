@@ -4,21 +4,18 @@ using Microsoft.AspNetCore.Components.Web;
 
 using Ariane;
 using DistributedTasksOnTime.Orchestrator;
+using DistributedTasksOnTime.SqlitePersistence;
 
 var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
 var builder = WebApplication.CreateBuilder(args);
 
+var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
 builder.Configuration.SetBasePath(currentFolder)
 		.AddJsonFile("appSettings.json", true, false)
 		.AddJsonFile($"appSettings.{builder.Environment.EnvironmentName}.json", true, false)
-		.AddEnvironmentVariables();
-
-var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
-if (System.IO.File.Exists(localConfig))
-{
-	builder.Configuration.AddJsonFile(localConfig, true, false);
-}
+        .AddJsonFile(localConfig, true, false)
+        .AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -29,7 +26,11 @@ var dtotSettings = new DistributedTasksOnTimeServerSettings();
 dtotSettings.ScheduledTaskListBlazorPage = "/";
 section.Bind(dtotSettings);
 
-builder.Host.AddDistributedTasksOnTimeBlazor(dtotSettings);
+builder.AddDistributedTasksOnTimeBlazor(dtotSettings);
+builder.Services.AddTasksOnTimeSqlitePersistence(config =>
+{
+	config.StoreFolder = dtotSettings.StoreFolder;
+});
 
 builder.Services.ConfigureArianeAzure();
 builder.Services.ConfigureAriane(register =>
@@ -79,6 +80,8 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+await app.Services.UseTasksOnTimeSqlitePersistence();
 
 var bus = app.Services.GetRequiredService<Ariane.IServiceBus>();
 await bus.StartReadingAsync();

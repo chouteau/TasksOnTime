@@ -70,7 +70,7 @@ public static class StartupExtensions
 			taskInfo.Id = taskId;
 			taskInfo.State = DistributedTasksOnTime.TaskState.Failed;
 			taskInfo.HostKey = settings.HostKey;
-			taskInfo.ErrorStack = history.Exception.StackTrace;
+			taskInfo.ErrorStack = history.Exception.ToString();
 
 			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
 		};

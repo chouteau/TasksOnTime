@@ -12,14 +12,10 @@ var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Loc
 var host= Host.CreateDefaultBuilder(args)
 				.ConfigureAppConfiguration(configurationBuilder =>
 				{
-					configurationBuilder
-						.AddJsonFile("appSettings.json");
-
-					var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
-					if (System.IO.File.Exists(localConfig))
-					{
-						configurationBuilder.AddJsonFile(localConfig, true, false);
-					}
+                    var localConfig = System.IO.Path.Combine(currentFolder, "localconfig", "appsettings.json");
+                    configurationBuilder
+                        .AddJsonFile("appSettings.json")
+						.AddJsonFile(localConfig, true, false);
 
 				})
 				.ConfigureServices((ctx, services) =>
@@ -56,6 +52,15 @@ var host= Host.CreateDefaultBuilder(args)
 					{
 						TaskName = "TopicDemoTask",
 						Description = "Topic Demo task description",
+						DefaultPeriod = DistributedTasksOnTime.ScheduledTaskTimePeriod.Minute,
+						DefaultInterval = 1,
+						ProcessMode = DistributedTasksOnTime.ProcessMode.AllInstances
+					});
+
+					clientSettings.RegisterScheduledTask<DistributedTasksOnTime.DemoClient.FailTask>(new DistributedTasksOnTime.TaskRegistrationInfo
+					{
+						TaskName = "FailTask",
+						Description = "task fail after 10 secondes",
 						DefaultPeriod = DistributedTasksOnTime.ScheduledTaskTimePeriod.Minute,
 						DefaultInterval = 1,
 						ProcessMode = DistributedTasksOnTime.ProcessMode.AllInstances

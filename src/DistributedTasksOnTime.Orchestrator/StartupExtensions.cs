@@ -1,8 +1,10 @@
-﻿namespace DistributedTasksOnTime.Orchestrator;
+﻿using Microsoft.AspNetCore.Builder;
+
+namespace DistributedTasksOnTime.Orchestrator;
 
 public static class StartupExtensions
 {
-	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, Action<DistributedTasksOnTimeServerSettings> config)
+	public static WebApplicationBuilder AddDistributedTasksOnTimeOrchestrator(this WebApplicationBuilder builder, Action<DistributedTasksOnTimeServerSettings> config)
 	{
 		var settings = new DistributedTasksOnTimeServerSettings();
 		config(settings);
@@ -11,31 +13,26 @@ public static class StartupExtensions
 		return builder;
 	}
 
-	public static IHostBuilder AddDistributedTasksOnTimeOrchestrator(this IHostBuilder builder, DistributedTasksOnTimeServerSettings settings)
+	public static WebApplicationBuilder AddDistributedTasksOnTimeOrchestrator(this WebApplicationBuilder builder, DistributedTasksOnTimeServerSettings settings)
 	{
 		var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location);
 
-		builder
-			.ConfigureServices((ctx, services) =>
-			{
-				services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
-				services.AddTransient<Repository.IDbRepository, Repository.FileDbRepository>();
-				services.AddTransient<QueueSender>();
-				services.AddSingleton(new ExistingQueues());
+		builder.Services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
+        builder.Services.AddTransient<QueueSender>();
+        builder.Services.AddSingleton(new ExistingQueues());
 
-				services.AddHostedService<MainWorker>();
+        builder.Services.AddHostedService<MainWorker>();
 
-				services.AddSingleton(settings);
+        builder.Services.AddSingleton(settings);
 
-				if (settings.StoreFolder.StartsWith(@".\"))
-				{
-					settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder.Replace(@".\", ""));
-				}
-				if (!System.IO.Directory.Exists(settings.StoreFolder))
-				{
-					System.IO.Directory.CreateDirectory(settings.StoreFolder);
-				}
-			});
+		if (settings.StoreFolder.StartsWith(@".\"))
+		{
+			settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder.Replace(@".\", ""));
+		}
+		if (!System.IO.Directory.Exists(settings.StoreFolder))
+		{
+			System.IO.Directory.CreateDirectory(settings.StoreFolder);
+		}
 
 		return builder;
 	}

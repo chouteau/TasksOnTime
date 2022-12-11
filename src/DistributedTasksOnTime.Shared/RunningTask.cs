@@ -1,11 +1,12 @@
-﻿namespace DistributedTasksOnTime.Orchestrator.Models;
+﻿using System.ComponentModel;
+
+namespace DistributedTasksOnTime;
 
 public class RunningTask
 {
 	public Guid Id { get; set; }
-	public string TaskName { get; set; }
-
-	public string HostKey { get; set; }
+	public string TaskName { get; set; } = null!; 
+	public string HostKey { get; set; } = null!; 
 	public DateTime CreationDate { get; set; } = DateTime.Now;
 	public DateTime? EnqueuedDate { get; set; }
 	public DateTime? RunningDate { get; set; }

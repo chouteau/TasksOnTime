@@ -2,12 +2,15 @@
 
 public partial class ScheduledTask
 {
-	[Parameter] public string TaskName { get; set; }
-	[Inject] DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
-	[Inject] DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
+	[Parameter] 
+	public string TaskName { get; set; }
+	[Inject] 
+	DistributedTasksOnTime.Orchestrator.ITasksOrchestrator TasksOrchestrator { get; set; }
+	[Inject] 
+	DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
-	Orchestrator.Models.ScheduledTask scheduledTask = new();
-	List<Orchestrator.Models.RunningTask> runningTaskList = new();
+	DistributedTasksOnTime.ScheduledTask scheduledTask = new();
+	List<DistributedTasksOnTime.RunningTask> runningTaskList = new();
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -15,10 +18,31 @@ public partial class ScheduledTask
 		{
 			TasksOrchestrator.OnRunningTaskChanged += async (s, r) =>
 			{
+				if (r.TaskName != TaskName)
+				{
+					return;
+				}
 				await InvokeAsync(() =>
 				{
-					runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName).ToList();
-					StateHasChanged();
+					if (!runningTaskList.Any(i => i.Id == r.Id))
+					{
+                        runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName, true).ToList();
+                    }
+
+					var currentTask = runningTaskList.SingleOrDefault(i => i.Id == r.Id);
+					if (currentTask != null)
+					{
+						currentTask.TerminatedDate = r.TerminatedDate;
+						currentTask.CanceledDate = r.CanceledDate;
+						currentTask.CancelingDate = r.CancelingDate;
+						currentTask.EnqueuedDate = r.EnqueuedDate;
+						currentTask.RunningDate = r.RunningDate;
+						currentTask.EnqueuedDate = r.EnqueuedDate;
+						currentTask.FailedDate = r.FailedDate;
+						currentTask.ProgressLogs = r.ProgressLogs;
+					}
+
+                    StateHasChanged();
 				});
 			};
 		}
@@ -29,9 +53,8 @@ public partial class ScheduledTask
 		var scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
 		scheduledTask = scheduledTaskList.FirstOrDefault(i => i.Name.Equals(TaskName, StringComparison.InvariantCultureIgnoreCase));
 
-		runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName).ToList();
+        runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName, true).ToList();
 
-		base.OnInitialized();
+        base.OnInitialized();
 	}
-
 }

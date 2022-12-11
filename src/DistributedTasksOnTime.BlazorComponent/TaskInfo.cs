@@ -2,6 +2,6 @@
 
 public class TaskInfo
 {
-	public Orchestrator.Models.ScheduledTask ScheduledTask { get; set; }
-	public Orchestrator.Models.RunningTask LastRunningTask { get; set; }
+	public DistributedTasksOnTime.ScheduledTask ScheduledTask { get; set; }
+	public DistributedTasksOnTime.RunningTask LastRunningTask { get; set; }
 }

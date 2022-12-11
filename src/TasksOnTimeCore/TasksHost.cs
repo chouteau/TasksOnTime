@@ -239,19 +239,18 @@ namespace TasksOnTime
 						ctx.Failed(ex);
 					}
 					catch { }
+				}
 
-					if (TaskFailed != null)
+				if (TaskFailed != null)
+				{
+					try
 					{
-						try
-						{
-							TaskFailed(ctx, ctx.Id);
-						}
-						catch (Exception gex)
-						{
-							Logger.LogError(gex, gex.Message);
-						}
+						TaskFailed(ctx, ctx.Id);
 					}
-
+					catch (Exception gex)
+					{
+						Logger.LogError(gex, gex.Message);
+					}
 				}
 				Logger.LogError(ex, ex.Message);
 			}

@@ -11,6 +11,7 @@ namespace DistributedTasksOnTime.DemoClient
 	{
 		public async Task ExecuteAsync(TasksOnTime.ExecutionContext context)
 		{
+			context.StartProgressNotification("test", "cancelabletask", 30);
 			for (int i = 0; i < 30; i++)
 			{
 				if (context.IsCancelRequested)
@@ -19,8 +20,10 @@ namespace DistributedTasksOnTime.DemoClient
 					context.CancelNotification("test");
 					break;
 				}
+				context.ProgressNotification("test", $"loop {i}",i);
 				await Task.Delay(1 * 1000);
 			}
+			context.EndProgressNotification("test");
 		}
 	}
 }
