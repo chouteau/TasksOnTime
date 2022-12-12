@@ -6,8 +6,9 @@
     <Nullable>enable</Nullable>
 	  <PackageId>DistributedTasksOnTime.JsonFilePersistence</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-	  <Version>1.0.1.0</Version>
+	  <Version>1.0.2.0</Version>
 	  <PackageReleaseNotes>
+		  1.0.2.0 : Include external dll for nuget
 		  1.0.1.0 : Open persistence for any repositories
 	  </PackageReleaseNotes>
 	  <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -31,6 +32,7 @@
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib\net6.0</PackagePath>
+			<Pack>true</Pack>
 		</Content>
 	</ItemGroup>
 
