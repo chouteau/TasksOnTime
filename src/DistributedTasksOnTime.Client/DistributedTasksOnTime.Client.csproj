@@ -6,8 +6,9 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.1.26.0</Version>
+    <Version>1.1.27.0</Version>
 	  <PackageReleaseNotes>
+		  1.1.27.0 : Include external dll for nuget
 		  1.1.26.0 : Include external dll for nuget
 		  1.1.25.0 : Include external dll for nuget
 		  1.1.24.0 : Open persistence for any repositories
@@ -35,8 +36,12 @@
 
 
 	<ItemGroup>
-	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
-	  <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
+		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" >
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" >
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 </Project>
