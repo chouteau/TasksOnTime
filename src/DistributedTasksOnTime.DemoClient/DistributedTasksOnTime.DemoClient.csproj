@@ -15,6 +15,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
 	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+	  <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

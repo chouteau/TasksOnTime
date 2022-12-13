@@ -39,6 +39,7 @@
     <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.JsonFilePersistence\DistributedTasksOnTime.JsonFilePersistence.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
+    <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
   </ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
