@@ -8,7 +8,7 @@
     <Nullable>disable</Nullable>
     <Version>1.1.27.0</Version>
 	  <PackageReleaseNotes>
-		  1.1.27.0 : Include external dll for nuget
+		  1.1.27.0 : Include external dll for nuget 
 		  1.1.26.0 : Include external dll for nuget
 		  1.1.25.0 : Include external dll for nuget
 		  1.1.24.0 : Open persistence for any repositories
