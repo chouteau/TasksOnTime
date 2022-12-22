@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DistributedTasksOnTime.SqlitePersistence;
 
@@ -23,7 +24,21 @@ public static class StartupExtensions
     {
         var settings = new SqliteSettings();
         config(settings);
+
+        if (settings.StoreFolder.StartsWith(@".\"))
+        {
+            var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location)!;
+            settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder);
+        }
+        if (!System.IO.Directory.Exists(settings.StoreFolder))
+        {
+            System.IO.Directory.CreateDirectory(settings.StoreFolder);
+        }
+        var dbFileName = System.IO.Path.Combine(settings.StoreFolder, settings.DbFileName);
+        settings.ConnectionString = $"FileName={dbFileName}";
+
         services.AddSingleton(settings);
+
         services.AddAutoMapper(config =>
         {
             config.AddProfile<Mapping>();
@@ -41,7 +56,11 @@ public static class StartupExtensions
     public async static Task UseTasksOnTimeSqlitePersistence(this IServiceProvider serviceProvider)
     {
         var settings = serviceProvider.GetRequiredService<SqliteSettings>();
-        await CreateRunningTable(settings.ConnectionString);
+		var logger = serviceProvider.GetRequiredService<ILogger<SqliteSettings>>();
+
+		logger.LogInformation($"CS:{settings.ConnectionString}");
+
+		await CreateRunningTable(settings.ConnectionString);
 		await CreateScheduledTable(settings.ConnectionString);
 		await CreateHostRegistrationTable(settings.ConnectionString);
 		await CreateProgressInfoTable(settings.ConnectionString);

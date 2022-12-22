@@ -14,24 +14,6 @@ namespace DistributedTasksOnTime.SqlitePersistence
 
         public int DayCountOfRentention { get; set; } = 7;
 
-        internal string ConnectionString
-        {
-            get
-            {
-                if (StoreFolder.StartsWith(@".\")
-                    || StoreFolder.StartsWith("/"))
-                {
-                    var currentFolder = System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location)!;
-                    StoreFolder = System.IO.Path.Combine(currentFolder, StoreFolder);
-                }
-                if (!System.IO.Directory.Exists(StoreFolder))
-                {
-                    System.IO.Directory.CreateDirectory(StoreFolder);
-                }
-                var dbFileName = System.IO.Path.Combine(StoreFolder, DbFileName);
-                var cs = $"FileName={dbFileName}";
-                return cs;
-            }
-        }
+        internal string ConnectionString { get; set; } = null!;
     }
 }
