@@ -18,7 +18,8 @@ namespace DistributedTasksOnTime.SqlitePersistence
         {
             get
             {
-                if (StoreFolder.StartsWith(@".\"))
+                if (StoreFolder.StartsWith(@".\")
+                    || StoreFolder.StartsWith("/"))
                 {
                     var currentFolder = System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location)!;
                     StoreFolder = System.IO.Path.Combine(currentFolder, StoreFolder);
