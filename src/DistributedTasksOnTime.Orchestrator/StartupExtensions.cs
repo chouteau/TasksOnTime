@@ -25,7 +25,8 @@ public static class StartupExtensions
 
         builder.Services.AddSingleton(settings);
 
-		if (settings.StoreFolder.StartsWith(@".\"))
+		if (settings.StoreFolder.StartsWith(@".\")
+			&& System.Environment.OSVersion.Platform == PlatformID.Win32NT)
 		{
 			settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder.Replace(@".\", ""));
 		}

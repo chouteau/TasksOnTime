@@ -4,8 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.1.10.0</Version>
+    <Version>1.1.11.0</Version>
 	  <PackageReleaseNotes>
+		  1.1.11.0 : Detect linux folder persistence
 		  1.1.10.0 : Open persistence for any repositories
 	  </PackageReleaseNotes>
     <OutputType>Library</OutputType>

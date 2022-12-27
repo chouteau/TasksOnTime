@@ -25,7 +25,8 @@ public static class StartupExtensions
         var settings = new SqliteSettings();
         config(settings);
 
-        if (settings.StoreFolder.StartsWith(@".\"))
+        if (settings.StoreFolder.StartsWith(@".\")
+			&& System.Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
             var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location)!;
             settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder);
@@ -60,11 +61,18 @@ public static class StartupExtensions
 
 		logger.LogInformation($"CS:{settings.ConnectionString}");
 
-		await CreateRunningTable(settings.ConnectionString);
-		await CreateScheduledTable(settings.ConnectionString);
-		await CreateHostRegistrationTable(settings.ConnectionString);
-		await CreateProgressInfoTable(settings.ConnectionString);
-		await TerminateAllRunningTasks(serviceProvider);
+		try
+		{
+			await CreateRunningTable(settings.ConnectionString);
+			await CreateScheduledTable(settings.ConnectionString);
+			await CreateHostRegistrationTable(settings.ConnectionString);
+			await CreateProgressInfoTable(settings.ConnectionString);
+			await TerminateAllRunningTasks(serviceProvider);
+		}
+		catch (Exception ex)
+		{
+			logger.LogCritical(ex, ex.Message);
+		}
     }
 
     static async Task CreateRunningTable(string cs)
