@@ -60,11 +60,18 @@ public static class StartupExtensions
 
 		logger.LogInformation($"CS:{settings.ConnectionString}");
 
-		await CreateRunningTable(settings.ConnectionString);
-		await CreateScheduledTable(settings.ConnectionString);
-		await CreateHostRegistrationTable(settings.ConnectionString);
-		await CreateProgressInfoTable(settings.ConnectionString);
-		await TerminateAllRunningTasks(serviceProvider);
+		try
+		{
+			await CreateRunningTable(settings.ConnectionString);
+			await CreateScheduledTable(settings.ConnectionString);
+			await CreateHostRegistrationTable(settings.ConnectionString);
+			await CreateProgressInfoTable(settings.ConnectionString);
+			await TerminateAllRunningTasks(serviceProvider);
+		}
+		catch (Exception ex)
+		{
+			logger.LogCritical(ex, ex.Message);
+		}
     }
 
     static async Task CreateRunningTable(string cs)
