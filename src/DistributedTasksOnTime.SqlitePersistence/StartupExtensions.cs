@@ -25,7 +25,8 @@ public static class StartupExtensions
         var settings = new SqliteSettings();
         config(settings);
 
-        if (settings.StoreFolder.StartsWith(@".\"))
+        if (settings.StoreFolder.StartsWith(@".\")
+			&& System.Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
             var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location)!;
             settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder);
