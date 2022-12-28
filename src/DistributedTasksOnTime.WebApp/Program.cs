@@ -29,7 +29,7 @@ section.Bind(dtotSettings);
 builder.AddDistributedTasksOnTimeBlazor(dtotSettings);
 builder.Services.AddTasksOnTimeSqlitePersistence(config =>
 {
-	config.StoreFolder = dtotSettings.StoreFolder;
+	config.ConnectionString = builder.Configuration.GetConnectionString("DistributedTasksOnTimeSqlite");
 });
 
 builder.Services.ConfigureArianeAzure();
