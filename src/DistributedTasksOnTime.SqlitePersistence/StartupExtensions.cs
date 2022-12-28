@@ -25,18 +25,22 @@ public static class StartupExtensions
         var settings = new SqliteSettings();
         config(settings);
 
-        if (settings.StoreFolder.StartsWith(@".\")
-			&& System.Environment.OSVersion.Platform == PlatformID.Win32NT)
+		var csb = new SqliteConnectionStringBuilder(settings.ConnectionString);
+		var directory = System.IO.Path.GetDirectoryName(csb.DataSource)!;
+
+        if (directory.StartsWith(@".\"))
         {
             var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location)!;
-            settings.StoreFolder = System.IO.Path.Combine(currentFolder, settings.StoreFolder);
+            directory = System.IO.Path.Combine(currentFolder, directory);
         }
-        if (!System.IO.Directory.Exists(settings.StoreFolder))
+        if (!System.IO.Directory.Exists(directory))
         {
-            System.IO.Directory.CreateDirectory(settings.StoreFolder);
+            System.IO.Directory.CreateDirectory(directory);
         }
-        var dbFileName = System.IO.Path.Combine(settings.StoreFolder, settings.DbFileName);
-        settings.ConnectionString = $"FileName={dbFileName}";
+		var dbFileName = System.IO.Path.GetFileName(csb.DataSource);
+
+		csb.DataSource = System.IO.Path.Combine(directory, dbFileName);
+        settings.ConnectionString = csb.ConnectionString;
 
         services.AddSingleton(settings);
 
@@ -95,7 +99,7 @@ Create table if not exists
 	)
 ";
         using var db = new SqliteConnection(cs);
-        var createTableCommand = new SqliteCommand(table, db);
+        using var createTableCommand = new SqliteCommand(table, db);
 		await db.OpenAsync();
         await createTableCommand.ExecuteReaderAsync();
 		await db.CloseAsync();
@@ -127,7 +131,7 @@ Create table if not exists
 	)
 ";
         using var db = new SqliteConnection(cs);
-        var createTableCommand = new SqliteCommand(table, db);
+        using var createTableCommand = new SqliteCommand(table, db);
         await db.OpenAsync();
         await createTableCommand.ExecuteReaderAsync();
         await db.CloseAsync();
@@ -147,7 +151,7 @@ Create table if not exists
 	)
 ";
         using var db = new SqliteConnection(cs);
-        var createTableCommand = new SqliteCommand(table, db);
+        using var createTableCommand = new SqliteCommand(table, db);
         await db.OpenAsync();
         await createTableCommand.ExecuteReaderAsync();
         await db.CloseAsync();
@@ -173,7 +177,7 @@ Create table if not exists
 	)
 ";
         using var db = new SqliteConnection(cs);
-        var createTableCommand = new SqliteCommand(table, db);
+        using var createTableCommand = new SqliteCommand(table, db);
         await db.OpenAsync();
         await createTableCommand.ExecuteReaderAsync();
         await db.CloseAsync();
@@ -182,7 +186,7 @@ Create table if not exists
 	static async Task TerminateAllRunningTasks(IServiceProvider serviceProvider)
 	{
 		var dbFactory = serviceProvider.GetRequiredService<IDbContextFactory<SqliteDbContext>>();
-		var db = dbFactory.CreateDbContext();
+		using var db = await dbFactory.CreateDbContextAsync();
 
 		var runningTaskList = await db.RunningTasks!.Where(i => i.TerminatedDate == null).ToListAsync();
 		foreach (var runningTask in runningTaskList)

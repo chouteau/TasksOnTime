@@ -29,9 +29,9 @@ namespace DistributedTasksOnTime.SqlitePersistence
             _mapper = mapper;
         }
 
-        public void SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
+        public async void SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
         {
-            var db = _dbContextFactory.CreateDbContext();
+            using var db = await _dbContextFactory.CreateDbContextAsync();
 
             var existing = db.HostRegistrations!.SingleOrDefault(i => i.UniqueKey.Equals(hostRegistrationInfo.Key));
             if (existing == null)
@@ -57,7 +57,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
 
         public void DeleteHostRegistration(string key)
         {
-            var db = _dbContextFactory.CreateDbContext();
+            using var db = _dbContextFactory.CreateDbContext();
             var existing = db.HostRegistrations!.SingleOrDefault(i => i.UniqueKey.Equals(key));
             if (existing != null)
             {
@@ -114,10 +114,10 @@ namespace DistributedTasksOnTime.SqlitePersistence
             }
         }
 
-        public void DeleteScheduledTask(string taskName)
+        public void DeleteScheduledTask(string name)
         {
             var db = _dbContextFactory.CreateDbContext();
-            var existing = db.ScheduledTasks!.SingleOrDefault(i => i.Name.Equals(taskName));
+            var existing = db.ScheduledTasks!.SingleOrDefault(i => i.Name.Equals(name));
             if (existing != null)
             {
                 db.Remove(existing!);
