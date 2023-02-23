@@ -1,4 +1,6 @@
-﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DistributedTaskOnTime.Tests")]
+﻿using DistributedTasksOnTime.Client.Readers;
+
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DistributedTaskOnTime.Tests")]
 
 namespace DistributedTasksOnTime.Client;
 public static class StartupExtensions
@@ -22,6 +24,7 @@ public static class StartupExtensions
 	{
 		var bus = serviceProvider.GetRequiredService<Ariane.IServiceBus>();
 		var settings = serviceProvider.GetRequiredService<DistributedTasksOnTimeSettings>();
+		var logger = serviceProvider.GetRequiredService<ILogger<ProcessTaskReader>>();
 
 		await bus.StartReadingAsync();
 
@@ -37,42 +40,71 @@ public static class StartupExtensions
 
 		taskHost.TaskStarted += async (s, taskId) =>
 		{
-			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
-			taskInfo.Id = taskId;
-			taskInfo.State = DistributedTasksOnTime.TaskState.Started;
-			taskInfo.HostKey = settings.HostKey;
-
-			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+			try
+			{
+				var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
+				taskInfo.Id = taskId;
+				taskInfo.State = DistributedTasksOnTime.TaskState.Started;
+				taskInfo.HostKey = settings.HostKey;
+				await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+			}
 		};
 		taskHost.TaskCanceled += async (s, taskId) =>
 		{
-			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
-			taskInfo.Id = taskId;
-			taskInfo.State = DistributedTasksOnTime.TaskState.Canceled;
-			taskInfo.HostKey = settings.HostKey;
+			try
+			{
+				var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
+				taskInfo.Id = taskId;
+				taskInfo.State = DistributedTasksOnTime.TaskState.Canceled;
+				taskInfo.HostKey = settings.HostKey;
 
-			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+				await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+			}
 		};
 		taskHost.TaskTerminated += async (s, taskId) =>
 		{
-			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
-			taskInfo.Id = taskId;
-			taskInfo.HostKey = settings.HostKey;
-			taskInfo.State = DistributedTasksOnTime.TaskState.Terminated;
+			try
+			{
+				var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
+				taskInfo.Id = taskId;
+				taskInfo.HostKey = settings.HostKey;
+				taskInfo.State = DistributedTasksOnTime.TaskState.Terminated;
 
-			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+				await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+			}
+
 		};
 		taskHost.TaskFailed += async (s, taskId) =>
 		{
-			var history = taskHost.GetHistory(taskId);
+			try
+			{
+				var history = taskHost.GetHistory(taskId);
 
-			var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
-			taskInfo.Id = taskId;
-			taskInfo.State = DistributedTasksOnTime.TaskState.Failed;
-			taskInfo.HostKey = settings.HostKey;
-			taskInfo.ErrorStack = history.Exception.ToString();
+				var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
+				taskInfo.Id = taskId;
+				taskInfo.State = DistributedTasksOnTime.TaskState.Failed;
+				taskInfo.HostKey = settings.HostKey;
+				taskInfo.ErrorStack = history.Exception.ToString();
 
-			await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+				await bus.SendAsync(settings.TaskInfoQueueName, taskInfo);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+			}
+
 		};
 
 		return serviceProvider;
