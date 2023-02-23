@@ -101,7 +101,7 @@ Create table if not exists
         using var db = new SqliteConnection(cs);
         using var createTableCommand = new SqliteCommand(table, db);
 		await db.OpenAsync();
-        await createTableCommand.ExecuteReaderAsync();
+        await createTableCommand.ExecuteNonQueryAsync();
 		await db.CloseAsync();
     }
 
@@ -133,7 +133,7 @@ Create table if not exists
         using var db = new SqliteConnection(cs);
         using var createTableCommand = new SqliteCommand(table, db);
         await db.OpenAsync();
-        await createTableCommand.ExecuteReaderAsync();
+        await createTableCommand.ExecuteNonQueryAsync();
         await db.CloseAsync();
     }
 
@@ -153,7 +153,7 @@ Create table if not exists
         using var db = new SqliteConnection(cs);
         using var createTableCommand = new SqliteCommand(table, db);
         await db.OpenAsync();
-        await createTableCommand.ExecuteReaderAsync();
+        await createTableCommand.ExecuteNonQueryAsync();
         await db.CloseAsync();
     }
 
@@ -179,7 +179,7 @@ Create table if not exists
         using var db = new SqliteConnection(cs);
         using var createTableCommand = new SqliteCommand(table, db);
         await db.OpenAsync();
-        await createTableCommand.ExecuteReaderAsync();
+        await createTableCommand.ExecuteNonQueryAsync();
         await db.CloseAsync();
     }
 
