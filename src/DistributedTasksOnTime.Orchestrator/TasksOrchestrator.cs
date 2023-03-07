@@ -54,7 +54,11 @@ internal class TasksOrchestrator : ITasksOrchestrator
         var runningTask = DbRepository.GetRunningTaskList(true).SingleOrDefault(i => i.Id == distributedTaskInfo.Id);
         if (runningTask == null) // <- pas normal
 		{
-            Logger.LogWarning("Running task not found with id {0}", distributedTaskInfo.Id);
+            Logger.LogWarning("Running task not found with id {Id} {TaskName} {State} {Subject}", 
+                distributedTaskInfo.Id, 
+                distributedTaskInfo.TaskName,
+                distributedTaskInfo.State,
+                distributedTaskInfo?.ProgressInfo.Subject);
             runningTask = new RunningTask();
             runningTask.Id = distributedTaskInfo.Id;
             runningTask.TaskName = "unknown";
