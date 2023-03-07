@@ -7,8 +7,9 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-    <Version>1.1.25.0</Version>
+    <Version>1.1.26.0</Version>
 	  <PackageReleaseNotes>
+		  1.1.26.0 : More logs
 		  1.1.25.0 : Path linux persistence
 		  1.1.24.0 : Include external dll for nuget
 		  1.1.23.0 : Open persistence for any repositories
