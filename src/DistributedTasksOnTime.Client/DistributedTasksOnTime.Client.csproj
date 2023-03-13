@@ -6,7 +6,7 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.1.28.0</Version>
+    <Version>1.1.29.0</Version>
 	  <PackageReleaseNotes>
 		  1.1.29.1 : Add parameters for ForceTask
 		  1.1.28.1 : Reinforcement on events
