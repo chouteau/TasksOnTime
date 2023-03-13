@@ -28,7 +28,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			while (true)
+			while (!stoppingToken.IsCancellationRequested)
 			{
 				await Task.Delay(1000 * 60);
 

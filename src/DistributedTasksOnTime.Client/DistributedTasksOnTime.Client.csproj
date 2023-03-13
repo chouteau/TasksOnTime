@@ -8,6 +8,7 @@
     <Nullable>disable</Nullable>
     <Version>1.1.28.0</Version>
 	  <PackageReleaseNotes>
+		  1.1.29.1 : Add parameters for ForceTask
 		  1.1.28.1 : Reinforcement on events
 		  1.1.27.0 : Include external dll for nuget
 		  1.1.26.0 : Include external dll for nuget
