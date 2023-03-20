@@ -20,7 +20,9 @@ public class DistributedTasksOnTimeSettings
 
 	public string HostKey => $"{System.Environment.MachineName}.{HostName}";
 
-	internal IList<DistributedTasksOnTime.TaskRegistrationInfo> ScheduledTaskList { get; }
+	public LogLevel ProgressReporterLogLevel { get; set; } = LogLevel.Trace;
+
+    internal IList<DistributedTasksOnTime.TaskRegistrationInfo> ScheduledTaskList { get; }
 
 	public DistributedTasksOnTimeSettings RegisterScheduledTask<T>(DistributedTasksOnTime.TaskRegistrationInfo taskInfo)
 		where T : ITask

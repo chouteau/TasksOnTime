@@ -17,7 +17,8 @@ public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 
 	public async Task Notify(TasksOnTime.ProgressInfo info)
 	{
-		Logger.LogTrace(info.Subject);
+		Logger.Log(Settings.ProgressReporterLogLevel, info.Subject);
+
 		var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
 		taskInfo.Id = info.TaskId;
 		taskInfo.State = DistributedTasksOnTime.TaskState.Progress;

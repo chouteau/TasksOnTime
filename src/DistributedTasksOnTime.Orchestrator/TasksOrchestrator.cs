@@ -182,7 +182,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return Task.CompletedTask;
     }
 
-    public async Task ForceTask(string taskName)
+    public async Task ForceTask(string taskName, Dictionary<string,string> parameters)
     {
         if (string.IsNullOrWhiteSpace(taskName))
         {
@@ -205,7 +205,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogWarning("force task {taskName} canceled because task is already started and not completed ", taskName);
             return;
         }
-        await EnqueueTask(scheduledTask, true);
+
+        await EnqueueTask(scheduledTask, true, parameters);
     }
 
     public int GetScheduledTaskCount()
@@ -284,7 +285,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    internal async virtual Task EnqueueTask(ScheduledTask scheduledTask, bool isForced = false)
+    internal async virtual Task EnqueueTask(ScheduledTask scheduledTask, bool isForced = false, Dictionary<string, string> pararmeters = null)
     {
         var procesTask = new DistributedTasksOnTime.ProcessTask();
         procesTask.Id = Guid.NewGuid();
@@ -292,7 +293,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
         procesTask.TaskName = scheduledTask.Name;
         procesTask.FullTypeName = scheduledTask.AssemblyQualifiedName;
         procesTask.AllowMultipleInstances = scheduledTask.AllowLocalMultipleInstances;
-        procesTask.IsForced = isForced; 
+        procesTask.IsForced = isForced;
+        procesTask.Parameters = pararmeters;
 
         var queueName = $"{Settings.PrefixQueueName}.{scheduledTask.Name}";
         await QueueSender.SendMessage(queueName, procesTask);

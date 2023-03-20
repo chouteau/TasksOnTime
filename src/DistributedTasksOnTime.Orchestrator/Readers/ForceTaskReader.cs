@@ -17,7 +17,7 @@ namespace DistributedTasksOnTime.Orchestrator.Readers
 
 		public override async Task ProcessMessageAsync(ForceTask message)
 		{
-			await TasksOrchestrator.ForceTask(message.TaskName);
+			await TasksOrchestrator.ForceTask(message.TaskName, message.Parameters);
 		}
 	}
 }
