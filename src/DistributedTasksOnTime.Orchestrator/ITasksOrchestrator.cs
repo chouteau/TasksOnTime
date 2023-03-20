@@ -16,7 +16,7 @@ public interface ITasksOrchestrator
 	Task CancelTask(string taskName);
 	Task DeleteTask(string taskName);
 
-	Task ForceTask(string taskName);
+	Task ForceTask(string taskName, Dictionary<string, string> parameters);
 	int GetScheduledTaskCount();
 	void SaveScheduledTask(ScheduledTask scheduledTask = null);
 	int GetRunningTaskCount();

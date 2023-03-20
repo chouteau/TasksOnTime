@@ -87,7 +87,7 @@ public partial class ScheduledTaskList
 
 	void ForceTask(DistributedTasksOnTime.ScheduledTask task)
 	{
-		TasksOrchestrator.ForceTask(task.Name);
+		TasksOrchestrator.ForceTask(task.Name, task.Parameters);
 	}
 
 	void CancelTask(DistributedTasksOnTime.ScheduledTask task)

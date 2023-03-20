@@ -18,7 +18,15 @@ public class ProcessTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime
 	public override async Task ProcessMessageAsync(DistributedTasksOnTime.ProcessTask message)
 	{
 		var type = Type.GetType(message.FullTypeName);
-		Host.Enqueue(message.Id, type, force : message.IsForced);
+		Dictionary<string, object> parameters = new();
+		if (message.Parameters != null)
+		{
+			foreach (var item in message.Parameters)
+			{
+				parameters.Add(item.Key, item.Value);
+			}
+		}
+		Host.Enqueue(message.Id, type, force: message.IsForced, inputParameters: parameters);
 
 		var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
 		taskInfo.Id = message.Id;
