@@ -1,58 +1,60 @@
 ﻿@page "/scheduledtask/{taskname}"
 
-<a href="@Settings.ScheduledTaskListBlazorPage">Liste</a>
+<div class="container-fluid">
+	<a href="@Settings.ScheduledTaskListBlazorPage">Liste</a>
 
-<h3>ScheduledTask @scheduledTask.Name</h3>
-<h4>@scheduledTask.Description</h4>
+	<h3>ScheduledTask @scheduledTask.Name</h3>
+	<h4>@scheduledTask.Description</h4>
 
-<table class="table table-bordered table-condensed table-hover">
-	<thead>
-			<tr>
-				<th>CreationDate</th>
-				<th>RunningDate</th>
-				<th>FailedDate</th>
-				<th>CanceledDate</th>
-				<th>TerminatedDate</th>
-				<th>Host</th>
-				<th>IsForced</th>
-			</tr>
-	</thead>
-	<tbody>
-		@foreach(var running in runningTaskList.OrderByDescending(i => i.CreationDate))
-		{
-			<tr class="table-secondary">
-				<td>@running.CreationDate</td>
-				<td>@running.RunningDate</td>
-				<td>@running.FailedDate</td>
-				<td>@running.CanceledDate</td>
-				<td>@running.TerminatedDate</td>
-				<td>@running.HostKey</td>
-				<td>@running.IsForced</td>
-			</tr>
-			@if (running.ErrorStack != null)
-			{
-				<tr class="table-danger">
-					<td colspan="7">@running.ErrorStack</td>
-				</tr>
-			}
-			@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
-			{
+	<table class="table table-bordered table-condensed table-hover">
+		<thead>
 				<tr>
-					<td>
-						@log.CreationDate
-					</td>
-					<td>
-						@log.GroupName
-					</td>
-					<td colspan="5">
-						@log.Type : @log.Subject
-						@if (!string.IsNullOrWhiteSpace(log.Body))
-						{
-							<span>@log.Body</span>
-						}
-					</td>
+					<th>CreationDate</th>
+					<th>RunningDate</th>
+					<th>FailedDate</th>
+					<th>CanceledDate</th>
+					<th>TerminatedDate</th>
+					<th>Host</th>
+					<th>IsForced</th>
 				</tr>
-			}
-		}	
-	</tbody>
-</table>
+		</thead>
+		<tbody>
+			@foreach(var running in runningTaskList.OrderByDescending(i => i.CreationDate))
+			{
+				<tr class="table-secondary">
+					<td>@running.CreationDate</td>
+					<td>@running.RunningDate</td>
+					<td>@running.FailedDate</td>
+					<td>@running.CanceledDate</td>
+					<td>@running.TerminatedDate</td>
+					<td>@running.HostKey</td>
+					<td>@running.IsForced</td>
+				</tr>
+				@if (running.ErrorStack != null)
+				{
+					<tr class="table-danger">
+						<td colspan="7">@running.ErrorStack</td>
+					</tr>
+				}
+				@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
+				{
+					<tr>
+						<td>
+							@log.CreationDate
+						</td>
+						<td>
+							@log.GroupName
+						</td>
+						<td colspan="5">
+							@log.Type : @log.Subject
+							@if (!string.IsNullOrWhiteSpace(log.Body))
+							{
+								<span>@log.Body</span>
+							}
+						</td>
+					</tr>
+				}
+			}	
+		</tbody>
+	</table>
+</div>
