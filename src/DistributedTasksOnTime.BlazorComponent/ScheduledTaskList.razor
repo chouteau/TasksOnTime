@@ -1,125 +1,132 @@
-﻿<div class="row">
-	<EditForm Model="Settings">
-		<InputCheckbox @bind-Value="Settings.Enable" /> Scheduling Enabled<br/>
-		<button @onclick="ResetRunningTasks" class="btn btn-danger">Reset running tasks</button>
-	</EditForm>
-</div>
+﻿<div class="container-fluid">
+	<div class="row">
+		<EditForm Model="Settings">
+			<InputCheckbox @bind-Value="Settings.Enable" /> Scheduling Enabled<br />
+			<button @onclick="ResetRunningTasks" class="btn btn-danger">Reset running tasks</button>
+		</EditForm>
+	</div>
 
-<table class="table table-bordered">
-	<thead>
-		<tr>
-			<th>Name</th>
-			<th>Next Running Date</th>
-			<th>Allow Multiple instances</th>
-			<th>Period</th>
-			<th>StartedCount</th>
-			<th>Last State</th>
-			<th>Actions</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in taskInfoList.OrderBy(i => i.ScheduledTask.Name))
-		{
-			var cssState = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
-			if (!item.ScheduledTask.Enabled)
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Next Running Date</th>
+				<th>Allow Multiple instances</th>
+				<th>Period</th>
+				<th>StartedCount</th>
+				<th>Last State</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in taskInfoList.OrderBy(i => i.ScheduledTask.Name))
 			{
-				cssState = "table-secondary";
-			}
-			<tr class="@cssState">
-				<td>
-					<a href="/scheduledtask/@item.ScheduledTask.Name">@item.ScheduledTask.Name</a><br/>
-					@item.ScheduledTask.Description
-				</td>
-				<td>
-					@if (item.ScheduledTask.NextRunningDate == DateTime.MinValue)
-					{
-						<span>Never</span>
-					}
-					else
-					{
-						<span>@item.ScheduledTask.NextRunningDate</span>
-					}
-				</td>
-				<td>
-					Global : @item.ScheduledTask.AllowMultipleInstance<br/>
-					Local : @item.ScheduledTask.AllowLocalMultipleInstances<br/>
-				</td>
-				<td>
-					@item.ScheduledTask.Period <br/>
-					Interval : @item.ScheduledTask.Interval <br/>
-					@if (item.ScheduledTask.Period == ScheduledTaskTimePeriod.Month)
-					{
-						<span>Start Day : @item.ScheduledTask.StartDay<br/></span>
-					}
-					@if (item.ScheduledTask.Period != ScheduledTaskTimePeriod.Hour
-						&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Minute
-						&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Second)
-					{
-						<span>Start Hour : @item.ScheduledTask.StartHour</span><br/>
-					}
-					@if (item.ScheduledTask.Period != ScheduledTaskTimePeriod.Minute
-						&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Second)
-					{
-						<span>Start Minute : @item.ScheduledTask.StartMinute</span><br/>
-					}
-				</td>
-				<td>@item.ScheduledTask.StartedCount</td>
-				<td>
-					@if (item.LastRunningTask != null)
-					{
-						if (item.LastRunningTask.ProgressLogs.Any())
+				var cssState = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
+				if (!item.ScheduledTask.Enabled)
+				{
+					cssState = "table-secondary";
+				}
+				<tr class="@cssState">
+					<td>
+						<a href="/scheduledtask/@item.ScheduledTask.Name">@item.ScheduledTask.Name</a><br />
+						@item.ScheduledTask.Description
+					</td>
+					<td>
+						@if (item.ScheduledTask.NextRunningDate == DateTime.MinValue)
 						{
-							<span>@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type</span>
+							<span>Never</span>
 						}
-						else if (item.LastRunningTask.CancelingDate.HasValue)
+						else
 						{
-							<span>Canceling</span>
+							<span>@item.ScheduledTask.NextRunningDate</span>
 						}
-						else if (item.LastRunningTask.CanceledDate.HasValue)
+					</td>
+					<td>
+						Global : @item.ScheduledTask.AllowMultipleInstance<br />
+						Local : @item.ScheduledTask.AllowLocalMultipleInstances<br />
+					</td>
+					<td>
+						@item.ScheduledTask.Period <br />
+						Interval : @item.ScheduledTask.Interval <br />
+						@if (item.ScheduledTask.Period == ScheduledTaskTimePeriod.Month)
 						{
-							<span>Canceled</span>
+							<span>Start Day : @item.ScheduledTask.StartDay<br /></span>
 						}
-						else if (item.LastRunningTask.FailedDate.HasValue)
+						@if (item.ScheduledTask.Period != ScheduledTaskTimePeriod.Hour
+								&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Minute
+								&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Second)
 						{
-							<span class="alert">Failed</span>
-							@if (!string.IsNullOrWhiteSpace(item.LastRunningTask.ErrorStack))
+							<span>Start Hour : @item.ScheduledTask.StartHour</span>
+
+							<br />
+						}
+						@if (item.ScheduledTask.Period != ScheduledTaskTimePeriod.Minute
+								&& item.ScheduledTask.Period != ScheduledTaskTimePeriod.Second)
+						{
+							<span>Start Minute : @item.ScheduledTask.StartMinute</span>
+
+							<br />
+						}
+					</td>
+					<td>@item.ScheduledTask.StartedCount</td>
+					<td>
+						@if (item.LastRunningTask != null)
+						{
+							if (item.LastRunningTask.ProgressLogs.Any())
 							{
-								<span>@string.Format("{0}", new MarkupString(item.LastRunningTask.ErrorStack.Replace("\r\n","<br/>")))</span>
+								<span>@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type</span>
+							}
+							else if (item.LastRunningTask.CancelingDate.HasValue)
+							{
+								<span>Canceling</span>
+							}
+							else if (item.LastRunningTask.CanceledDate.HasValue)
+							{
+								<span>Canceled</span>
+							}
+							else if (item.LastRunningTask.FailedDate.HasValue)
+							{
+								<span class="alert">Failed</span>
+								@if (!string.IsNullOrWhiteSpace(item.LastRunningTask.ErrorStack))
+								{
+									<span>@string.Format("{0}", new MarkupString(item.LastRunningTask.ErrorStack.Replace("\r\n","<br/>")))</span>
+								}
+							}
+							else if (item.LastRunningTask.TerminatedDate.HasValue)
+							{
+								<span>Completed</span>
+							}
+							else if (item.LastRunningTask.RunningDate.HasValue)
+							{
+								<span>Running</span>
+							}
+							else if (item.LastRunningTask.EnqueuedDate.HasValue)
+							{
+								<span>Enqueued</span>
 							}
 						}
-						else if (item.LastRunningTask.TerminatedDate.HasValue)
+					</td>
+					<td>
+						<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
+						@if (item.LastRunningTask == null
+								|| (item.LastRunningTask != null
+								&& item.LastRunningTask.TerminatedDate.HasValue))
 						{
-							<span>Completed</span>
+							<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)">Force</button>
 						}
-						else if (item.LastRunningTask.RunningDate.HasValue)
+						else
 						{
-							<span>Running</span>
+							<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)">Cancel</button>
 						}
-						else if (item.LastRunningTask.EnqueuedDate.HasValue)
-						{
-							<span>Enqueued</span>
-						}
-					}
-				</td>
-				<td>
-					<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
-					@if (item.LastRunningTask == null
-						|| (item.LastRunningTask != null
-						&& item.LastRunningTask.TerminatedDate.HasValue))
-					{
-						<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)" >Force</button>
-					}
-					else
-					{
-						<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)" >Cancel</button>
-					}
-					<button class="btn btn-warning" @onclick="() => ConfirmDeleteTask(item.ScheduledTask)" >Delete</button>
-				</td>
-			</tr>
-		}
-	</tbody>
+						<button class="btn btn-warning" @onclick="() => ConfirmDeleteTask(item.ScheduledTask)">Delete</button>
+					</td>
+				</tr>
+			}
+		</tbody>
 
-</table>
+	</table>
 
-<ConfirmDialog @ref="confirmDeleteTask" Title="Confirm delete ?" Accept="DeleteTask"/>
-<Toast @ref="toast"/>
+	<ConfirmDialog @ref="confirmDeleteTask" Title="Confirm delete ?" Accept="DeleteTask" />
+	<Toast @ref="toast" />
+</div>
+

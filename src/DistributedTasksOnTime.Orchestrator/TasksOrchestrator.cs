@@ -58,7 +58,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
                 distributedTaskInfo.Id, 
                 distributedTaskInfo.TaskName,
                 distributedTaskInfo.State,
-                distributedTaskInfo?.ProgressInfo.Subject);
+                distributedTaskInfo?.ProgressInfo?.Subject);
             runningTask = new RunningTask();
             runningTask.Id = distributedTaskInfo.Id;
             runningTask.TaskName = "unknown";

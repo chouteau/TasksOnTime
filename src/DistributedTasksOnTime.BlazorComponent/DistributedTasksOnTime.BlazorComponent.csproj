@@ -7,8 +7,9 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-    <Version>1.1.27.0</Version>
+    <Version>1.1.28.0</Version>
 	  <PackageReleaseNotes>
+		  1.1.28.0 : WebDesign
 		  1.1.27.0 : Force tasks with parameters
 		  1.1.26.0 : More logs
 		  1.1.25.0 : Path linux persistence
