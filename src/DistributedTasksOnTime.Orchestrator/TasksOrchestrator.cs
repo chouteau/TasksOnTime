@@ -206,7 +206,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
             return;
         }
 
-        await EnqueueTask(scheduledTask, true, parameters);
+        await EnqueueTask(new EnqueueTaskItem
+        {
+            ScheduledTask = scheduledTask,
+            Parameters = parameters,
+            Force = true
+        });
     }
 
     public int GetScheduledTaskCount()
@@ -273,7 +278,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
             try
             {
                 Logger.LogDebug("Try to start scheduled task {0}", task.Name);
-                await EnqueueTask(task);
+                await EnqueueTask(new EnqueueTaskItem
+                {
+                    ScheduledTask = task,
+                    Parameters = null,
+                    Force = false
+                });
                 SetNextRuningDate(DateTime.Now, task);
                 DbRepository.SaveScheduledTask(task);
             }
@@ -285,24 +295,24 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    internal async virtual Task EnqueueTask(ScheduledTask scheduledTask, bool isForced = false, Dictionary<string, string> pararmeters = null)
+    internal async Task EnqueueTask(EnqueueTaskItem enqueueTaskItem)
     {
         var procesTask = new DistributedTasksOnTime.ProcessTask();
         procesTask.Id = Guid.NewGuid();
         procesTask.CreationDate = DateTime.Now;
-        procesTask.TaskName = scheduledTask.Name;
-        procesTask.FullTypeName = scheduledTask.AssemblyQualifiedName;
-        procesTask.AllowMultipleInstances = scheduledTask.AllowLocalMultipleInstances;
-        procesTask.IsForced = isForced;
-        procesTask.Parameters = pararmeters;
+        procesTask.TaskName = enqueueTaskItem.ScheduledTask.Name;
+        procesTask.FullTypeName = enqueueTaskItem.ScheduledTask.AssemblyQualifiedName;
+        procesTask.AllowMultipleInstances = enqueueTaskItem.ScheduledTask.AllowLocalMultipleInstances;
+        procesTask.IsForced = enqueueTaskItem.Force;
+        procesTask.Parameters = enqueueTaskItem.Parameters ?? enqueueTaskItem.ScheduledTask.Parameters;
 
-        var queueName = $"{Settings.PrefixQueueName}.{scheduledTask.Name}";
+        var queueName = $"{Settings.PrefixQueueName}.{enqueueTaskItem.ScheduledTask.Name}";
         await QueueSender.SendMessage(queueName, procesTask);
 
         var runningTask = new RunningTask();
         runningTask.Id = procesTask.Id;
-        runningTask.TaskName = scheduledTask.Name;
-        runningTask.IsForced = isForced;
+        runningTask.TaskName = enqueueTaskItem.ScheduledTask.Name;
+        runningTask.IsForced = enqueueTaskItem.Force;
 
         DbRepository.SaveRunningTask(runningTask);
     }
