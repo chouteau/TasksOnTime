@@ -6,8 +6,9 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.1.31.2</Version>
+    <Version>1.2.32.0</Version>
 	  <PackageReleaseNotes>
+		  1.2.32.0: Missing assemblies for nuget package
 		  1.1.31.2 : Maj Nuget
 		  1.1.30.1 : Configure loglevel pour ProgressReporter
 		  1.1.29.1 : Add parameters for ForceTask
@@ -40,6 +41,13 @@
 		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
 			<PrivateAssets>all</PrivateAssets>
 		</ProjectReference>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
+			<BuildAction>None</BuildAction>
+			<PackagePath>lib\net70</PackagePath>
+			<Pack>true</Pack>
+		</Content>
 	</ItemGroup>
 
 </Project>
