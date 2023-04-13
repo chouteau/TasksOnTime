@@ -9,18 +9,18 @@ internal class TasksOrchestrator : ITasksOrchestrator
     public TasksOrchestrator(DistributedTasksOnTimeServerSettings scheduleSettings,
         ILogger<TasksOrchestrator> logger,
         IDbRepository dbRepository,
-        QueueSender queueSender)
+        ArianeBus.IServiceBus bus)
     {
         this.Settings = scheduleSettings;
         this.Logger = logger;
         this.DbRepository = dbRepository; 
-        this.QueueSender = queueSender;
+        this.Bus = bus;
     }
 
     protected DistributedTasksOnTimeServerSettings Settings { get; }
     protected ILogger Logger { get; }
     protected IDbRepository DbRepository { get; }
-    protected QueueSender QueueSender { get; }
+    protected ArianeBus.IServiceBus Bus { get; }
 
     public void Start()
 	{
@@ -164,7 +164,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 		{
             var cancelTask = new DistributedTasksOnTime.CancelTask();
             cancelTask.Id = task.Id;
-            await QueueSender.SendMessage(Settings.CancelTaskQueueName, cancelTask);
+            await Bus.PublishTopic(Settings.CancelTaskQueueName, cancelTask);
         }
     }
 
@@ -307,9 +307,16 @@ internal class TasksOrchestrator : ITasksOrchestrator
         procesTask.Parameters = enqueueTaskItem.Parameters ?? enqueueTaskItem.ScheduledTask.Parameters;
 
         var queueName = $"{Settings.PrefixQueueName}.{enqueueTaskItem.ScheduledTask.Name}";
-        await QueueSender.SendMessage(queueName, procesTask);
+        if (enqueueTaskItem.ScheduledTask.ProcessMode == ProcessMode.Exclusive)
+        {
+			await Bus.EnqueueMessage(queueName, procesTask);
+		}
+        else
+        {
+            await Bus.PublishTopic(queueName, procesTask);
+        }
 
-        var runningTask = new RunningTask();
+		var runningTask = new RunningTask();
         runningTask.Id = procesTask.Id;
         runningTask.TaskName = enqueueTaskItem.ScheduledTask.Name;
         runningTask.IsForced = enqueueTaskItem.Force;
@@ -421,6 +428,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         task.StartDay = taskInfo.DefaultStartDay;
         task.StartHour = taskInfo.DefaultStartHour;
         task.StartMinute = taskInfo.DefaultStartMinute;
+        task.ProcessMode = taskInfo.ProcessMode;
 
         return task;
     }

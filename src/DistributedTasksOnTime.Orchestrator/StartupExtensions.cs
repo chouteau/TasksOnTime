@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Win32;
 
 namespace DistributedTasksOnTime.Orchestrator;
 
@@ -18,8 +19,6 @@ public static class StartupExtensions
 		var currentFolder = System.IO.Path.GetDirectoryName(typeof(StartupExtensions).Assembly.Location);
 
 		builder.Services.AddSingleton<ITasksOrchestrator, TasksOrchestrator>();
-        builder.Services.AddTransient<QueueSender>();
-        builder.Services.AddSingleton(new ExistingQueues());
 
         builder.Services.AddHostedService<MainWorker>();
 
@@ -35,15 +34,14 @@ public static class StartupExtensions
 			System.IO.Directory.CreateDirectory(settings.StoreFolder);
 		}
 
-		return builder;
-	}
+		builder.Services.AddArianeBus(config =>
+		{
+			config.RegisterQueueReader<Readers.TaskInfoReader>(new QueueName(settings.TaskInfoQueueName));
+			config.RegisterQueueReader<Readers.HostRegistrationReader>(new QueueName(settings.HostRegistrationQueueName));
+			config.RegisterQueueReader<Readers.ForceTaskReader>(new QueueName(settings.ForceTaskQueueName));
+		});
 
-	public static void SetupArianeRegisterDistributedTasksOnTimeOrchestrator(this IRegister register, DistributedTasksOnTimeServerSettings settings)
-	{
-		register.AddAzureQueueReader<Readers.TaskInfoReader>(settings.TaskInfoQueueName);
-		register.AddAzureQueueReader<Readers.HostRegistrationReader>(settings.HostRegistrationQueueName);
-		register.AddAzureQueueReader<Readers.ForceTaskReader>(settings.ForceTaskQueueName);
-		register.AddAzureTopicWriter(settings.CancelTaskQueueName);
+		return builder;
 	}
 }
 

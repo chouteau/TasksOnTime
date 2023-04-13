@@ -1,4 +1,4 @@
-﻿using Ariane;
+﻿using ArianeBus;
 using DistributedTasksOnTime.Client;
 using DistributedTasksOnTime.JsonFilePersistence;
 using DistributedTasksOnTime.Orchestrator;
@@ -40,16 +40,10 @@ namespace DistributedTaskOnTime.Tests
 			var builder = WebApplication.CreateBuilder();
 
             builder.Services.AddSingleton(clientSettings);
-            builder.Services.ConfigureArianeAzure();
-            builder.Services.ConfigureAriane(register =>
-					{
-						register.SetupArianeRegisterDistributedTasksOnTimeClient(clientSettings);
-						register.SetupArianeRegisterDistributedTasksOnTimeOrchestrator(serverSettings);
-
-					}, cfg =>
-					{
-						cfg.DefaultAzureConnectionString = clientSettings.AzureBusConnectionString;
-					});
+            builder.Services.AddArianeBus(config =>
+			{
+				config.BusConnectionString = clientSettings.AzureBusConnectionString;
+			});
 
 			builder.Services.AddDistributedTasksOnTimeClient(clientSettings);
 

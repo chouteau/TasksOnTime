@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net70</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>
@@ -15,17 +15,15 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
 	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
-	  <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="localconfig\appsettings.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
-
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="IF EXIST $(ProjectDir)localconfig\appsettings.json xcopy $(ProjectDir)localconfig\appsettings.json $(OutDir)localconfig /Y" />
-	</Target>
 
 </Project>

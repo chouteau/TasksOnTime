@@ -3,7 +3,7 @@
 public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 {
 	public DistributedProgressReporter(ILogger<DistributedProgressReporter> logger,
-		Ariane.IServiceBus bus,
+		ArianeBus.IServiceBus bus,
 		DistributedTasksOnTimeSettings settings)
 	{
 		this.Logger = logger;	
@@ -12,7 +12,7 @@ public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 	}
 
 	protected ILogger Logger { get; }
-	protected Ariane.IServiceBus Bus { get; }
+	protected ArianeBus.IServiceBus Bus { get; }
 	protected DistributedTasksOnTimeSettings Settings { get; }
 
 	public async Task Notify(TasksOnTime.ProgressInfo info)
@@ -36,7 +36,7 @@ public class DistributedProgressReporter : TasksOnTime.IProgressReporter
 			Type = (DistributedTasksOnTime.ProgressType)Enum.Parse(typeof(DistributedTasksOnTime.ProgressType), $"{info.Type}"),
 		};
 
-		await Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo);
+		await Bus.EnqueueMessage(Settings.TaskInfoQueueName, taskInfo);
 	}
 }
 

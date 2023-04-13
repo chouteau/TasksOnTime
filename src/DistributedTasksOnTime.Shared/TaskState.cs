@@ -8,12 +8,12 @@ namespace DistributedTasksOnTime
 {
 	public enum TaskState
 	{
-		Enqueued,
-		Started,
-		Terminated,
-		Failed,
-		Canceling,
-		Canceled,
-		Progress
+		Enqueued = 0,
+		Started = 1,
+		Terminated = 2,
+		Failed = 3,
+		Canceling = 4,
+		Canceled = 5,
+		Progress = 6
 	}
 }

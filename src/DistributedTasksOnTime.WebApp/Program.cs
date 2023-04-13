@@ -2,7 +2,7 @@ using DistributedTasksOnTime.BlazorComponent;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-using Ariane;
+using ArianeBus;
 using DistributedTasksOnTime.Orchestrator;
 using DistributedTasksOnTime.SqlitePersistence;
 
@@ -32,13 +32,9 @@ builder.Services.AddTasksOnTimeSqlitePersistence(config =>
 	config.ConnectionString = builder.Configuration.GetConnectionString("DistributedTasksOnTimeSqlite");
 });
 
-builder.Services.ConfigureArianeAzure();
-builder.Services.ConfigureAriane(register =>
+builder.Services.AddArianeBus(config =>
 {
-	register.SetupArianeRegisterDistributedTasksOnTimeOrchestrator(dtotSettings);
-}, s =>
-{
-	s.DefaultAzureConnectionString = dtotSettings.AzureBusConnectionString;
+	config.BusConnectionString = dtotSettings.AzureBusConnectionString;
 });
 
 if (System.Environment.UserInteractive
@@ -52,15 +48,6 @@ else
 {
 	builder.Logging.SetMinimumLevel(LogLevel.Information);
 }
-builder.Logging.AddFilter((p, c, l) =>
-{
-	if ((c.StartsWith("Microsoft")
-		&& l <= LogLevel.Information))
-	{
-		return false;
-	}
-	return true;
-});
 
 var app = builder.Build();
 
@@ -83,7 +70,4 @@ app.MapFallbackToPage("/_Host");
 
 await app.Services.UseTasksOnTimeSqlitePersistence();
 
-var bus = app.Services.GetRequiredService<Ariane.IServiceBus>();
-await bus.StartReadingAsync();
-
-app.Run();
+await app.RunAsync();

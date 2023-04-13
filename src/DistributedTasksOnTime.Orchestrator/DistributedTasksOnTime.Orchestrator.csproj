@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net70</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.1.14.1</Version>
+    <Version>1.2.15.0</Version>
 	  <PackageReleaseNotes>
+		  1.2.15.0 : Migration dotnet7
 		  1.1.14.1 : Add parameters for forcetask
 		  1.1.13.0 : Add parameters for forcetask
 		  1.1.12.0 : More logs for running task not found
@@ -16,8 +17,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ariane5.Azure" Version="6.0.22" />
+    <PackageReference Include="ArianeBus" Version="1.0.8.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="TasksOnTimeCore" Version="1.2.21.3" />
   </ItemGroup>
 
   <ItemGroup>

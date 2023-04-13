@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DistributedTasksOnTime.Orchestrator.Readers
 {
-	public class ForceTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime.ForceTask>
+	public class ForceTaskReader : ArianeBus.MessageReaderBase<DistributedTasksOnTime.ForceTask>
 	{
 		public ForceTaskReader(ITasksOrchestrator tasksOrchestrator)
 		{
@@ -15,7 +15,7 @@ namespace DistributedTasksOnTime.Orchestrator.Readers
 
 		protected ITasksOrchestrator TasksOrchestrator { get; }
 
-		public override async Task ProcessMessageAsync(ForceTask message)
+		public override async Task ProcessMessageAsync(ForceTask message, CancellationToken cancellationToken)
 		{
 			await TasksOrchestrator.ForceTask(message.TaskName, message.Parameters);
 		}

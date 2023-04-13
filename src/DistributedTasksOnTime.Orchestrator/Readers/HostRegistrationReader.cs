@@ -1,6 +1,6 @@
 ﻿namespace DistributedTasksOnTime.Orchestrator.Readers;
 
-internal class HostRegistrationReader : Ariane.MessageReaderBase<HostRegistrationInfo>
+internal class HostRegistrationReader : ArianeBus.MessageReaderBase<HostRegistrationInfo>
 {
 	public HostRegistrationReader(ITasksOrchestrator tasksOrchestrator)
 	{
@@ -9,7 +9,7 @@ internal class HostRegistrationReader : Ariane.MessageReaderBase<HostRegistratio
 
 	protected ITasksOrchestrator TasksOrchestrator { get; }
 
-	public override Task ProcessMessageAsync(HostRegistrationInfo message)
+	public override Task ProcessMessageAsync(HostRegistrationInfo message, CancellationToken cancellationToken)
 	{
 		if (message.State == HostRegistrationState.Started)
 		{

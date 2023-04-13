@@ -1,5 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Ariane;
+using ArianeBus;
 using DistributedTasksOnTime.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,21 +65,19 @@ var host= Host.CreateDefaultBuilder(args)
 						DefaultInterval = 1,
 						ProcessMode = DistributedTasksOnTime.ProcessMode.AllInstances
 					});
+					services.AddDistributedTasksOnTimeClient(clientSettings);
 
-					services.ConfigureArianeAzure();
-					services.ConfigureAriane(register =>
-					{
-						register.SetupArianeRegisterDistributedTasksOnTimeClient(clientSettings);
-					}, s =>
+					services.AddArianeBus(config =>
 					{ 
-						s.DefaultAzureConnectionString = clientSettings.AzureBusConnectionString;
+						config.BusConnectionString = clientSettings.AzureBusConnectionString;
 					});
 
-					services.AddDistributedTasksOnTimeClient(clientSettings);
 				})
 				.Build();
 
 await host.Services.UseDistributedTasksOnTimeClient();
+
+await Task.Delay(15 * 1000);
 
 await host.RunAsync();
 
