@@ -20,7 +20,7 @@ public partial class ScheduledTaskList
 		{
 			TasksOrchestrator.OnHostRegistered += async s =>
 			{
-				LoadTaskInfoList();
+				await LoadTaskInfoList();
 				await InvokeAsync(() =>
 				{
 					StateHasChanged();
@@ -48,14 +48,14 @@ public partial class ScheduledTaskList
 		}
 	}
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
-		LoadTaskInfoList();
+		await LoadTaskInfoList();
 	}
 
-	void LoadTaskInfoList()
+	async Task LoadTaskInfoList()
 	{
-		var scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
+		var scheduledTaskList = await TasksOrchestrator.GetScheduledTaskList();
 		foreach (var scheduledTask in scheduledTaskList)
 		{
 			var taskInfo = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == scheduledTask.Name);
@@ -72,7 +72,7 @@ public partial class ScheduledTaskList
 				taskInfoList.Add(taskInfo);
 			}
 
-			var history = TasksOrchestrator.GetRunningTaskList(taskInfo.ScheduledTask.Name);
+			var history = await TasksOrchestrator.GetRunningTaskList(taskInfo.ScheduledTask.Name);
 			if (history.Any())
 			{
 				taskInfo.LastRunningTask = history.Last();
@@ -106,7 +106,7 @@ public partial class ScheduledTaskList
 		var task = (DistributedTasksOnTime.ScheduledTask)tag;
 		await TasksOrchestrator.DeleteTask(task.Name);
 		toast.Show("Task deleted", ToastLevel.Info);
-		LoadTaskInfoList();
+		await LoadTaskInfoList();
 		StateHasChanged();
 	}
 

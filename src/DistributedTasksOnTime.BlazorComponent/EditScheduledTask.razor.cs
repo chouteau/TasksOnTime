@@ -10,16 +10,16 @@ public partial class EditScheduledTask
 
 	DistributedTasksOnTime.ScheduledTask scheduledTask = new();
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
-		var scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
+		var scheduledTaskList = await TasksOrchestrator.GetScheduledTaskList();
 		scheduledTask = scheduledTaskList.FirstOrDefault(i => i.Name.Equals(TaskName, StringComparison.InvariantCultureIgnoreCase));
 		base.OnInitialized();
 	}
 
-	void ValidateAndSave()
+	async Task ValidateAndSave()
 	{
-		TasksOrchestrator.SaveScheduledTask(scheduledTask);
+		await TasksOrchestrator.SaveScheduledTask(scheduledTask);
 		NavigationManager.NavigateTo(Settings.ScheduledTaskListBlazorPage);
 	}
 

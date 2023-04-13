@@ -12,12 +12,12 @@ namespace DistributedTasksOnTime.DemoClient
 	{
 		public async Task ExecuteAsync(TasksOnTime.ExecutionContext context)
 		{
-			context.StartNotification("", "DemoTask Started");
+			context.StartNotification("Start", "DemoTask Started");
 			await Task.Delay(10 * 1000);
 			Console.WriteLine(DateTime.Now);
 			context.WriteNotification("", "Date", $"{DateTime.Now}");
 			await Task.Delay(5 * 1000);
-			context.CompletedNotification("");
+			context.CompletedNotification("Complete");
 		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿namespace DistributedTasksOnTime.Orchestrator;
+﻿using System.Runtime.CompilerServices;
+
+namespace DistributedTasksOnTime.Orchestrator;
 
 internal class TasksOrchestrator : ITasksOrchestrator
 {
@@ -22,36 +24,37 @@ internal class TasksOrchestrator : ITasksOrchestrator
     protected IDbRepository DbRepository { get; }
     protected ArianeBus.IServiceBus Bus { get; }
 
-    public void Start()
+    public Task Start()
 	{
+        return Task.CompletedTask;
     }
 
-    public void Stop()
+    public async Task Stop()
 	{
         Logger.LogWarning("TasksOrchestrator stopping");
-        DbRepository.PersistAll();
+        await DbRepository.PersistAll();
 	}
 
-    public void RegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo)
+    public async Task RegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo)
 	{
         foreach (var task in hostInfo.TaskList)
 		{
             var scheduledTask = CreateScheduledTask(task);
-            DbRepository.SaveScheduledTask(scheduledTask);
+            await DbRepository.SaveScheduledTask(scheduledTask);
         }
-        DbRepository.SaveHostRegistration(hostInfo);
+        await DbRepository.SaveHostRegistration(hostInfo);
 
         OnHostRegistered?.Invoke(hostInfo.Key);
     }
 
-    public void UnRegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo)
+    public async Task UnRegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo)
 	{
-        DbRepository.DeleteHostRegistration(hostInfo.Key);
+        await DbRepository.DeleteHostRegistration(hostInfo.Key);
     }
 
-    public void NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo)
+    public async Task NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo)
 	{
-        var runningTask = DbRepository.GetRunningTaskList(true).SingleOrDefault(i => i.Id == distributedTaskInfo.Id);
+        var runningTask = (await DbRepository.GetRunningTaskList(true)).SingleOrDefault(i => i.Id == distributedTaskInfo.Id);
         if (runningTask == null) // <- pas normal
 		{
             Logger.LogWarning("Running task not found with id {Id} {TaskName} {State} {Subject}", 
@@ -64,7 +67,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             runningTask.TaskName = "unknown";
 		}
 
-        var scheduledTask = DbRepository.GetScheduledTaskList().SingleOrDefault(i => i.Name.Equals(runningTask.TaskName, StringComparison.InvariantCultureIgnoreCase));
+        var scheduledTask = (await DbRepository.GetScheduledTaskList()).SingleOrDefault(i => i.Name.Equals(runningTask.TaskName, StringComparison.InvariantCultureIgnoreCase));
         if (scheduledTask == null)
 		{
             // Pas normal du tout
@@ -85,7 +88,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             runningTask.RunningDate = distributedTaskInfo.EventDate;
 
             scheduledTask.StartedCount = scheduledTask.StartedCount + 1;
-            DbRepository.SaveScheduledTask(scheduledTask);
+            await DbRepository.SaveScheduledTask(scheduledTask);
 
             OnScheduledTaskStarted?.Invoke(runningTask.TaskName);
         }
@@ -126,16 +129,16 @@ internal class TasksOrchestrator : ITasksOrchestrator
             else
 			{
                 runningTask.ProgressLogs.Add(distributedTaskInfo.ProgressInfo);
-                DbRepository.SaveProgressInfo(distributedTaskInfo.ProgressInfo);
+                await DbRepository.SaveProgressInfo(distributedTaskInfo.ProgressInfo);
             }
 		}
 
-        DbRepository.SaveRunningTask(runningTask);
+        await DbRepository.SaveRunningTask(runningTask);
 
         OnRunningTaskChanged?.Invoke(distributedTaskInfo.State, runningTask);
     }
 
-    public bool ContainsTask(string taskName)
+    public async Task<bool> ContainsTask(string taskName)
     {
         if (taskName == null)
 		{
@@ -143,7 +146,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 		}
 
         bool result = false;
-        result = DbRepository.GetScheduledTaskList().SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase)) != null;
+        result = (await DbRepository.GetScheduledTaskList()).SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase)) != null;
         return result;
     }
 
@@ -157,7 +160,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         taskName = taskName.ToLower();
 
         Logger.LogInformation("Try to Cancel task {0}", taskName);
-        var task = DbRepository.GetRunningTaskList().FirstOrDefault(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
+        var task = (await DbRepository.GetRunningTaskList()).FirstOrDefault(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
                             && !i.TerminatedDate.HasValue);
 
         if (task != null)
@@ -168,7 +171,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    public Task DeleteTask(string taskName)
+    public async Task DeleteTask(string taskName)
     {
         if (taskName == null)
         {
@@ -178,8 +181,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         taskName = taskName.ToLower();
 
         Logger.LogInformation("Try to Delete task {0}", taskName);
-        DbRepository.DeleteScheduledTask(taskName);
-        return Task.CompletedTask;
+        await DbRepository.DeleteScheduledTask(taskName);
     }
 
     public async Task ForceTask(string taskName, Dictionary<string,string> parameters)
@@ -191,13 +193,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
         Logger.LogInformation("Try to force task {0}", taskName);
             
-        var scheduledTask = DbRepository.GetScheduledTaskList().SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        var scheduledTask = (await DbRepository.GetScheduledTaskList()).SingleOrDefault(i => i.Name.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
         if (scheduledTask == null)
         {
             Logger.LogWarning("force unknown task {0}", taskName);
             return;
         }
-		var runningTask = DbRepository.GetRunningTaskList().FirstOrDefault(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+		var runningTask = (await DbRepository.GetRunningTaskList()).FirstOrDefault(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
         if (runningTask!= null
             && !runningTask.TerminatedDate.HasValue
             && !scheduledTask.AllowMultipleInstance)
@@ -214,42 +216,42 @@ internal class TasksOrchestrator : ITasksOrchestrator
         });
     }
 
-    public int GetScheduledTaskCount()
+    public async Task<int> GetScheduledTaskCount()
     {
-        return DbRepository.GetScheduledTaskList().Count;
+        return (await DbRepository.GetScheduledTaskList()).Count;
     }
 
-    public int GetRunningTaskCount()
+    public async Task<int> GetRunningTaskCount()
     {
-        return DbRepository.GetRunningTaskList().Count(i => !i.TerminatedDate.HasValue);
+        return (await DbRepository.GetRunningTaskList()).Count(i => !i.TerminatedDate.HasValue);
     }
 
-    public IEnumerable<ScheduledTask> GetScheduledTaskList()
+    public async Task<IEnumerable<ScheduledTask>> GetScheduledTaskList()
     {
-        return DbRepository.GetScheduledTaskList();
+        return await DbRepository.GetScheduledTaskList();
     }
 
-    public IEnumerable<RunningTask> GetRunningTaskList(string taskName = null, bool withProgress = false)
+    public async Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false)
     {
         if (taskName == null)
         {
-            return DbRepository.GetRunningTaskList(withProgress);
+            return await DbRepository.GetRunningTaskList(withProgress);
         }
-        return DbRepository.GetRunningTaskList(withProgress).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        return (await DbRepository.GetRunningTaskList(withProgress)).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public void ResetRunningTasks()
+    public async Task ResetRunningTasks()
     {
-        DbRepository.ResetRunningTasks();
+        await DbRepository.ResetRunningTasks();
     }
 
-    public void SaveScheduledTask(ScheduledTask scheduledTask = null)
+    public async Task SaveScheduledTask(ScheduledTask scheduledTask = null)
 	{
         if (scheduledTask != null)
 		{
             SetNextRuningDate(DateTime.Now, scheduledTask);
 		}
-        DbRepository.SaveScheduledTask(scheduledTask);
+        await DbRepository.SaveScheduledTask(scheduledTask);
 	}
 
     /// <summary>
@@ -259,8 +261,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
     /// <returns></returns>
     public async virtual Task EnqueueNextTasks(DateTime now)
     {
-        var query = from t in DbRepository.GetScheduledTaskList()
-                    where CanRun(now, t)
+        var taskList = await DbRepository.GetScheduledTaskList();
+		var query = from t in taskList
                     select t;
 
         var list = query.ToList();
@@ -277,6 +279,10 @@ internal class TasksOrchestrator : ITasksOrchestrator
             list.Remove(task);
             try
             {
+                if (!await CanRun(now, task))
+                {
+                    continue;
+                }
                 Logger.LogDebug("Try to start scheduled task {0}", task.Name);
                 await EnqueueTask(new EnqueueTaskItem
                 {
@@ -285,7 +291,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
                     Force = false
                 });
                 SetNextRuningDate(DateTime.Now, task);
-                DbRepository.SaveScheduledTask(task);
+                await DbRepository.SaveScheduledTask(task);
             }
             catch (Exception ex)
             {
@@ -321,17 +327,17 @@ internal class TasksOrchestrator : ITasksOrchestrator
         runningTask.TaskName = enqueueTaskItem.ScheduledTask.Name;
         runningTask.IsForced = enqueueTaskItem.Force;
 
-        DbRepository.SaveRunningTask(runningTask);
+        await DbRepository.SaveRunningTask(runningTask);
     }
 
-    internal bool CanRun(DateTime now, ScheduledTask scheduledTask)
+    internal async Task<bool> CanRun(DateTime now, ScheduledTask scheduledTask)
     {
         if (!scheduledTask.Enabled)
 		{
             return false;
 		}
 
-        var runningTask = DbRepository.GetRunningTaskList().FirstOrDefault(
+        var runningTask = (await DbRepository.GetRunningTaskList()).FirstOrDefault(
                         i => i.TaskName == scheduledTask.Name
                         && !i.TerminatedDate.HasValue);
 

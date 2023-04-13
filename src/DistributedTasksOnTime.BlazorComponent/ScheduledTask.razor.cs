@@ -22,11 +22,11 @@ public partial class ScheduledTask
 				{
 					return;
 				}
-				await InvokeAsync(() =>
+				await InvokeAsync(async () =>
 				{
 					if (!runningTaskList.Any(i => i.Id == r.Id))
 					{
-                        runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName, true).ToList();
+                        runningTaskList = (await TasksOrchestrator.GetRunningTaskList(TaskName, true)).ToList();
                     }
 
 					var currentTask = runningTaskList.SingleOrDefault(i => i.Id == r.Id);
@@ -48,12 +48,12 @@ public partial class ScheduledTask
 		}
 	}
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
-		var scheduledTaskList = TasksOrchestrator.GetScheduledTaskList();
+		var scheduledTaskList = await TasksOrchestrator.GetScheduledTaskList();
 		scheduledTask = scheduledTaskList.FirstOrDefault(i => i.Name.Equals(TaskName, StringComparison.InvariantCultureIgnoreCase));
 
-        runningTaskList = TasksOrchestrator.GetRunningTaskList(TaskName, true).ToList();
+        runningTaskList = (await TasksOrchestrator.GetRunningTaskList(TaskName, true)).ToList();
 
         base.OnInitialized();
 	}

@@ -42,29 +42,29 @@ internal class FileDbRepository : IDbRepository
     protected PersistenceSettings Settings { get; }
     protected ILogger Logger { get; }
 
-    public List<HostRegistrationInfo> GetHostRegistrationList()
+    public Task<List<HostRegistrationInfo>> GetHostRegistrationList()
     {
-        return HostList!.Select(i => i.Value).ToList();
+        return Task.FromResult(HostList!.Select(i => i.Value).ToList());
     }
 
-    public List<ScheduledTask> GetScheduledTaskList()
+    public Task<List<ScheduledTask>> GetScheduledTaskList()
     {
-        return ScheduledTaskList!.Select(i => i.Value).ToList();
+        return Task.FromResult(ScheduledTaskList!.Select(i => i.Value).ToList());
     }
 
-    public void SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
+    public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
     {
         HostList.AddOrUpdate(hostRegistrationInfo.Key, hostRegistrationInfo, (k, old) => hostRegistrationInfo);
-        PersistHostRegistrationList();
+        await PersistHostRegistrationList();
     }
 
-    public void DeleteHostRegistration(string key)
+    public async Task DeleteHostRegistration(string key)
     {
         HostList.TryRemove(key, out var item);
-        PersistHostRegistrationList();
+        await PersistHostRegistrationList();
     }
 
-    public void PersistHostRegistrationList()
+    public async Task PersistHostRegistrationList()
     {
         try
         {
@@ -75,7 +75,7 @@ internal class FileDbRepository : IDbRepository
                 System.IO.File.Delete(hostRegistrationFileName);
             }
             var content = JsonSerializer.Serialize(list, _options);
-            File.WriteAllText(hostRegistrationFileName, content);
+            await File.WriteAllTextAsync(hostRegistrationFileName, content);
             Logger.LogTrace("{0} Host persisted in {1}", list.Count, hostRegistrationFileName);
         }
         catch (Exception ex)
@@ -84,19 +84,19 @@ internal class FileDbRepository : IDbRepository
         }
     }
 
-    public void SaveScheduledTask(ScheduledTask scheduledTask)
+    public async Task SaveScheduledTask(ScheduledTask scheduledTask)
     {
         ScheduledTaskList.AddOrUpdate(scheduledTask.Name, scheduledTask, (k, old) => scheduledTask);
-        PersistScheduledTaskList();
+        await PersistScheduledTaskList();
     }
 
-    public void DeleteScheduledTask(string taskName)
+    public async Task DeleteScheduledTask(string taskName)
     {
         ScheduledTaskList.TryRemove(taskName, out var scheduledTask); 
-        PersistScheduledTaskList();
+        await PersistScheduledTaskList();
     }
 
-    public void PersistScheduledTaskList()
+    public async Task PersistScheduledTaskList()
     {
         try
         {
@@ -107,7 +107,7 @@ internal class FileDbRepository : IDbRepository
                 System.IO.File.Delete(scheduledTaskFileName);
             }
             var content = JsonSerializer.Serialize(list, _options);
-            File.WriteAllText(scheduledTaskFileName, content);
+            await File.WriteAllTextAsync(scheduledTaskFileName, content);
             Logger.LogTrace("{0} Scheduled Task persisted in {1}", list.Count, scheduledTaskFileName);
         }
         catch (Exception ex)
@@ -116,25 +116,27 @@ internal class FileDbRepository : IDbRepository
         }
     }
 
-    public List<RunningTask> GetRunningTaskList(bool withProgress = false)
+    public Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false)
 	{
-		return RunningTaskList!.Select(i => i.Value).ToList();
+		return Task.FromResult(RunningTaskList!.Select(i => i.Value).ToList());
     }
 
-    public void SaveRunningTask(RunningTask task)
+    public Task SaveRunningTask(RunningTask task)
 	{
 		RunningTaskList.AddOrUpdate(task.Id, task, (key, oldValue) => task);
+        return Task.CompletedTask;
 	}
 
-    public void ResetRunningTasks()
+    public Task ResetRunningTasks()
     {
         RunningTaskList.Clear();
+        return Task.CompletedTask;
     }
 
-	public void PersistAll()
+	public async Task PersistAll()
 	{
-        PersistScheduledTaskList();
-        PersistHostRegistrationList();
+        await PersistScheduledTaskList();
+        await PersistHostRegistrationList();
     }
 
     private void Initialize()
@@ -164,9 +166,10 @@ internal class FileDbRepository : IDbRepository
 
     }
 
-    public void SaveProgressInfo(ProgressInfo progressInfo)
+    public Task SaveProgressInfo(ProgressInfo progressInfo)
     {
         // Do nothing
+        return Task.CompletedTask;
     }
 }
 

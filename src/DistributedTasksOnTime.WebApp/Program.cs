@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Components.Web;
 
 using ArianeBus;
 using DistributedTasksOnTime.Orchestrator;
-using DistributedTasksOnTime.SqlitePersistence;
+using DistributedTasksOnTime.MsSqlPersistence;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
@@ -27,9 +29,10 @@ dtotSettings.ScheduledTaskListBlazorPage = "/";
 section.Bind(dtotSettings);
 
 builder.AddDistributedTasksOnTimeBlazor(dtotSettings);
-builder.Services.AddTasksOnTimeSqlitePersistence(config =>
+var cs = builder.Configuration.GetConnectionString("DistributedTasksOnTimeSqlServer");
+builder.Services.AddTasksOnTimeMsSqlPersistence(config =>
 {
-	config.ConnectionString = builder.Configuration.GetConnectionString("DistributedTasksOnTimeSqlite");
+	config.ConnectionString = cs;
 });
 
 builder.Services.AddArianeBus(config =>
@@ -68,6 +71,45 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-await app.Services.UseTasksOnTimeSqlitePersistence();
+await CreateDatabase(cs);
+
+await app.Services.UseTasksOnTimeMsSqlPersistence();
 
 await app.RunAsync();
+
+static async Task CreateDatabase(string connectionString)
+{
+	var content = @"
+use master
+
+IF DB_ID('{DB_NAME}') IS NULL
+BEGIN
+	CREATE DATABASE {DB_NAME}
+END
+";
+
+	var cs = new SqlConnectionStringBuilder(connectionString);
+	var dbName = cs.InitialCatalog;
+
+	content = content.Replace("{DB_NAME}", dbName);
+
+	cs.InitialCatalog = "master";
+
+	using (var cnx = new Microsoft.Data.SqlClient.SqlConnection(cs.ToString()))
+	{
+		using (var cmd = cnx.CreateCommand())
+		{
+			cmd.CommandText = content;
+			cmd.CommandType = System.Data.CommandType.Text;
+			try
+			{
+				cnx.Open();
+				await cmd.ExecuteNonQueryAsync();
+			}
+			finally
+			{
+				cnx.Close();
+			}
+		}
+	}
+}

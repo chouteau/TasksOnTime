@@ -27,9 +27,9 @@ namespace DistributedTasksOnTime.SqlitePersistence
             optionsBuilder.UseSqlite(_sqliteSettings.ConnectionString);
         }
 
-        public DbSet<Datas.HostRegistrationData>? HostRegistrations { get; set; }
-        public DbSet<Datas.ProgressInfoData>? ProgressInfos { get; set; }
-        public DbSet<Datas.RunningTaskData>? RunningTasks { get; set; }
-        public DbSet<Datas.ScheduledTaskData>? ScheduledTasks { get; set; }
+        public DbSet<Datas.HostRegistrationData> HostRegistrations { get; set; } = default!;
+        public DbSet<Datas.ProgressInfoData> ProgressInfos { get; set; } = default!;
+		public DbSet<Datas.RunningTaskData> RunningTasks { get; set; } = default!;
+        public DbSet<Datas.ScheduledTaskData> ScheduledTasks { get; set; } = default!;
     }
 }

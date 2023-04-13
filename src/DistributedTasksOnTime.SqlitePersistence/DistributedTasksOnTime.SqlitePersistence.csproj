@@ -6,11 +6,12 @@
     <Nullable>enable</Nullable>
 	  <PackageId>DistributedTasksOnTime.SqlitePersistence</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-	  <Version>1.1.6.0</Version>
+	  <Version>1.1.7.0</Version>
 	  <PackageReleaseNotes>
+		  1.1.7.0 : IRepository async/await
 		  1.1.6.0 : Migration dotnet7
 		  1.0.5.1 : Try to Fix "Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 5: 'database is locked'"
-					Add Native ConnectionString settings
+		  Add Native ConnectionString settings
 		  1.0.4.1 : Detect linux
 		  1.0.4.0 : Root path for linux
 		  1.0.3.1 : Logs
