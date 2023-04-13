@@ -7,7 +7,7 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-    <Version>1.2.31.0</Version>
+    <Version>1.2.31.1</Version>
 	  <PackageReleaseNotes>
 		  1.2.31.0 : Missing assemblies for nuget package
 		  1.2.30.0 : Migration dotnet7 + ArianeBus

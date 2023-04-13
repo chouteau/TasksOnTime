@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <RootNamespace>DistributedTasksOnTime</RootNamespace>
+	  <Version>1.0.1.1</Version>
   </PropertyGroup>
 
 </Project>
