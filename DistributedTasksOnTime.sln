@@ -43,6 +43,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksOnTimeCore", "src\Task
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksOnTimeCore.Scheduling", "src\TasksOnTimeCore.Scheduling\TasksOnTimeCore.Scheduling.csproj", "{A3F371BA-BAF2-4DAE-9172-91D250D443C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedTasksOnTime.MsSqlPersistence", "src\DistributedTasksOnTime.MsSqlPersistence\DistributedTasksOnTime.MsSqlPersistence.csproj", "{1C80707D-63AE-4003-8F10-CC0F36B5CD34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{A3F371BA-BAF2-4DAE-9172-91D250D443C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3F371BA-BAF2-4DAE-9172-91D250D443C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3F371BA-BAF2-4DAE-9172-91D250D443C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C80707D-63AE-4003-8F10-CC0F36B5CD34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C80707D-63AE-4003-8F10-CC0F36B5CD34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C80707D-63AE-4003-8F10-CC0F36B5CD34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C80707D-63AE-4003-8F10-CC0F36B5CD34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{3B3F1167-8306-42F3-B449-277042D8BB71} = {A9958B22-27FD-4E01-80E8-29FDDBFF08D9}
 		{F7C2BA36-104D-4ED4-8D5D-BD8689718DD7} = {A959EA79-9394-44B7-9AD6-5E5D744F31B7}
 		{A3F371BA-BAF2-4DAE-9172-91D250D443C9} = {A959EA79-9394-44B7-9AD6-5E5D744F31B7}
+		{1C80707D-63AE-4003-8F10-CC0F36B5CD34} = {A9958B22-27FD-4E01-80E8-29FDDBFF08D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2EBA41C-4C42-4EC9-9648-5ED28A6A82D1}

@@ -12,10 +12,9 @@ public class TaskInfoReader : ArianeBus.MessageReaderBase<DistributedTasksOnTime
 	protected ILogger Logger { get; }
 	protected ITasksOrchestrator TasksOrchestrator { get; }
 
-	public override Task ProcessMessageAsync(DistributedTaskInfo message, CancellationToken cancellationToken)
+	public override async Task ProcessMessageAsync(DistributedTaskInfo message, CancellationToken cancellationToken)
 	{
-		TasksOrchestrator.NotifyRunningTask(message);
-		return Task.CompletedTask;
+		await TasksOrchestrator.NotifyRunningTask(message);
 	}
 }
 

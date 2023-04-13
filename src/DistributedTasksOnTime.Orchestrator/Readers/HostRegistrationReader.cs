@@ -9,18 +9,16 @@ internal class HostRegistrationReader : ArianeBus.MessageReaderBase<HostRegistra
 
 	protected ITasksOrchestrator TasksOrchestrator { get; }
 
-	public override Task ProcessMessageAsync(HostRegistrationInfo message, CancellationToken cancellationToken)
+	public override async Task ProcessMessageAsync(HostRegistrationInfo message, CancellationToken cancellationToken)
 	{
 		if (message.State == HostRegistrationState.Started)
 		{
-			TasksOrchestrator.RegisterHost(message);
+			await TasksOrchestrator.RegisterHost(message);
 		}
 		else if (message.State == HostRegistrationState.Stopped)
 		{
-			TasksOrchestrator.UnRegisterHost(message);
+			await TasksOrchestrator.UnRegisterHost(message);
 		}
-
-		return Task.CompletedTask;
 	}
 }
 

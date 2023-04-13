@@ -17,7 +17,7 @@ public class MainWorker : BackgroundService
 
 	public override async Task StartAsync(CancellationToken cancellationToken)
 	{
-		TasksOrchestrator.Start();
+		await TasksOrchestrator.Start();
 		await base.StartAsync(cancellationToken);
 	}
 
@@ -35,7 +35,7 @@ public class MainWorker : BackgroundService
 
 	public override async Task StopAsync(CancellationToken cancellationToken)
 	{
-		TasksOrchestrator.Stop();
+		await TasksOrchestrator.Stop();
 		await base.StopAsync(cancellationToken);
 	}
 

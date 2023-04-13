@@ -29,7 +29,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
             _mapper = mapper;
         }
 
-        public async void SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
+        public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
         {
             using var db = await _dbContextFactory.CreateDbContextAsync();
 
@@ -48,30 +48,30 @@ namespace DistributedTasksOnTime.SqlitePersistence
 
             // TODO: Supprimer les taches planifiées qui existent mais ne sont plus référencées
 
-            var updatecount = db.SaveChanges();
+            var updatecount = await db.SaveChangesAsync();
             if (updatecount > 0)
             {
                 _cache.Remove(CACHE_REGISTRATIONS);
             }
         }
 
-        public void DeleteHostRegistration(string key)
+        public async Task DeleteHostRegistration(string key)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var existing = db.HostRegistrations!.SingleOrDefault(i => i.UniqueKey.Equals(key));
+            var existing = await db.HostRegistrations!.SingleOrDefaultAsync(i => i.UniqueKey.Equals(key));
             if (existing != null)
             {
                 db.Remove(existing!);
                 db.Entry(existing).State = EntityState.Deleted;
             }
-            var updatecount = db.SaveChanges();
+            var updatecount = await db.SaveChangesAsync();
             if (updatecount > 0)
             {
                 _cache.Remove(CACHE_REGISTRATIONS);
             }
         }
 
-        public List<HostRegistrationInfo> GetHostRegistrationList()
+        public async Task<List<HostRegistrationInfo>> GetHostRegistrationList()
         {
             _cache.TryGetValue(CACHE_REGISTRATIONS, out List<HostRegistrationInfo>? list);
             if (list != null)
@@ -79,7 +79,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
                 return list;
             }
             var db = _dbContextFactory.CreateDbContext();
-            var datas = db.HostRegistrations!.ToList();
+            var datas = await db.HostRegistrations!.ToListAsync();
             list = _mapper.Map<List<HostRegistrationInfo>>(datas);
             if (list != null)
             {
@@ -88,12 +88,12 @@ namespace DistributedTasksOnTime.SqlitePersistence
             return list!;
         }
 
-        public void SaveScheduledTask(ScheduledTask scheduledTask)
+        public async Task SaveScheduledTask(ScheduledTask scheduledTask)
         {
             var db = _dbContextFactory.CreateDbContext();
 
             var name = scheduledTask.Name;
-            var existing = db.ScheduledTasks!.SingleOrDefault(i => i.Name.Equals(name));
+            var existing = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
             if (existing == null)
             {
                 var st = _mapper.Map<Datas.ScheduledTaskData>(scheduledTask);
@@ -107,30 +107,30 @@ namespace DistributedTasksOnTime.SqlitePersistence
                 db.Entry(existing).State = EntityState.Modified;
             }
 
-            var updatecount = db.SaveChanges();
+            var updatecount = await db.SaveChangesAsync();
             if (updatecount > 0)
             {
                 _cache.Remove(CACHE_SCHEDULEDTASKS);
             }
         }
 
-        public void DeleteScheduledTask(string name)
+        public async Task DeleteScheduledTask(string name)
         {
             var db = _dbContextFactory.CreateDbContext();
-            var existing = db.ScheduledTasks!.SingleOrDefault(i => i.Name.Equals(name));
+            var existing = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
             if (existing != null)
             {
                 db.Remove(existing!);
                 db.Entry(existing).State = EntityState.Deleted;
             }
-            var updatecount = db.SaveChanges();
+            var updatecount = await db.SaveChangesAsync();
             if (updatecount > 0)
             {
                 _cache.Remove(CACHE_SCHEDULEDTASKS);
             }
         }
 
-        public List<ScheduledTask> GetScheduledTaskList()
+        public async Task<List<ScheduledTask>> GetScheduledTaskList()
         {
             _cache.TryGetValue(CACHE_SCHEDULEDTASKS, out List<ScheduledTask>? list);
             if (list != null)
@@ -138,7 +138,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
                 return list;
             }
             var db = _dbContextFactory.CreateDbContext();
-            var datas = db.ScheduledTasks!.ToList();
+            var datas = await db.ScheduledTasks.ToListAsync();
             list = _mapper.Map<List<ScheduledTask>>(datas);
             if (list != null)
             {
@@ -147,15 +147,19 @@ namespace DistributedTasksOnTime.SqlitePersistence
             return list!;
         }
 
-        public List<RunningTask> GetRunningTaskList(bool withProgress = false)
+        public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false)
         {
             var db = _dbContextFactory.CreateDbContext();
-            var data = db.RunningTasks!.ToList();
+            var data = await db.RunningTasks.ToListAsync();
             var result = _mapper.Map<List<RunningTask>>(data);
             if (withProgress)
             {
                 var taskIdList = result.Select(i => i.Id).Distinct().ToList();
-                var progressList = db.ProgressInfos!.Where(i => taskIdList.Contains(i.TaskId)).OrderBy(i => i.CreationDate).ToList();
+                var progressList = await db.ProgressInfos
+                                            .Where(i => taskIdList.Contains(i.TaskId))
+                                            .OrderBy(i => i.CreationDate)
+                                            .ToListAsync();
+
                 foreach (var progressData in progressList)
                 {
                     var runningTask = result.Single(i => i.Id == progressData.TaskId);
@@ -166,10 +170,10 @@ namespace DistributedTasksOnTime.SqlitePersistence
             return result;
         }
 
-        public void SaveRunningTask(RunningTask task)
+        public async Task SaveRunningTask(RunningTask task)
         {
             var db = _dbContextFactory.CreateDbContext();
-            var existing = db.RunningTasks!.SingleOrDefault(i => i.Id == task.Id);
+            var existing = await db.RunningTasks.SingleOrDefaultAsync(i => i.Id == task.Id);
             if (existing == null)
             {
                 var data = _mapper.Map<Datas.RunningTaskData>(task);
@@ -181,28 +185,29 @@ namespace DistributedTasksOnTime.SqlitePersistence
                 db.RunningTasks!.Attach(existing);
                 db.Entry(existing).State = EntityState.Modified;
             }
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
-        public void ResetRunningTasks()
+        public async Task ResetRunningTasks()
         {
             var db = _dbContextFactory.CreateDbContext();
             FormattableString script = $"Delete from RunningTask";
-            db.Database.ExecuteSql(script);
-            db.SaveChanges();
+            await db.Database.ExecuteSqlAsync(script);
+            await db.SaveChangesAsync();
         }
 
-        public void SaveProgressInfo(ProgressInfo progressInfo)
+        public async Task SaveProgressInfo(ProgressInfo progressInfo)
         {
             var db = _dbContextFactory.CreateDbContext();
             var data = _mapper.Map<Datas.ProgressInfoData>(progressInfo);
-            db.ProgressInfos!.Add(data);
-            db.SaveChanges();
+            db.ProgressInfos.Add(data);
+            await db.SaveChangesAsync();
         }
 
-        public void PersistAll()
+        public Task PersistAll()
         {
             // Do nothing
+            return Task.CompletedTask;
         }
     }
 }

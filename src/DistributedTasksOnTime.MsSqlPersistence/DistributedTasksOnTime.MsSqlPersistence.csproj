@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	  <PackageId>DistributedTasksOnTime.MsSqlPersistence</PackageId>
+	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
+	  <Version>1.0.1.0</Version>
+	  <PackageReleaseNotes>
+		  1.0.1.0 Creation
+	  </PackageReleaseNotes>
+	  <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+	  <Description>
+		  Persistence with sql server for DistributedTasksOnTime
+	  </Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Scripts\DistributedTasksOnTime\0001-CreateTables.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\DistributedTasksOnTime\0001-CreateTables.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFScriptableMigration" Version="6.0.3" />
+	  <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
+	  <PackageReference Include="AutoMapper" Version="12.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
