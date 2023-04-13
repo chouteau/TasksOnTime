@@ -27,6 +27,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="3.0.0" />
   </ItemGroup>
 
@@ -34,7 +35,12 @@
     <ProjectReference Include="..\DistributedTasksOnTime.Client\DistributedTasksOnTime.Client.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.JsonFilePersistence\DistributedTasksOnTime.JsonFilePersistence.csproj" />
     <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
+    <ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" />
   </ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="IF EXIST $(ProjectDir)localconfig\appsettings.json xcopy $(ProjectDir)localconfig\appsettings.json $(OutDir)localconfig /Y" />
+	</Target>
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />

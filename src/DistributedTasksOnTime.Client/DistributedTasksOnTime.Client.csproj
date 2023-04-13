@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net70</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
@@ -20,18 +20,9 @@
 		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ariane5.Azure" Version="6.0.22" />
-  </ItemGroup>
-
 
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
-			<BuildAction>None</BuildAction>
-			<PackagePath>lib/net6.0</PackagePath>
-			<Pack>true</Pack>
-		</Content>
-		<Content Include="$(OutputPath)\TasksOnTimeCore.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib/net6.0</PackagePath>
 			<Pack>true</Pack>
@@ -40,10 +31,13 @@
 
 
 	<ItemGroup>
-		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" >
-			<PrivateAssets>all</PrivateAssets>
-		</ProjectReference>
-		<ProjectReference Include="..\TasksOnTimeCore\TasksOnTimeCore.csproj" >
+	  <PackageReference Include="ArianeBus" Version="1.0.8.2" />
+	  <PackageReference Include="TasksOnTimeCore" Version="1.2.21.3" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
 			<PrivateAssets>all</PrivateAssets>
 		</ProjectReference>
 	</ItemGroup>

@@ -1,6 +1,6 @@
 ﻿namespace DistributedTasksOnTime.Orchestrator.Readers;
 
-public class TaskInfoReader : Ariane.MessageReaderBase<DistributedTasksOnTime.DistributedTaskInfo>
+public class TaskInfoReader : ArianeBus.MessageReaderBase<DistributedTasksOnTime.DistributedTaskInfo>
 {
 	public TaskInfoReader(ILogger<TaskInfoReader> logger,
 		ITasksOrchestrator tasksOrchestrator)
@@ -12,7 +12,7 @@ public class TaskInfoReader : Ariane.MessageReaderBase<DistributedTasksOnTime.Di
 	protected ILogger Logger { get; }
 	protected ITasksOrchestrator TasksOrchestrator { get; }
 
-	public override Task ProcessMessageAsync(DistributedTaskInfo message)
+	public override Task ProcessMessageAsync(DistributedTaskInfo message, CancellationToken cancellationToken)
 	{
 		TasksOrchestrator.NotifyRunningTask(message);
 		return Task.CompletedTask;

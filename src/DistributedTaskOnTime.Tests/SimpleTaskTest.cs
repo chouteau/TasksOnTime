@@ -32,9 +32,6 @@ namespace DistributedTaskOnTime.Tests
 
 			await host.Services.UseDistributedTasksOnTimeClient();
 
-			var bus = host.Services.GetRequiredService<Ariane.IServiceBus>();
-			await bus.StartReadingAsync();
-
 			StaticCounter.Reset();
 
 			await host.StartAsync();

@@ -8,7 +8,7 @@ namespace DistributedTasksOnTime
 {
 	public enum HostRegistrationState
 	{
-		Started,
-		Stopped
+		Started = 0,
+		Stopped = 1
 	}
 }

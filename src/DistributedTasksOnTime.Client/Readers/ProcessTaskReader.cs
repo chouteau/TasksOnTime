@@ -1,21 +1,24 @@
 ﻿namespace DistributedTasksOnTime.Client.Readers;
 
-public class ProcessTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime.ProcessTask>
+public class ProcessTaskReader : ArianeBus.MessageReaderBase<DistributedTasksOnTime.ProcessTask>
 {
-	public ProcessTaskReader(Ariane.IServiceBus bus,
+	public ProcessTaskReader(ArianeBus.IServiceBus bus,
 		TasksOnTime.ITasksHost host,
-		DistributedTasksOnTimeSettings settings)
+		DistributedTasksOnTimeSettings settings,
+		ILogger<ProcessTaskReader> logger)
 	{
 		this.Bus = bus;
 		this.Host = host;	
 		this.Settings = settings;
+		this.Logger = logger;
 	}
 
-	protected Ariane.IServiceBus Bus { get; }
+	protected ArianeBus.IServiceBus Bus { get; }
 	protected TasksOnTime.ITasksHost Host { get; }
 	protected DistributedTasksOnTimeSettings Settings { get; }
+	protected ILogger<ProcessTaskReader> Logger { get; }
 
-	public override async Task ProcessMessageAsync(DistributedTasksOnTime.ProcessTask message)
+	public override async Task ProcessMessageAsync(DistributedTasksOnTime.ProcessTask message, CancellationToken cancellationToken)
 	{
 		var type = Type.GetType(message.FullTypeName);
 		Dictionary<string, object> parameters = new();
@@ -33,6 +36,6 @@ public class ProcessTaskReader : Ariane.MessageReaderBase<DistributedTasksOnTime
 		taskInfo.HostKey = Settings.HostKey;
 		taskInfo.State = DistributedTasksOnTime.TaskState.Enqueued;
 
-		await Bus.SendAsync(Settings.TaskInfoQueueName, taskInfo);
+		await Bus.EnqueueMessage(Settings.TaskInfoQueueName, taskInfo);
 	}
 }

@@ -8,7 +8,7 @@ namespace DistributedTasksOnTime.Client
 {
 	internal class ForceTaskService : IForceTaskService
 	{
-		public ForceTaskService(Ariane.IServiceBus bus,
+		public ForceTaskService(ArianeBus.IServiceBus bus,
 			DistributedTasksOnTimeSettings settings,
 			ILogger<ForceTaskService> logger)
 		{
@@ -17,7 +17,7 @@ namespace DistributedTasksOnTime.Client
 			this.Logger = logger;
 		}
 
-		protected Ariane.IServiceBus Bus { get; }
+		protected ArianeBus.IServiceBus Bus { get; }
 		protected DistributedTasksOnTimeSettings Settings { get; }
 		protected ILogger Logger { get; }
 
@@ -33,7 +33,7 @@ namespace DistributedTasksOnTime.Client
 				Logger.LogWarning("force task with taskname is null or empty");
 				return;
 			}
-			await Bus.SendAsync(Settings.ForceTaskQueueName, task);
+			await Bus.EnqueueMessage(Settings.ForceTaskQueueName, task);
 		}
 	}
 }
