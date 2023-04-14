@@ -6,8 +6,9 @@
     <Nullable>enable</Nullable>
 	  <PackageId>DistributedTasksOnTime.MsSqlPersistence</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-	  <Version>1.0.2.1</Version>
+	  <Version>1.0.3.0</Version>
 	  <PackageReleaseNotes>
+		  1.0.3.0 Remove TerminateAllRunningTasks on start
 		  1.0.2.0 Missing shared dll for nuget
 		  1.0.1.0 Creation
 	  </PackageReleaseNotes>
