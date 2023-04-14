@@ -43,7 +43,7 @@ public static class StartupExtensions
 
 		await migration.Start();
 
-		await TerminateAllRunningTasks(serviceProvider);
+		// await TerminateAllRunningTasks(serviceProvider);
 	}
 
 	static async Task TerminateAllRunningTasks(IServiceProvider serviceProvider)
