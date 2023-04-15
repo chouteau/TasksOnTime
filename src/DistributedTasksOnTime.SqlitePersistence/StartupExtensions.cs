@@ -71,7 +71,7 @@ public static class StartupExtensions
 			await CreateScheduledTable(settings.ConnectionString);
 			await CreateHostRegistrationTable(settings.ConnectionString);
 			await CreateProgressInfoTable(settings.ConnectionString);
-			await TerminateAllRunningTasks(serviceProvider);
+			// await TerminateAllRunningTasks(serviceProvider);
 		}
 		catch (Exception ex)
 		{
