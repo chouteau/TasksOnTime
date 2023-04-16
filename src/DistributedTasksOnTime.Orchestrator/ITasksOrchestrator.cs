@@ -15,12 +15,14 @@ public interface ITasksOrchestrator
 	Task<bool> ContainsTask(string taskName);
 	Task CancelTask(string taskName);
 	Task DeleteTask(string taskName);
+	Task TerminateTask(string taskName);
+	Task TerminateOldTasks();
 
 	Task ForceTask(string taskName, Dictionary<string, string> parameters);
 	Task<int>  GetScheduledTaskCount();
 	Task SaveScheduledTask(ScheduledTask scheduledTask = null);
 	Task<int> GetRunningTaskCount();
-	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false);
+	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false, bool withHistory = false);
 	Task ResetRunningTasks();
 	Task<IEnumerable<ScheduledTask>> GetScheduledTaskList();
 }

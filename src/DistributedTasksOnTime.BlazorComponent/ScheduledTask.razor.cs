@@ -26,7 +26,7 @@ public partial class ScheduledTask
 				{
 					if (!runningTaskList.Any(i => i.Id == r.Id))
 					{
-                        runningTaskList = (await TasksOrchestrator.GetRunningTaskList(TaskName, true)).ToList();
+                        runningTaskList = (await TasksOrchestrator.GetRunningTaskList(TaskName, true, true)).ToList();
                     }
 
 					var currentTask = runningTaskList.SingleOrDefault(i => i.Id == r.Id);
@@ -53,7 +53,7 @@ public partial class ScheduledTask
 		var scheduledTaskList = await TasksOrchestrator.GetScheduledTaskList();
 		scheduledTask = scheduledTaskList.FirstOrDefault(i => i.Name.Equals(TaskName, StringComparison.InvariantCultureIgnoreCase));
 
-        runningTaskList = (await TasksOrchestrator.GetRunningTaskList(TaskName, true)).ToList();
+        runningTaskList = (await TasksOrchestrator.GetRunningTaskList(TaskName, true, true)).ToList();
 
         base.OnInitialized();
 	}

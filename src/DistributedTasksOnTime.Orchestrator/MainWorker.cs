@@ -29,6 +29,8 @@ public class MainWorker : BackgroundService
 			{
 				await TasksOrchestrator.EnqueueNextTasks(DateTime.Now);
 			}
+
+			await TasksOrchestrator.TerminateOldTasks();
 			await Task.Delay(Settings.TimerInSecond * 1000, stoppingToken);
 		}
 	}
