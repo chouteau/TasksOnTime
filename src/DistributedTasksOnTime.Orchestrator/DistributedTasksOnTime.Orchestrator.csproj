@@ -4,8 +4,9 @@
     <TargetFramework>net70</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.3.16.1</Version>
+    <Version>1.3.17.0 </Version>
 	  <PackageReleaseNotes>
+		  1.3.17.0 : Terminate task manually + old task in executing during 1 cycle
 		  1.3.16.0 : IRepository async/await
 		  1.2.15.0 : Migration dotnet7
 		  1.1.14.1 : Add parameters for forcetask

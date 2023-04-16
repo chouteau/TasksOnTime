@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -146,10 +147,18 @@ internal class SqlDbRepository : IDbRepository
 		return list!;
 	}
 
-	public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false)
+	public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
 	{
 		var db = _dbContextFactory.CreateDbContext();
-		var data = await db.RunningTasks.ToListAsync();
+		var query = from rt in db.RunningTasks
+					select rt;
+
+		if (!withHistory)
+		{
+			query = query.Where(i => !i.TerminatedDate.HasValue);
+		}
+		
+		var data =  await query.ToListAsync();
 		var result = _mapper.Map<List<RunningTask>>(data);
 		if (withProgress)
 		{

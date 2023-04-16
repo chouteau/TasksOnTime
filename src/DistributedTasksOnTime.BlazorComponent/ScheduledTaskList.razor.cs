@@ -95,6 +95,11 @@ public partial class ScheduledTaskList
 		TasksOrchestrator.CancelTask(task.Name);
 	}
 
+	async Task TerminateTask(DistributedTasksOnTime.ScheduledTask task)
+	{
+		await TasksOrchestrator.TerminateTask(task.Name);
+	}
+
 	void ConfirmDeleteTask(DistributedTasksOnTime.ScheduledTask task)
 	{
 		confirmDeleteTask.Tag = task;

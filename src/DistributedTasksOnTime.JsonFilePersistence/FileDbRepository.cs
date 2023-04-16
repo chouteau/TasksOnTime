@@ -116,7 +116,7 @@ internal class FileDbRepository : IDbRepository
         }
     }
 
-    public Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false)
+    public Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
 	{
 		return Task.FromResult(RunningTaskList!.Select(i => i.Value).ToList());
     }

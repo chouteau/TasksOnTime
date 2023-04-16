@@ -147,11 +147,19 @@ namespace DistributedTasksOnTime.SqlitePersistence
             return list!;
         }
 
-        public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false)
+        public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
         {
             var db = _dbContextFactory.CreateDbContext();
-            var data = await db.RunningTasks.ToListAsync();
-            var result = _mapper.Map<List<RunningTask>>(data);
+			var query = from rt in db.RunningTasks
+						select rt;
+
+            if (!withHistory)
+			{
+				query = query.Where(i => !i.TerminatedDate.HasValue);
+			}
+
+			var data = await query.ToListAsync();
+			var result = _mapper.Map<List<RunningTask>>(data);
             if (withProgress)
             {
                 var taskIdList = result.Select(i => i.Id).Distinct().ToList();

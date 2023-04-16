@@ -171,7 +171,33 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    public async Task DeleteTask(string taskName)
+	public async Task TerminateTask(string taskName)
+	{
+		if (taskName == null)
+		{
+			throw new NullReferenceException("task name is null");
+		}
+
+		taskName = taskName.ToLower();
+
+		Logger.LogInformation("Try to Cancel task {0}", taskName);
+		var runningTask = (await DbRepository.GetRunningTaskList()).FirstOrDefault(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
+							&& !i.TerminatedDate.HasValue);
+
+        if (runningTask is null)
+        {
+            return;
+        }
+		runningTask.TerminatedDate = DateTime.Now;
+		runningTask.IsForced = true;
+
+		await DbRepository.SaveRunningTask(runningTask);
+
+		OnRunningTaskChanged?.Invoke(TaskState.Terminated, runningTask);
+	}
+
+
+	public async Task DeleteTask(string taskName)
     {
         if (taskName == null)
         {
@@ -231,13 +257,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return await DbRepository.GetScheduledTaskList();
     }
 
-    public async Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false)
+    public async Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false, bool withHistory = false)
     {
         if (taskName == null)
         {
-            return await DbRepository.GetRunningTaskList(withProgress);
+            return await DbRepository.GetRunningTaskList(withProgress, withHistory);
         }
-        return (await DbRepository.GetRunningTaskList(withProgress)).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        return (await DbRepository.GetRunningTaskList(withProgress, withHistory)).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
     }
 
     public async Task ResetRunningTasks()
@@ -301,7 +327,59 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
     }
 
-    internal async Task EnqueueTask(EnqueueTaskItem enqueueTaskItem)
+    public async Task TerminateOldTasks()
+    {
+		var runningTasks = await DbRepository.GetRunningTaskList(false, true);
+
+        var lastCreatedRunningTask = from rt in runningTasks
+                                     group rt by rt.TaskName into g
+                                     select g.Max(i => i.CreationDate);
+
+        var oldNotTerminatedTask = from rt in runningTasks
+                                   where !lastCreatedRunningTask.Contains(rt.CreationDate)
+                                      && !rt.TerminatedDate.HasValue
+                                   select rt;
+
+        foreach (var item in oldNotTerminatedTask)
+        {
+			item.TerminatedDate = DateTime.Now;
+			item.IsForced = true;
+
+			await DbRepository.SaveRunningTask(item);
+		}
+
+        runningTasks = await DbRepository.GetRunningTaskList(false, false);
+		var scheduledTasks = await DbRepository.GetScheduledTaskList();
+
+        // Recherche des taches en cours dont le temps d'execution est dépassé 
+        var oldTasks = from runningTask in runningTasks
+                       join scheduledTask in scheduledTasks on runningTask.TaskName equals scheduledTask.Name
+                       where !runningTask.TerminatedDate.HasValue
+                                && scheduledTask.ProcessMode == ProcessMode.Exclusive
+                       select new { runningTask, scheduledTask };
+
+        foreach (var item in oldTasks)
+        {
+            var verifyTask = new ScheduledTask()
+            {
+                Period = item.scheduledTask.Period,
+                Interval = item.scheduledTask.Interval,
+                StartDay = item.scheduledTask.StartDay,
+                StartHour = item.scheduledTask.StartHour,
+                StartMinute = item.scheduledTask.StartMinute,
+            };
+			// 2 Cycles
+			SetNextRuningDate(item.runningTask.CreationDate, verifyTask);
+			SetNextRuningDate(verifyTask.NextRunningDate, verifyTask);
+			if (verifyTask.NextRunningDate < DateTime.Now)
+			{
+				Logger.LogWarning("Terminate old task {0}", item.runningTask.TaskName);
+				await TerminateTask(item.scheduledTask.Name);
+			}
+		}
+	}
+
+	internal async Task EnqueueTask(EnqueueTaskItem enqueueTaskItem)
     {
         var procesTask = new DistributedTasksOnTime.ProcessTask();
         procesTask.Id = Guid.NewGuid();
@@ -337,12 +415,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
             return false;
 		}
 
-        var runningTask = (await DbRepository.GetRunningTaskList()).FirstOrDefault(
-                        i => i.TaskName == scheduledTask.Name
-                        && !i.TerminatedDate.HasValue);
+        var runningTask = (await DbRepository.GetRunningTaskList())
+                            .OrderByDescending(i => i.CreationDate)
+                            .FirstOrDefault(i => i.TaskName == scheduledTask.Name);
 
         if (!scheduledTask.AllowMultipleInstance
-            && runningTask != null)
+            && runningTask != null
+            && !runningTask.TerminatedDate.HasValue)
         {
             return false;
         }
