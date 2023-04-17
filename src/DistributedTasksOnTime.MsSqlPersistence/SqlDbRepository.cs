@@ -33,7 +33,7 @@ internal class SqlDbRepository : IDbRepository
 	{
 		using var db = await _dbContextFactory.CreateDbContextAsync();
 
-		var existing = db.HostRegistrations!.SingleOrDefault(i => i.UniqueKey.Equals(hostRegistrationInfo.Key));
+		var existing = db.HostRegistrations.SingleOrDefault(i => i.UniqueKey.Equals(hostRegistrationInfo.Key));
 		if (existing == null)
 		{
 			var ri = _mapper.Map<Datas.HostRegistrationData>(hostRegistrationInfo);
@@ -58,7 +58,7 @@ internal class SqlDbRepository : IDbRepository
 	public async Task DeleteHostRegistration(string key)
 	{
 		using var db = _dbContextFactory.CreateDbContext();
-		var existing = await db.HostRegistrations!.SingleOrDefaultAsync(i => i.UniqueKey.Equals(key));
+		var existing = await db.HostRegistrations.SingleOrDefaultAsync(i => i.UniqueKey.Equals(key));
 		if (existing != null)
 		{
 			db.Remove(existing!);
@@ -79,7 +79,7 @@ internal class SqlDbRepository : IDbRepository
 			return list;
 		}
 		var db = _dbContextFactory.CreateDbContext();
-		var datas = await db.HostRegistrations!.ToListAsync();
+		var datas = await db.HostRegistrations.ToListAsync();
 		list = _mapper.Map<List<HostRegistrationInfo>>(datas);
 		if (list != null)
 		{

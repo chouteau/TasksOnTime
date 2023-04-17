@@ -6,8 +6,9 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.2.33.0</Version>
+    <Version>1.2.34.0</Version>
 	  <PackageReleaseNotes>
+		  1.2.34.0 : Update ArianeBus
 		  1.2.33.0 : Clean old running tasks
 		  1.2.32.0: Missing assemblies for nuget package
 		  1.1.31.2 : Maj Nuget
@@ -33,7 +34,7 @@
 
 
 	<ItemGroup>
-	  <PackageReference Include="ArianeBus" Version="1.0.8.2" />
+	  <PackageReference Include="ArianeBus" Version="1.0.9.3" />
 	  <PackageReference Include="TasksOnTimeCore" Version="1.2.21.3" />
 	</ItemGroup>
 

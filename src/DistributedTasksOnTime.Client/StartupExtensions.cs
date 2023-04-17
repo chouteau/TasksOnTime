@@ -10,8 +10,30 @@ namespace DistributedTasksOnTime.Client;
 public static class StartupExtensions
 {
 	public static IServiceCollection AddDistributedTasksOnTimeClient(this IServiceCollection services,
+			Action<DistributedTasksOnTimeSettings> config)
+	{
+		if (config == null)
+		{
+			throw new ArgumentNullException(nameof(config));
+		}
+		var settings = new DistributedTasksOnTimeSettings();
+		config(settings);
+		return services.AddDistributedTasksOnTimeClient(settings);
+    }
+
+	public static IServiceCollection AddDistributedTasksOnTimeClient(this IServiceCollection services,
 				DistributedTasksOnTimeSettings settings)
 	{
+		if (settings == null)
+		{
+			throw new ArgumentNullException(nameof(settings));
+		}
+
+		if (string.IsNullOrWhiteSpace(settings.HostName))
+		{
+			throw new ArgumentNullException(nameof(settings.HostName));
+		}
+				
 		services.AddSingleton(settings);
 		services.AddTransient<DistributedProgressReporter>();
 		services.AddTransient<IForceTaskService, ForceTaskService>();
@@ -47,7 +69,6 @@ public static class StartupExtensions
 	{
 		var settings = serviceProvider.GetRequiredService<DistributedTasksOnTimeSettings>();
 		var logger = serviceProvider.GetRequiredService<ILogger<ProcessTaskReader>>();
-
 
 		var registrationInfo = new DistributedTasksOnTime.HostRegistrationInfo();
 		registrationInfo.MachineName = System.Environment.MachineName;
