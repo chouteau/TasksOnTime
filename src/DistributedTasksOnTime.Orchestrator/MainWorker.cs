@@ -2,6 +2,8 @@ namespace DistributedTasksOnTime.Orchestrator;
 
 public class MainWorker : BackgroundService
 {
+	private DateTime _garbadgeTimeout = DateTime.Now;
+
 	public MainWorker(ILogger<MainWorker> logger,
 		ITasksOrchestrator tasksOrchestrator,
 		DistributedTasksOnTimeServerSettings settings)
@@ -30,8 +32,12 @@ public class MainWorker : BackgroundService
 				await TasksOrchestrator.EnqueueNextTasks(DateTime.Now);
 			}
 
-			await TasksOrchestrator.TerminateOldTasks();
-			await Task.Delay(Settings.TimerInSecond * 1000, stoppingToken);
+			if (_garbadgeTimeout < DateTime.Now)
+			{
+                await TasksOrchestrator.TerminateOldTasks();
+				_garbadgeTimeout = DateTime.Now.AddMinutes(1);
+            }
+            await Task.Delay(Settings.TimerInSecond * 1000, stoppingToken);
 		}
 	}
 
