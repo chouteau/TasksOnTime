@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace DistributedTasksOnTime.Orchestrator;
 
@@ -128,6 +129,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 			}
             else
 			{
+                SanitizeProgressInfo(distributedTaskInfo.ProgressInfo);
                 runningTask.ProgressLogs.Add(distributedTaskInfo.ProgressInfo);
                 await DbRepository.SaveProgressInfo(distributedTaskInfo.ProgressInfo);
             }
@@ -136,6 +138,25 @@ internal class TasksOrchestrator : ITasksOrchestrator
         await DbRepository.SaveRunningTask(runningTask);
 
         OnRunningTaskChanged?.Invoke(distributedTaskInfo.State, runningTask);
+    }
+
+    private void SanitizeProgressInfo(ProgressInfo progressInfo)
+    {
+        if (progressInfo.Subject is not null)
+        {
+            progressInfo.Subject = progressInfo.Subject.Trim();
+            progressInfo.Subject = progressInfo.Subject.Trim().Substring(0, Math.Min(progressInfo.Subject.Length, 500));
+        }
+        if (progressInfo.Body is not null)
+        {
+            progressInfo.Body = progressInfo.Body.Trim();
+            progressInfo.Body = progressInfo.Body.Trim().Substring(0, Math.Min(progressInfo.Body.Length, 1024));
+        }
+        if (progressInfo.GroupName is not null)
+        {
+            progressInfo.GroupName = progressInfo.GroupName.Trim();
+            progressInfo.GroupName = progressInfo.GroupName.Trim().Substring(0, Math.Min(progressInfo.GroupName.Length, 100));
+        }
     }
 
     public async Task<bool> ContainsTask(string taskName)
