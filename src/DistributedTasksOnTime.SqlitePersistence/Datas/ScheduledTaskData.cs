@@ -30,5 +30,7 @@ namespace DistributedTasksOnTime.SqlitePersistence.Datas
         public ProcessMode ProcessMode { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public DateTime LastUpdate { get; set; } = DateTime.Now;
+        [NotMapped]
+        public bool FromEditor { get; set; } = false;
     }
 }
