@@ -101,7 +101,9 @@ namespace DistributedTasksOnTime.SqlitePersistence
             }
             else
             {
+                var existingEnabled = existing.Enabled;
                 existing = _mapper.Map(scheduledTask, existing);
+                existing.Enabled = existingEnabled;
                 existing.LastUpdate = DateTime.Now;
                 db.ScheduledTasks!.Attach(existing);
                 db.Entry(existing).State = EntityState.Modified;
