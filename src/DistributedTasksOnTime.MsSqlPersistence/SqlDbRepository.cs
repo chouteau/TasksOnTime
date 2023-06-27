@@ -99,17 +99,24 @@ internal class SqlDbRepository : IDbRepository
 			var st = _mapper.Map<Datas.ScheduledTaskData>(scheduledTask);
 			db.ScheduledTasks!.Add(st);
 		}
-		else
+		else if (existing.FromEditor)
 		{
-			var existingEnabled = existing.Enabled;
+			var nextRunningDate = existing.NextRunningDate;
 			existing = _mapper.Map(scheduledTask, existing);
-			existing.Enabled = existingEnabled;
+			existing.NextRunningDate = nextRunningDate;
 			existing.LastUpdate = DateTime.Now;
 			db.ScheduledTasks!.Attach(existing);
 			db.Entry(existing).State = EntityState.Modified;
 		}
+		else
+		{
+			existing.NextRunningDate = scheduledTask.NextRunningDate;
+            existing.LastUpdate = DateTime.Now;
+            db.ScheduledTasks!.Attach(existing);
+            db.Entry(existing).State = EntityState.Modified;
+        }
 
-		var updatecount = await db.SaveChangesAsync();
+        var updatecount = await db.SaveChangesAsync();
 		if (updatecount > 0)
 		{
 			_cache.Remove(CACHE_SCHEDULEDTASKS);

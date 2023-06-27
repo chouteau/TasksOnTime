@@ -19,6 +19,7 @@ public partial class EditScheduledTask
 
 	async Task ValidateAndSave()
 	{
+		scheduledTask.FromEditor = true;
 		await TasksOrchestrator.SaveScheduledTask(scheduledTask);
 		NavigationManager.NavigateTo(Settings.ScheduledTaskListBlazorPage);
 	}

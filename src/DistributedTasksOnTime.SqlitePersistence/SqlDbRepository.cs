@@ -99,11 +99,18 @@ namespace DistributedTasksOnTime.SqlitePersistence
                 var st = _mapper.Map<Datas.ScheduledTaskData>(scheduledTask);
                 db.ScheduledTasks!.Add(st);
             }
+            else if (scheduledTask.FromEditor)
+            {
+                var nextRunningDate = existing.NextRunningDate;
+                existing = _mapper.Map(scheduledTask, existing);
+                existing.NextRunningDate = nextRunningDate;
+                existing.LastUpdate = DateTime.Now;
+                db.ScheduledTasks!.Attach(existing);
+                db.Entry(existing).State = EntityState.Modified;
+            }
             else
             {
-                var existingEnabled = existing.Enabled;
-                existing = _mapper.Map(scheduledTask, existing);
-                existing.Enabled = existingEnabled;
+                existing.NextRunningDate = scheduledTask.NextRunningDate;
                 existing.LastUpdate = DateTime.Now;
                 db.ScheduledTasks!.Attach(existing);
                 db.Entry(existing).State = EntityState.Modified;

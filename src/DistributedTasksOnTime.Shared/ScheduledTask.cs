@@ -22,5 +22,6 @@ public class ScheduledTask
 	public Dictionary<string, string> Parameters { get; set; }
 	public string Description { get; set; }
 	public ProcessMode ProcessMode { get; set; }
+	public bool FromEditor { get; set; } = false;
 }
 
