@@ -19,7 +19,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
                 .ReverseMap();
 
             CreateMap<ScheduledTask, ScheduledTaskData>()
-                .ForMember(d => d.SerializedParameters, opt => opt.ResolveUsing(s => System.Text.Json.JsonSerializer.Serialize(s.Parameters)))
+                .ForMember(d => d.SerializedParameters, opt => opt.ResolveUsing(s => System.Text.Json.JsonSerializer.Serialize(s.Parameters)));
 
             CreateMap<ScheduledTaskData, ScheduledTask>()
                 .ForMember(d => d.Parameters, opt => opt.ResolveUsing(s => string.IsNullOrWhiteSpace(s.SerializedParameters) ? new Dictionary<string, string>() : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(s.SerializedParameters)));
