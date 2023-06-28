@@ -4,8 +4,9 @@
     <TargetFramework>net70</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.3.19.0 </Version>
+    <Version>1.3.20.0 </Version>
 	  <PackageReleaseNotes>
+		  1.3.20.0 : Save ScheduledTask doesn't change NextRunningDate every time
 		  1.3.19.0 : Update ArianeBus
 		  1.3.18.0 : Terminate task manually every minute instead of default cycle
 		  1.3.17.0 : Terminate task manually + old task in executing during 1 cycle

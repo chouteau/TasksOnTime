@@ -99,7 +99,7 @@ internal class SqlDbRepository : IDbRepository
 			var st = _mapper.Map<Datas.ScheduledTaskData>(scheduledTask);
 			db.ScheduledTasks!.Add(st);
 		}
-		else if (existing.FromEditor)
+		else if (scheduledTask.FromEditor)
 		{
 			var nextRunningDate = existing.NextRunningDate;
 			existing = _mapper.Map(scheduledTask, existing);
@@ -108,7 +108,7 @@ internal class SqlDbRepository : IDbRepository
 			db.ScheduledTasks!.Attach(existing);
 			db.Entry(existing).State = EntityState.Modified;
 		}
-		else
+		else if (scheduledTask.NextRunningDate != DateTime.MinValue)
 		{
 			existing.NextRunningDate = scheduledTask.NextRunningDate;
             existing.LastUpdate = DateTime.Now;
