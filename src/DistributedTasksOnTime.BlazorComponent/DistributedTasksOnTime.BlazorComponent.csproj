@@ -7,8 +7,9 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-    <Version>1.2.35.0</Version>
+    <Version>1.2.36.0</Version>
 	  <PackageReleaseNotes>
+		  1.2.36.0 : Update orchestrator
 		  1.2.35.0 : Update from editor save all properties except nextrunningdate
 		  1.2.34.0 : Update ArianeBus
 		  1.2.33.0 : Terminate task manually every minute instead of default cycle
