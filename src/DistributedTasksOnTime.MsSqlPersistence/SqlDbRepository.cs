@@ -102,7 +102,7 @@ internal class SqlDbRepository : IDbRepository
 		else if (scheduledTask.FromEditor)
 		{
 			var nextRunningDate = existing.NextRunningDate;
-			var startedCount = existing.StartedCount
+			var startedCount = existing.StartedCount;
 			existing = _mapper.Map(scheduledTask, existing);
 			existing.NextRunningDate = nextRunningDate;
 			existing.StartedCount = startedCount;
