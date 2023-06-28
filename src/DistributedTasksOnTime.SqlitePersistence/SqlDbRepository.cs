@@ -102,8 +102,10 @@ namespace DistributedTasksOnTime.SqlitePersistence
             else if (scheduledTask.FromEditor)
             {
                 var nextRunningDate = existing.NextRunningDate;
+                var startedCount = existing.StartedCount;
                 existing = _mapper.Map(scheduledTask, existing);
                 existing.NextRunningDate = nextRunningDate;
+                existing.StartedCount = startedCount;
                 existing.LastUpdate = DateTime.Now;
                 db.ScheduledTasks!.Attach(existing);
                 db.Entry(existing).State = EntityState.Modified;
@@ -112,6 +114,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
             {
                 existing.NextRunningDate = scheduledTask.NextRunningDate;
                 existing.LastUpdate = DateTime.Now;
+                existing.StartedCount = scheduledTask.StartedCount;
                 db.ScheduledTasks!.Attach(existing);
                 db.Entry(existing).State = EntityState.Modified;
             }
