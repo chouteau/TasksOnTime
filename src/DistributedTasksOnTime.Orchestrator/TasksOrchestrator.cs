@@ -292,12 +292,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
         await DbRepository.ResetRunningTasks();
     }
 
-    public async Task SaveScheduledTask(ScheduledTask scheduledTask = null)
+    public async Task SaveScheduledTask(ScheduledTask scheduledTask)
 	{
-        if (scheduledTask != null)
-		{
-            SetNextRuningDate(DateTime.Now, scheduledTask);
-		}
         await DbRepository.SaveScheduledTask(scheduledTask);
 	}
 
