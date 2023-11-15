@@ -18,19 +18,19 @@ namespace TasksOnTime
 		public event EventHandler<Guid> TaskCanceled;
 
 		public TasksHost(ILogger<TasksHost> logger,
-			IServiceProvider serviceProvider,
+			IServiceScopeFactory serviceScopeFactory,
 			TasksOnTimeSettings settings,
 			IProgressReporter progressReporter)
 		{
 			TaskHistoryList = new ConcurrentDictionary<Guid, TaskHistory>();
 			this.Logger = logger;
-			this.ServiceProvider = serviceProvider;
+			this.ServiceScopeFactory = serviceScopeFactory;
 			this.Settings = settings;
 			this.ProgressReporter = progressReporter;
 		}
 
 		protected ILogger<TasksHost> Logger { get; }
-		protected IServiceProvider ServiceProvider { get; }
+		protected IServiceScopeFactory ServiceScopeFactory { get; }
 		internal ConcurrentDictionary<Guid, TaskHistory> TaskHistoryList { get; set; }
 		protected TasksOnTimeSettings Settings { get; }
 		protected IProgressReporter ProgressReporter { get; }
@@ -198,7 +198,7 @@ namespace TasksOnTime
 			{
 				if (ctx.TaskType != null)
 				{
-					using (var scope = ServiceProvider.CreateScope())
+					using (var scope = ServiceScopeFactory.CreateScope())
 					{
 						taskInstance = (ITask)ActivatorUtilities.CreateInstance(scope.ServiceProvider, ctx.TaskType);
 					}
