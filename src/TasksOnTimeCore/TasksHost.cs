@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TasksOnTime
 {
@@ -18,34 +19,34 @@ namespace TasksOnTime
 		public event EventHandler<Guid> TaskCanceled;
 
 		public TasksHost(ILogger<TasksHost> logger,
-			IServiceProvider serviceProvider,
+			IServiceScopeFactory serviceScopeFactory,
 			TasksOnTimeSettings settings,
 			IProgressReporter progressReporter)
 		{
 			TaskHistoryList = new ConcurrentDictionary<Guid, TaskHistory>();
 			this.Logger = logger;
-			this.ServiceProvider = serviceProvider;
+			this.ServiceScopeFactory = serviceScopeFactory;
 			this.Settings = settings;
 			this.ProgressReporter = progressReporter;
 		}
 
 		protected ILogger<TasksHost> Logger { get; }
-		protected IServiceProvider ServiceProvider { get; }
+		protected IServiceScopeFactory ServiceScopeFactory { get; }
 		internal ConcurrentDictionary<Guid, TaskHistory> TaskHistoryList { get; set; }
 		protected TasksOnTimeSettings Settings { get; }
 		protected IProgressReporter ProgressReporter { get; }
 
-		public void Enqueue(
+		public async Task Enqueue(
 			Type taskType,
 			Dictionary<string, object> inputParameters = null,
 			Action<Dictionary<string, object>> completed = null,
 			Action<Exception> failed = null,
 			int? delayInMillisecond = null)
 		{
-			Enqueue(Guid.NewGuid(), null, taskType, inputParameters, completed, failed, delayInMillisecond);
+			await Enqueue(Guid.NewGuid(), null, taskType, inputParameters, completed, failed, delayInMillisecond);
 		}
 
-		public void Enqueue<T>(
+		public async Task Enqueue<T>(
 			Dictionary<string, object> inputParameters = null,
 			Action<Dictionary<string, object>> completed = null,
 			Action<Exception> failed = null,
@@ -53,10 +54,10 @@ namespace TasksOnTime
 			bool force = false)
 			where T : class, ITask
 		{
-			Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
+            await Enqueue(Guid.NewGuid(), null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
 		}
 
-		public void Enqueue(Guid key,
+		public async Task Enqueue(Guid key,
 			Type taskType,
 			Dictionary<string, object> inputParameters = null,
 			Action<Dictionary<string, object>> completed = null,
@@ -64,10 +65,10 @@ namespace TasksOnTime
 			int? delayInMillisecond = null,
 			bool force = false)
 		{
-			Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced: force);
+            await Enqueue(key, null, taskType, inputParameters, completed, failed, delayInMillisecond, IsForced: force);
 		}
 
-		public void Enqueue<T>(Guid key,
+		public async Task Enqueue<T>(Guid key,
 				Dictionary<string, object> inputParameters = null,
 				Action<Dictionary<string, object>> completed = null,
 				Action<Exception> failed = null,
@@ -75,7 +76,7 @@ namespace TasksOnTime
 				bool force = false)
 			where T : class, ITask
 		{
-			Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
+            await Enqueue(key, null, typeof(T), inputParameters, completed, failed, delayInMillisecond, IsForced: force);
 		}
 
 		public async System.Threading.Tasks.Task ExecuteSubTask<T>(ExecutionContext ctx, Dictionary<string, object> parameters = null)
@@ -99,7 +100,7 @@ namespace TasksOnTime
 			ctx.Parameters = clone.Parameters;
 		}
 
-		internal void Enqueue(Guid key,
+		internal async Task Enqueue(Guid key,
 			string name,
 			Type taskType,
 			Dictionary<string, object> inputParameters = null,
@@ -149,24 +150,27 @@ namespace TasksOnTime
 				{
 					break;
 				}
-				if (!TaskHistoryList.TryAdd(context.Id, history))
+                loop++;
+                if (!TaskHistoryList.TryAdd(context.Id, history))
 				{
-					loop++;
-					System.Threading.Thread.Sleep(500);
+					await Task.Delay(500);
 					continue;
 				}
 				break;
 			}
 
-			RunTask(context, delayInMillisecond);
-		}
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            ExecuteTask(context, delayInMillisecond);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+			await Task.Yield();
+        }
 
-		protected virtual void RunTask(ExecutionContext context, int? delayInMillisecond = null)
-		{
-			System.Threading.Tasks.Task.Run(() => ExecuteTask(context, delayInMillisecond));
-		}
+        protected virtual void RunTask(ExecutionContext context, int? delayInMillisecond = null)
+        {
+            ExecuteTask(context, null).Wait();
+        }
 
-		internal async System.Threading.Tasks.Task ExecuteTask(ExecutionContext ctx, int? delayInMillisecond = null)
+        internal async System.Threading.Tasks.Task ExecuteTask(ExecutionContext ctx, int? delayInMillisecond = null)
 		{
 			if (delayInMillisecond.HasValue)
 			{
@@ -198,10 +202,9 @@ namespace TasksOnTime
 			{
 				if (ctx.TaskType != null)
 				{
-					using (var scope = ServiceProvider.CreateScope())
-					{
-						taskInstance = (ITask)ActivatorUtilities.CreateInstance(scope.ServiceProvider, ctx.TaskType);
-					}
+					var scope = ServiceScopeFactory.CreateScope();
+					var sp = scope.ServiceProvider;
+					taskInstance = (ITask)ActivatorUtilities.GetServiceOrCreateInstance(sp, ctx.TaskType);
 				}
 			}
 			catch (Exception ex)

@@ -14,10 +14,10 @@ namespace TasksOnTime
 		void Cancel(Guid key);
 		void Cleanup();
 
-		void Enqueue(Guid key, Type taskType, Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null, bool force = false);
-		void Enqueue(Type taskType, Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null);
-		void Enqueue<T>(Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null, bool force = false) where T : class, ITask;
-		void Enqueue<T>(Guid key, Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null, bool force = false) where T : class, ITask;
+		Task Enqueue(Guid key, Type taskType, Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null, bool force = false);
+        Task Enqueue(Type taskType, Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null);
+        Task Enqueue<T>(Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null, bool force = false) where T : class, ITask;
+        Task Enqueue<T>(Guid key, Dictionary<string, object> inputParameters = null, Action<Dictionary<string, object>> completed = null, Action<Exception> failed = null, int? delayInMillisecond = null, bool force = false) where T : class, ITask;
 
 		Task ExecuteSubTask<T>(ExecutionContext ctx, Dictionary<string, object> parameters = null);
 

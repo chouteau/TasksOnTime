@@ -6,8 +6,9 @@
 	  <PackageId>DistributedTasksOnTime.Client</PackageId>
 	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
     <Nullable>disable</Nullable>
-    <Version>1.2.34.0</Version>
+    <Version>1.2.35.1</Version>
 	  <PackageReleaseNotes>
+		  1.2.35.1 : Fix throw exception when FullTypeName does not exists
 		  1.2.34.0 : Update ArianeBus
 		  1.2.33.0 : Clean old running tasks
 		  1.2.32.0: Missing assemblies for nuget package

@@ -21,6 +21,10 @@ public class ProcessTaskReader : ArianeBus.MessageReaderBase<DistributedTasksOnT
 	public override async Task ProcessMessageAsync(DistributedTasksOnTime.ProcessTask message, CancellationToken cancellationToken)
 	{
 		var type = Type.GetType(message.FullTypeName);
+		if (type is null)
+		{
+			throw new ArgumentException($"The type is not found {message.FullTypeName}");
+		}
 		Dictionary<string, object> parameters = new();
 		if (message.Parameters != null)
 		{
