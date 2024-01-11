@@ -20,7 +20,7 @@ public interface ITasksOrchestrator
 
 	Task ForceTask(string taskName, Dictionary<string, string> parameters);
 	Task<int>  GetScheduledTaskCount();
-	Task SaveScheduledTask(ScheduledTask scheduledTask = null);
+	Task SaveScheduledTask(ScheduledTask scheduledTask);
 	Task<int> GetRunningTaskCount();
 	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false, bool withHistory = false);
 	Task ResetRunningTasks();

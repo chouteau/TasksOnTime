@@ -181,7 +181,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
         taskName = taskName.ToLower();
 
         Logger.LogInformation("Try to Cancel task {0}", taskName);
-        var task = (await DbRepository.GetRunningTaskList()).FirstOrDefault(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
+        var task = (await DbRepository.GetRunningTaskList()).Find(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
                             && !i.TerminatedDate.HasValue);
 
         if (task != null)
@@ -202,7 +202,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 		taskName = taskName.ToLower();
 
 		Logger.LogInformation("Try to Cancel task {0}", taskName);
-		var runningTask = (await DbRepository.GetRunningTaskList()).FirstOrDefault(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
+		var runningTask = (await DbRepository.GetRunningTaskList()).Find(i => taskName.Equals(i.TaskName, StringComparison.InvariantCultureIgnoreCase)
 							&& !i.TerminatedDate.HasValue);
 
         if (runningTask is null)
@@ -246,7 +246,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogWarning("force unknown task {0}", taskName);
             return;
         }
-		var runningTask = (await DbRepository.GetRunningTaskList()).FirstOrDefault(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+		var runningTask = (await DbRepository.GetRunningTaskList()).Find(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
         if (runningTask!= null
             && !runningTask.TerminatedDate.HasValue
             && !scheduledTask.AllowMultipleInstance)

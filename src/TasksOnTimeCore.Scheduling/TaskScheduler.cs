@@ -92,7 +92,7 @@ namespace TasksOnTime.Scheduling
         {
             if (!typeof(T).GetInterfaces().Contains(typeof(ITask)))
             {
-                throw new Exception("task must implements ITask");
+                throw new NotImplementedException("task must implements ITask");
             }
             var task = new ScheduledTask();
             task.Name = name;
@@ -410,7 +410,10 @@ namespace TasksOnTime.Scheduling
             var id = Guid.NewGuid();
             scheduledTask.IsQueued = true;
 
-            ((TasksHost)TasksHost).Enqueue(
+            var taskHost  = (TasksHost)TasksHost;
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            taskHost.Enqueue(
                 id
                 , scheduledTask.Name
                 , scheduledTask.TaskType
@@ -467,6 +470,7 @@ namespace TasksOnTime.Scheduling
                 },
                 true,
                 scheduledTask.IsForced);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         internal bool CanRun(DateTime now, ScheduledTask scheduledTask)
