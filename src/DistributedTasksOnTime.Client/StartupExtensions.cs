@@ -47,6 +47,7 @@ public static class StartupExtensions
 		{
 			var subscriptionName = $"{System.Environment.MachineName}.{settings.HostName}";
 			config.RegisterTopicReader<Readers.CancelTaskReader>(new TopicName(settings.CancelTaskQueueName), new SubscriptionName(subscriptionName));
+			config.RegisterTopicReader<Readers.CheckTaskIsRunningReader>(new TopicName(settings.CheckTaskIsRunningQueueName), new SubscriptionName(subscriptionName));
 
 			foreach (var item in settings.ScheduledTaskList)
 			{

@@ -33,7 +33,7 @@ public class ProcessTaskReader : ArianeBus.MessageReaderBase<DistributedTasksOnT
 				parameters.Add(item.Key, item.Value);
 			}
 		}
-		Host.Enqueue(message.Id, type, force: message.IsForced, inputParameters: parameters);
+		await Host.Enqueue(message.Id, type, force: message.IsForced, inputParameters: parameters);
 
 		var taskInfo = new DistributedTasksOnTime.DistributedTaskInfo();
 		taskInfo.Id = message.Id;

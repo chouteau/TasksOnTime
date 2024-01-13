@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace DistributedTasksOnTime;
 
-namespace DistributedTasksOnTime
+public enum HostRegistrationState
 {
-	public enum HostRegistrationState
-	{
-		Started = 0,
-		Stopped = 1
-	}
+    Started = 0,
+    Stopped = 1
 }

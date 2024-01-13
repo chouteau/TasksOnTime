@@ -22,6 +22,10 @@
 			@foreach (var item in taskInfoList.OrderBy(i => i.ScheduledTask.Name))
 			{
 				var cssState = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
+				if (item.LastRunningTask != null && item.LastRunningTask.FailedDate.HasValue)
+				{
+					cssState = "table-danger";
+				}
 				if (!item.ScheduledTask.Enabled)
 				{
 					cssState = "table-secondary";
@@ -72,54 +76,46 @@
 					<td>
 						@if (item.LastRunningTask != null)
 						{
-							if (item.LastRunningTask.ProgressLogs.Any())
+							if (item.LastRunningTask.CancelingDate.HasValue)
 							{
-								<span>@item.LastRunningTask.ProgressLogs.OrderByDescending(i => i.CreationDate).FirstOrDefault()?.Type</span>
-							}
-							else if (item.LastRunningTask.CancelingDate.HasValue)
-							{
-								<span>Canceling</span>
+								<div>Canceling</div>
 							}
 							else if (item.LastRunningTask.CanceledDate.HasValue)
 							{
-								<span>Canceled</span>
+								<div>Canceled</div>
 							}
 							else if (item.LastRunningTask.FailedDate.HasValue)
 							{
-								<span class="alert">Failed</span>
-								@if (!string.IsNullOrWhiteSpace(item.LastRunningTask.ErrorStack))
-								{
-									<span>@string.Format("{0}", new MarkupString(item.LastRunningTask.ErrorStack.Replace("\r\n","<br/>")))</span>
-								}
+								<div>Failed</div>
 							}
 							else if (item.LastRunningTask.TerminatedDate.HasValue)
 							{
-								<span>Completed</span>
+								<div>Completed</div>
 							}
 							else if (item.LastRunningTask.RunningDate.HasValue)
 							{
-								<span>Running</span>
+								<div>Running</div>
 							}
 							else if (item.LastRunningTask.EnqueuedDate.HasValue)
 							{
-								<span>Enqueued</span>
+								<div>Enqueued</div>
 							}
 						}
 					</td>
 					<td>
-						<button class="btn btn-primary" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
+						<button class="btn btn-primary me-1" @onclick="() => EditTask(item.ScheduledTask)">Edit</button>
 						@if (item.LastRunningTask == null
 								|| (item.LastRunningTask != null
 								&& item.LastRunningTask.TerminatedDate.HasValue))
 						{
-							<button class="btn btn-success" @onclick="() => ForceTask(item.ScheduledTask)">Force</button>
+							<button class="btn btn-success me-1" @onclick="() => ForceTask(item.ScheduledTask)">Force</button>
 						}
 						else
 						{
-							<button class="btn btn-secondary" @onclick="() => CancelTask(item.ScheduledTask)">Cancel</button>
-							<button class="btn btn-secondary" @onclick="() => TerminateTask(item.ScheduledTask)">Terminate</button>
+							<button class="btn btn-secondary me-1" @onclick="() => CancelTask(item.ScheduledTask)">Cancel</button>
+							<button class="btn btn-secondary me-1" @onclick="() => TerminateTask(item.ScheduledTask)">Terminate</button>
 						}
-						<button class="btn btn-warning" @onclick="() => ConfirmDeleteTask(item.ScheduledTask)">Delete</button>
+						<button class="btn btn-warning me-1" @onclick="() => ConfirmDeleteTask(item.ScheduledTask)">Delete</button>
 					</td>
 				</tr>
 			}
