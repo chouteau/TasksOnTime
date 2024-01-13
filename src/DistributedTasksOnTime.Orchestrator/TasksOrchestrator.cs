@@ -9,6 +9,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
     public event Action<TaskState, RunningTask> OnRunningTaskChanged;
     public event Action<string> OnScheduledTaskStarted;
 
+    private readonly Dictionary<Guid, CheckTaskIsRunning> _checkTaskIsRunningList = new();
+
     public TasksOrchestrator(DistributedTasksOnTimeServerSettings scheduleSettings,
         ILogger<TasksOrchestrator> logger,
         IDbRepository dbRepository,
@@ -134,6 +136,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
                 await DbRepository.SaveProgressInfo(distributedTaskInfo.ProgressInfo);
             }
 		}
+        else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.RunningConfirmed)
+        {
+            Logger.LogTrace("Task {0} running confirmed", runningTask.TaskName);
+            // On supprime l'entrée dans la demande de vérification
+            _checkTaskIsRunningList.Remove(distributedTaskInfo.Id, out var checkTaskIsRunning);
+        }
 
         await DbRepository.SaveRunningTask(runningTask);
 
@@ -348,52 +356,78 @@ internal class TasksOrchestrator : ITasksOrchestrator
     {
 		var runningTasks = await DbRepository.GetRunningTaskList(false, true);
 
-        var lastCreatedRunningTask = from rt in runningTasks
-                                     group rt by rt.TaskName into g
-                                     select g.Max(i => i.CreationDate);
-
+        // 1 - Recherche des taches en cours non terminées en doublons 
         var oldNotTerminatedTask = from rt in runningTasks
-                                   where !lastCreatedRunningTask.Contains(rt.CreationDate)
-                                      && !rt.TerminatedDate.HasValue
-                                   select rt;
+                                   where !rt.TerminatedDate.HasValue
+                                   group rt by new { rt.TaskName } into g
+                                   where g.Count() > 1
+                                   select g.Key.TaskName;
 
-        foreach (var item in oldNotTerminatedTask)
+        foreach (var task in oldNotTerminatedTask)
+        { 
+            // On termine toutes les taches sauf la plus récente
+            var oldTask = runningTasks.Where(i => i.TaskName == task 
+                                            && !i.TerminatedDate.HasValue)
+                            .OrderByDescending(i => i.CreationDate)
+                            .Skip(1)
+                            .ToList();
+
+            foreach (var item in oldTask)
+            {
+                item.TerminatedDate = DateTime.Now;
+                item.IsForced = true;
+
+                await DbRepository.SaveRunningTask(item);
+            }
+        }
+
+        var scheduledTasks = await DbRepository.GetScheduledTaskList();
+        runningTasks = await DbRepository.GetRunningTaskList(true, false);
+
+        foreach (var runningTask in runningTasks)
         {
-			item.TerminatedDate = DateTime.Now;
-			item.IsForced = true;
+            // On verifie que la tache en cours à bien de l'activité
+            if (runningTask.ProgressLogs.Exists(i => i.CreationDate > DateTime.Now.AddMinutes(-1)))
+            {
+                continue;
+            }
 
-			await DbRepository.SaveRunningTask(item);
-		}
+            _checkTaskIsRunningList.TryGetValue(runningTask.Id, out var checkTaskIsRunning);
+            if (checkTaskIsRunning is not null)
+            {
+                // Si la demande est encore présente et que sa date d'expiration est passée 
+                // C'est qu'aucun client ne traite la tache, on la termine
+                if (checkTaskIsRunning.Timeout < DateTime.Now)
+                {
+                    await TerminateTask(runningTask.TaskName);
+                }
+                continue;
+            }
 
-        runningTasks = await DbRepository.GetRunningTaskList(false, false);
-		var scheduledTasks = await DbRepository.GetScheduledTaskList();
-
-        // Recherche des taches en cours dont le temps d'execution est dépassé 
-        var oldTasks = from runningTask in runningTasks
-                       join scheduledTask in scheduledTasks on runningTask.TaskName equals scheduledTask.Name
-                       where !runningTask.TerminatedDate.HasValue
-                                && scheduledTask.ProcessMode == ProcessMode.Exclusive
-                       select new { runningTask, scheduledTask };
-
-        foreach (var item in oldTasks)
-        {
+            var scheduledTask = scheduledTasks.Single(i => i.Name == runningTask.TaskName);
             var verifyTask = new ScheduledTask()
             {
-                Period = item.scheduledTask.Period,
-                Interval = item.scheduledTask.Interval,
-                StartDay = item.scheduledTask.StartDay,
-                StartHour = item.scheduledTask.StartHour,
-                StartMinute = item.scheduledTask.StartMinute,
+                Period = scheduledTask.Period,
+                Interval = scheduledTask.Interval,
+                StartDay = scheduledTask.StartDay,
+                StartHour = scheduledTask.StartHour,
+                StartMinute = scheduledTask.StartMinute,
             };
-			// 2 Cycles
-			SetNextRuningDate(item.runningTask.CreationDate, verifyTask);
-			SetNextRuningDate(verifyTask.NextRunningDate, verifyTask);
-			if (verifyTask.NextRunningDate < DateTime.Now)
-			{
-				Logger.LogWarning("Terminate old task {0}", item.runningTask.TaskName);
-				await TerminateTask(item.scheduledTask.Name);
-			}
-		}
+            // 2 Cycles
+            SetNextRuningDate(runningTask.CreationDate, verifyTask);
+            SetNextRuningDate(verifyTask.NextRunningDate, verifyTask);
+            if (verifyTask.NextRunningDate < DateTime.Now)
+            {
+                // Envoyer aux clients une vérification de tache en cours
+                checkTaskIsRunning = new DistributedTasksOnTime.CheckTaskIsRunning();
+                checkTaskIsRunning.TaskId = runningTask.Id;
+                checkTaskIsRunning.ScheduledTaskName = runningTask.TaskName;
+
+                await Bus.PublishTopic(Settings.CheckTaskIsRunningQueueName, checkTaskIsRunning);
+                _checkTaskIsRunningList.TryAdd(checkTaskIsRunning.TaskId, checkTaskIsRunning);
+            }
+        }
+
 	}
 
 	internal async Task EnqueueTask(EnqueueTaskItem enqueueTaskItem)

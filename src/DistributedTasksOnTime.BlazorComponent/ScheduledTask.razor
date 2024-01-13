@@ -33,7 +33,7 @@
 				@if (running.ErrorStack != null)
 				{
 					<tr class="table-danger">
-						<td colspan="7">@running.ErrorStack</td>
+						<td colspan="7">@(new MarkupString(running.ErrorStack.Replace(System.Environment.NewLine, "<br/>")))</td>
 					</tr>
 				}
 				@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))

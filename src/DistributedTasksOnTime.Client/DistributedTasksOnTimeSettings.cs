@@ -6,15 +6,17 @@ public class DistributedTasksOnTimeSettings
 	{
 		ScheduledTaskList = new List<DistributedTasksOnTime.TaskRegistrationInfo>();
 	}
+
 	public string TaskInfoQueueName { get; set; }
 	public string HostRegistrationQueueName { get; set; }
 	public string CancelTaskQueueName { get; set; }
+    public string ForceTaskQueueName { get; set; }
+	public string CheckTaskIsRunningQueueName { get; set; }
 
-	public string PrefixQueueName { get; set; } = "DistributedTasksOnTime";
+    public string PrefixQueueName { get; set; } = "DistributedTasksOnTime";
 	public string AzureBusConnectionString { get; set; }
 
 	public string HostName { get; set; }
-	public string ForceTaskQueueName { get; set; }
 	
 	public Type ExistingProgressReporter { get; set; }
 
