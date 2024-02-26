@@ -35,13 +35,10 @@ public static class StartupExtensions
 		}
 				
 		services.AddSingleton(settings);
-		services.AddTransient<DistributedProgressReporter>();
+		services.AddTransient<IProgressReporter, DistributedProgressReporter>();
 		services.AddTransient<IForceTaskService, ForceTaskService>();
 
-		services.AddTasksOnTimeServices(tasksOnTimeConfig =>
-		{
-			tasksOnTimeConfig.ProgresReporterType = typeof(DistributedProgressReporter);
-		});
+		services.AddTasksOnTimeServices();
 
 		services.AddArianeBus(config =>
 		{
