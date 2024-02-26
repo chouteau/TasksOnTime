@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("TasksOnTimeCore.Tests", AllInternalsVisible = true)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("TasksOnTimeCore.Scheduling", AllInternalsVisible = true)]
@@ -23,11 +24,7 @@ namespace TasksOnTime
 			services.AddSingleton(defaultSettings);
 
 			services.AddSingleton<ITasksHost, TasksHost>();
-			services.AddSingleton(fac =>
-			{
-				var pr = fac.GetService(defaultSettings.ProgresReporterType);
-				return pr as IProgressReporter;
-			});
+			services.TryAddTransient<IProgressReporter, DefaultProgressReporter>();
 
 			return services;
 		}

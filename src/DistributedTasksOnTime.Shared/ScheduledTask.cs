@@ -1,4 +1,6 @@
-﻿namespace DistributedTasksOnTime;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DistributedTasksOnTime;
 
 public class ScheduledTask
 {
@@ -18,5 +20,7 @@ public class ScheduledTask
 	public string Description { get; set; }
 	public ProcessMode ProcessMode { get; set; }
 	public bool FromEditor { get; set; } = false;
+	[NotMapped]
+    public int LastDurationInSeconds { get; set; }
 }
 
