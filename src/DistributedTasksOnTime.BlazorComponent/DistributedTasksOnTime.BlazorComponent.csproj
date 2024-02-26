@@ -1,62 +1,55 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.razor">
-
   <PropertyGroup>
-    <TargetFramework>net70</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-	  <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
-	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-    <Version>1.3.37.0</Version>
-	  <PackageReleaseNotes>
-		  1.3.37.0 : Update orchestrator
-		  1.2.36.0 : Update orchestrator
-		  1.2.35.0 : Update from editor save all properties except nextrunningdate
-		  1.2.34.0 : Update ArianeBus
-		  1.2.33.0 : Terminate task manually every minute instead of default cycle
-		  1.2.32.0 : Clean old running tasks
-		  1.2.31.0 : Missing assemblies for nuget package
-		  1.2.30.0 : Migration dotnet7 + ArianeBus
-		  1.1.29.0 : Update Orchestrator
-		  1.1.28.0 : WebDesign
-		  1.1.27.0 : Force tasks with parameters
-		  1.1.26.0 : More logs
-		  1.1.25.0 : Path linux persistence
-		  1.1.24.0 : Include external dll for nuget
-		  1.1.23.0 : Open persistence for any repositories
-	  </PackageReleaseNotes>
+    <PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
+    <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
+    <Version>1.4.38.0</Version>
+    <PackageReleaseNotes>
+		1.4.38.0 : Upgrade dotnet8
+		1.3.37.0 : Update orchestrator
+		1.2.36.0 : Update orchestrator
+		1.2.35.0 : Update from editor save all properties except nextrunningdate
+		1.2.34.0 : Update ArianeBus
+		1.2.33.0 : Terminate task manually every minute instead of default cycle
+		1.2.32.0 : Clean old running tasks
+		1.2.31.0 : Missing assemblies for nuget package
+		1.2.30.0 : Migration dotnet7 + ArianeBus
+		1.1.29.0 : Update Orchestrator
+		1.1.28.0 : WebDesign
+		1.1.27.0 : Force tasks with parameters
+		1.1.26.0 : More logs
+		1.1.25.0 : Path linux persistence
+		1.1.24.0 : Include external dll for nuget
+		1.1.23.0 : Open persistence for any repositories
+	</PackageReleaseNotes>
   </PropertyGroup>
-
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj">
-		  <PrivateAssets>all</PrivateAssets>
-	  </ProjectReference>
-	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
-		  <PrivateAssets>all</PrivateAssets>
-	  </ProjectReference>
-	</ItemGroup>
-
-
-	<ItemGroup>
-		<Content Include="$(OutputPath)\DistributedTasksOnTime.Orchestrator.dll">
-			<BuildAction>None</BuildAction>
-			<PackagePath>lib\net70</PackagePath>
-			<Pack>true</Pack>
-		</Content>
-		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
-			<BuildAction>None</BuildAction>
-			<PackagePath>lib\net70</PackagePath>
-			<Pack>true</Pack>
-		</Content>
-	</ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj">
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(OutputPath)\DistributedTasksOnTime.Orchestrator.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net70</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net70</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
 </Project>

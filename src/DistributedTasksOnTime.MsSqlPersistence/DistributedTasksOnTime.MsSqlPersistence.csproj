@@ -1,59 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <PackageId>DistributedTasksOnTime.MsSqlPersistence</PackageId>
-	  <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-	  <Version>1.0.8.3</Version>
-	  <PackageReleaseNotes>
-		  1.0.8.3 : Fix StartedCount
-		  1.0.7.2 : Fix Save from editor has no effect
-		  1.0.7.1 : Update from editor save all properties except nextrunningdate
-		  1.0.6.1 : Fix : Override Enabled property of ScheduledTask when register
-		  1.0.5.0 : Sanitize logs
-		  1.0.4.0 : Clean old running tasks
-		  1.0.3.0 : Remove TerminateAllRunningTasks on start
-		  1.0.2.0 : Missing shared dll for nuget
-		  1.0.1.0 : Creation
-	  </PackageReleaseNotes>
-	  <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-	  <Description>
+    <PackageId>DistributedTasksOnTime.MsSqlPersistence</PackageId>
+    <PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
+    <Version>1.1.9.0</Version>
+    <PackageReleaseNotes>
+		1.1.9.0 : Upgrade dotnet8
+		1.0.8.3 : Fix StartedCount
+		1.0.7.2 : Fix Save from editor has no effect
+		1.0.7.1 : Update from editor save all properties except nextrunningdate
+		1.0.6.1 : Fix : Override Enabled property of ScheduledTask when register
+		1.0.5.0 : Sanitize logs
+		1.0.4.0 : Clean old running tasks
+		1.0.3.0 : Remove TerminateAllRunningTasks on start
+		1.0.2.0 : Missing shared dll for nuget
+		1.0.1.0 : Creation
+	</PackageReleaseNotes>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <Description>
 		  Persistence with sql server for DistributedTasksOnTime
 	  </Description>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="Scripts\DistributedTasksOnTime\0001-CreateTables.sql" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Scripts\DistributedTasksOnTime\0001-CreateTables.sql" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="EFScriptableMigration" Version="6.0.3" />
-	  <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
-	  <PackageReference Include="AutoMapper" Version="12.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup>
-	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" >
-		  <PrivateAssets>all</PrivateAssets>
-	  </ProjectReference>
+    <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
   </ItemGroup>
-
-	<ItemGroup>
-		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
-			<BuildAction>None</BuildAction>
-			<PackagePath>lib\net70</PackagePath>
-			<Pack>true</Pack>
-		</Content>
-	</ItemGroup>
-
-
+  <ItemGroup>
+    <Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net70</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+  </ItemGroup>
 </Project>
