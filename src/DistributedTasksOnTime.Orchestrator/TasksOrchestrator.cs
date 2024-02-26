@@ -100,6 +100,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             Logger.LogTrace("Task {0} terminated", runningTask.TaskName);
             runningTask.HostKey = distributedTaskInfo.HostKey;
             runningTask.TerminatedDate = distributedTaskInfo.EventDate;
+            scheduledTask.LastDurationInSeconds = (distributedTaskInfo.EventDate - runningTask.CreationDate).Seconds;
         }
         else if (distributedTaskInfo.State == DistributedTasksOnTime.TaskState.Canceling)
         {
@@ -400,7 +401,8 @@ internal class TasksOrchestrator : ITasksOrchestrator
                 if (checkTaskIsRunning.Timeout < DateTime.Now)
                 {
                     await TerminateTask(runningTask.TaskName);
-                }
+					_checkTaskIsRunningList.Remove(runningTask.Id, out var checkTaskIsRunningToRemove);
+				}
                 continue;
             }
 
