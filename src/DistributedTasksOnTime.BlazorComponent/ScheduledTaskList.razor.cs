@@ -37,7 +37,7 @@ public partial class ScheduledTaskList
 			{
 				await InvokeAsync(() =>
 				{
-					var current = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == r.TaskName);
+					var current = taskInfoList.Find(i => i.ScheduledTask.Name == r.TaskName);
 					if (current != null)
 					{
 						current.LastRunningTask = r;
@@ -58,7 +58,7 @@ public partial class ScheduledTaskList
 		var scheduledTaskList = await TasksOrchestrator.GetScheduledTaskList();
 		foreach (var scheduledTask in scheduledTaskList)
 		{
-			var taskInfo = taskInfoList.FirstOrDefault(i => i.ScheduledTask.Name == scheduledTask.Name);
+			var taskInfo = taskInfoList.Find(i => i.ScheduledTask.Name == scheduledTask.Name);
 			if (taskInfo != null)
 			{
 				taskInfo.ScheduledTask = scheduledTask;

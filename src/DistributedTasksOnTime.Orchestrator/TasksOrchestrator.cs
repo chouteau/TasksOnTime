@@ -27,9 +27,14 @@ internal class TasksOrchestrator : ITasksOrchestrator
     protected IDbRepository DbRepository { get; }
     protected ArianeBus.IServiceBus Bus { get; }
 
-    public Task Start()
+    public async Task Start()
 	{
-        return Task.CompletedTask;
+        var list = await DbRepository.GetScheduledTaskList();
+        foreach (var task in list)
+        {
+            SetNextRuningDate(DateTime.Now, task);
+			await DbRepository.SaveScheduledTask(task);
+        }
     }
 
     public async Task Stop()
