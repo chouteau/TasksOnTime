@@ -1,7 +1,7 @@
 
-if not exists (select * from sysobjects where name = 'ScheduledTask' and xtype = 'U')
+if not exists (select * from sysobjects where name = 'ScheduledTask_Task' and xtype = 'U')
 Begin
-	Create table ScheduledTask (
+	Create table ScheduledTask_Task (
 		Id uniqueidentifier not null,
 		Name nvarchar(200) not null,
 		Period int not null,
@@ -25,9 +25,9 @@ Begin
 End
 Go
 
-if not exists (select * from sysobjects where name = 'HostRegistration' and xtype = 'U')
+if not exists (select * from sysobjects where name = 'ScheduledTask_HostRegistration' and xtype = 'U')
 Begin
-	Create table HostRegistration (
+	Create table ScheduledTask_HostRegistration (
 		Id uniqueidentifier not null,
 		UniqueKey varchar(400) not null,
 		MachineName varchar(200) not null,
@@ -39,9 +39,9 @@ Begin
 End
 Go
 
-if not exists (select * from sysobjects where name = 'ProgressInfo' and xtype = 'U')
+if not exists (select * from sysobjects where name = 'ScheduledTask_ProgressInfo' and xtype = 'U')
 Begin
-	Create table ProgressInfo (
+	Create table ScheduledTask_ProgressInfo (
 		Id uniqueidentifier not null,
 		CreationDate datetime2 not null,
 		TaskId uniqueidentifier not null,
@@ -59,9 +59,9 @@ Begin
 End
 Go
 
-if not exists (select * from sysobjects where name = 'RunningTask' and xtype = 'U')
+if not exists (select * from sysobjects where name = 'ScheduledTask_RunningTask' and xtype = 'U')
 Begin
-	Create table RunningTask (
+	Create table ScheduledTask_RunningTask (
 		Id uniqueidentifier not null,
 		TaskName nvarchar(200) not null,
 		HostKey nvarchar(200) null,
