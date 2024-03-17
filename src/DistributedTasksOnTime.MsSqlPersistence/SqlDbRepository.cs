@@ -1,49 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DistributedTasksOnTime.MsSqlPersistence;
 
-internal class SqlDbRepository : IDbRepository
+internal class SqlDbRepository(
+	IDbContextFactory<MsSqlDbContext> dbContextFactory,
+	IMemoryCache cache
+	)
+	: IDbRepository
 {
 	private const string CACHE_REGISTRATIONS = "hostregistrations";
 	private const string CACHE_SCHEDULEDTASKS = "scheduledtasks";
 
-	private readonly IDbContextFactory<MsSqlDbContext> _dbContextFactory;
-	private readonly IMemoryCache _cache;
-	private readonly IMapper _mapper;
-
-	public SqlDbRepository(IDbContextFactory<MsSqlDbContext> dbContextFactory,
-		IMemoryCache cache,
-		AutoMapper.IMapper mapper)
-	{
-		_dbContextFactory = dbContextFactory;
-		_cache = cache;
-		_mapper = mapper;
-	}
-
 	public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
 	{
-		using var db = await _dbContextFactory.CreateDbContextAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync();
 
-		var existing = db.HostRegistrations.SingleOrDefault(i => i.UniqueKey.Equals(hostRegistrationInfo.Key));
-		if (existing == null)
+		var data = db.HostRegistrations.SingleOrDefault(i => (i.MachineName + "||" + i.HostName).Equals(hostRegistrationInfo.Key));
+		if (data == null)
 		{
-			var ri = _mapper.Map<Datas.HostRegistrationData>(hostRegistrationInfo);
-			db.HostRegistrations!.Add(ri);
+			db.HostRegistrations!.Add(hostRegistrationInfo);
 		}
 		else
 		{
-			existing = _mapper.Map(hostRegistrationInfo, existing);
-			db.HostRegistrations!.Attach(existing!);
-			db.Entry(existing!).State = EntityState.Modified;
+			data.State = hostRegistrationInfo.State;
+			db.HostRegistrations!.Attach(data);
+			db.Entry(data!).State = EntityState.Modified;
 		}
 
 		// TODO: Supprimer les taches planifiées qui existent mais ne sont plus référencées
@@ -51,14 +33,14 @@ internal class SqlDbRepository : IDbRepository
 		var updatecount = await db.SaveChangesAsync();
 		if (updatecount > 0)
 		{
-			_cache.Remove(CACHE_REGISTRATIONS);
+			cache.Remove(CACHE_REGISTRATIONS);
 		}
 	}
 
 	public async Task DeleteHostRegistration(string key)
 	{
-		using var db = _dbContextFactory.CreateDbContext();
-		var existing = await db.HostRegistrations.SingleOrDefaultAsync(i => i.UniqueKey.Equals(key));
+		using var db = dbContextFactory.CreateDbContext();
+		var existing = await db.HostRegistrations.SingleOrDefaultAsync(i => $"{i.MachineName}||{i.HostName}".Equals(key));
 		if (existing != null)
 		{
 			db.Remove(existing!);
@@ -67,68 +49,73 @@ internal class SqlDbRepository : IDbRepository
 		var updatecount = await db.SaveChangesAsync();
 		if (updatecount > 0)
 		{
-			_cache.Remove(CACHE_REGISTRATIONS);
+			cache.Remove(CACHE_REGISTRATIONS);
 		}
 	}
 
 	public async Task<List<HostRegistrationInfo>> GetHostRegistrationList()
 	{
-		_cache.TryGetValue(CACHE_REGISTRATIONS, out List<HostRegistrationInfo>? list);
+		cache.TryGetValue(CACHE_REGISTRATIONS, out List<HostRegistrationInfo>? list);
 		if (list != null)
 		{
 			return list;
 		}
-		var db = _dbContextFactory.CreateDbContext();
-		var datas = await db.HostRegistrations.ToListAsync();
-		list = _mapper.Map<List<HostRegistrationInfo>>(datas);
+		var db = dbContextFactory.CreateDbContext();
+		list = await db.HostRegistrations.ToListAsync();
 		if (list != null)
 		{
-			_cache.Set(CACHE_REGISTRATIONS, list);
+			cache.Set(CACHE_REGISTRATIONS, list);
 		}
 		return list!;
 	}
 
 	public async Task SaveScheduledTask(ScheduledTask scheduledTask)
 	{
-		var db = _dbContextFactory.CreateDbContext();
+		var db = dbContextFactory.CreateDbContext();
 
 		var name = scheduledTask.Name;
-		var existing = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
-		if (existing == null)
+		var data = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
+		if (data == null)
 		{
-			var st = _mapper.Map<Datas.ScheduledTaskData>(scheduledTask);
-			db.ScheduledTasks!.Add(st);
+			db.ScheduledTasks!.Add(scheduledTask);
 		}
 		else if (scheduledTask.FromEditor)
 		{
-			var nextRunningDate = existing.NextRunningDate;
-			var startedCount = existing.StartedCount;
-			existing = _mapper.Map(scheduledTask, existing);
-			existing.NextRunningDate = nextRunningDate;
-			existing.StartedCount = startedCount;
-			existing.LastUpdate = DateTime.Now;
-			db.ScheduledTasks!.Attach(existing);
-			db.Entry(existing).State = EntityState.Modified;
+			data.AssemblyQualifiedName = scheduledTask.AssemblyQualifiedName;
+			data.StartMinute = scheduledTask.StartMinute;
+			data.StartHour = scheduledTask.StartHour;
+			data.StartDay = scheduledTask.StartDay;
+			data.Interval = scheduledTask.Interval;
+			data.Period = scheduledTask.Period;
+			data.Enabled = scheduledTask.Enabled;
+			data.AllowMultipleInstance = scheduledTask.AllowMultipleInstance;
+			data.AllowLocalMultipleInstances = scheduledTask.AllowLocalMultipleInstances;
+			data.Parameters = scheduledTask.Parameters;
+			data.Description = scheduledTask.Description;
+			data.ProcessMode = scheduledTask.ProcessMode;
+			data.LastDurationInSeconds = scheduledTask.LastDurationInSeconds;
+
+			db.ScheduledTasks!.Attach(data);
+			db.Entry(data).State = EntityState.Modified;
 		}
 		else if (scheduledTask.NextRunningDate != DateTime.MinValue)
 		{
-			existing.NextRunningDate = scheduledTask.NextRunningDate;
-			existing.StartedCount = scheduledTask.StartedCount;
-            existing.LastUpdate = DateTime.Now;
-            db.ScheduledTasks!.Attach(existing);
-            db.Entry(existing).State = EntityState.Modified;
-        }
+			data.NextRunningDate = scheduledTask.NextRunningDate;
+			data.StartedCount = scheduledTask.StartedCount;
+			db.ScheduledTasks!.Attach(data);
+			db.Entry(data).State = EntityState.Modified;
+		}
 
-        var updatecount = await db.SaveChangesAsync();
+		var updatecount = await db.SaveChangesAsync();
 		if (updatecount > 0)
 		{
-			_cache.Remove(CACHE_SCHEDULEDTASKS);
+			cache.Remove(CACHE_SCHEDULEDTASKS);
 		}
 	}
 
 	public async Task DeleteScheduledTask(string name)
 	{
-		var db = _dbContextFactory.CreateDbContext();
+		var db = dbContextFactory.CreateDbContext();
 		var existing = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
 		if (existing != null)
 		{
@@ -138,30 +125,29 @@ internal class SqlDbRepository : IDbRepository
 		var updatecount = await db.SaveChangesAsync();
 		if (updatecount > 0)
 		{
-			_cache.Remove(CACHE_SCHEDULEDTASKS);
+			cache.Remove(CACHE_SCHEDULEDTASKS);
 		}
 	}
 
 	public async Task<List<ScheduledTask>> GetScheduledTaskList()
 	{
-		_cache.TryGetValue(CACHE_SCHEDULEDTASKS, out List<ScheduledTask>? list);
+		cache.TryGetValue(CACHE_SCHEDULEDTASKS, out List<ScheduledTask>? list);
 		if (list != null)
 		{
 			return list;
 		}
-		var db = _dbContextFactory.CreateDbContext();
-		var datas = await db.ScheduledTasks.ToListAsync();
-		list = _mapper.Map<List<ScheduledTask>>(datas);
+		var db = dbContextFactory.CreateDbContext();
+		list = await db.ScheduledTasks.ToListAsync();
 		if (list != null)
 		{
-			_cache.Set(CACHE_SCHEDULEDTASKS, list);
+			cache.Set(CACHE_SCHEDULEDTASKS, list);
 		}
 		return list!;
 	}
 
 	public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
 	{
-		var db = _dbContextFactory.CreateDbContext();
+		var db = dbContextFactory.CreateDbContext();
 		var query = from rt in db.RunningTasks
 					select rt;
 
@@ -169,12 +155,11 @@ internal class SqlDbRepository : IDbRepository
 		{
 			query = query.Where(i => !i.TerminatedDate.HasValue);
 		}
-		
-		var data =  await query.ToListAsync();
-		var result = _mapper.Map<List<RunningTask>>(data);
+
+		var list = await query.ToListAsync();
 		if (withProgress)
 		{
-			var taskIdList = result.Select(i => i.Id).Distinct().ToList();
+			var taskIdList = list.Select(i => i.Id).Distinct().ToList();
 			var progressList = await db.ProgressInfos
 										.Where(i => taskIdList.Contains(i.TaskId))
 										.OrderBy(i => i.CreationDate)
@@ -182,44 +167,48 @@ internal class SqlDbRepository : IDbRepository
 
 			foreach (var progressData in progressList)
 			{
-				var runningTask = result.Single(i => i.Id == progressData.TaskId);
-				var progress = _mapper.Map<ProgressInfo>(progressData);
-				runningTask.ProgressLogs.Add(progress);
+				var runningTask = list.Single(i => i.Id == progressData.TaskId);
+				runningTask.ProgressLogs.Add(progressData);
 			}
 		}
-		return result;
+		return list;
 	}
 
 	public async Task SaveRunningTask(RunningTask task)
 	{
-		var db = _dbContextFactory.CreateDbContext();
-		var existing = await db.RunningTasks.SingleOrDefaultAsync(i => i.Id == task.Id);
-		if (existing == null)
+		var db = dbContextFactory.CreateDbContext();
+		var data = await db.RunningTasks.SingleOrDefaultAsync(i => i.Id == task.Id);
+		if (data == null)
 		{
-			var data = _mapper.Map<Datas.RunningTaskData>(task);
-			db.RunningTasks!.Add(data);
+			db.RunningTasks!.Add(task);
 		}
 		else
 		{
-			existing = _mapper.Map(task, existing);
-			db.RunningTasks!.Attach(existing);
-			db.Entry(existing).State = EntityState.Modified;
+			data.RunningDate = task.RunningDate;
+			data.TerminatedDate = task.TerminatedDate;
+			data.CanceledDate = task.CanceledDate;
+			data.CancelingDate = task.CancelingDate;
+			data.ErrorStack = task.ErrorStack;
+			data.IsForced = task.IsForced;
+			data.FailedDate = task.FailedDate;
+
+			db.RunningTasks!.Attach(data);
+			db.Entry(data).State = EntityState.Modified;
 		}
 		await db.SaveChangesAsync();
 	}
 
 	public async Task ResetRunningTasks()
 	{
-		var db = _dbContextFactory.CreateDbContext();
+		var db = dbContextFactory.CreateDbContext();
 		await db.RunningTasks.ExecuteDeleteAsync();
 		await db.SaveChangesAsync();
 	}
 
 	public async Task SaveProgressInfo(ProgressInfo progressInfo)
 	{
-		var db = _dbContextFactory.CreateDbContext();
-		var data = _mapper.Map<Datas.ProgressInfoData>(progressInfo);
-		db.ProgressInfos.Add(data);
+		var db = dbContextFactory.CreateDbContext();
+		db.ProgressInfos.Add(progressInfo);
 		await db.SaveChangesAsync();
 	}
 

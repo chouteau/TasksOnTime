@@ -1,11 +1,8 @@
 ﻿using DistributedTasksOnTime.MsSqlPersistence.Extensions;
 
-using EFScriptableMigration;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace DistributedTasksOnTime.MsSqlPersistence;
 
@@ -17,10 +14,6 @@ public static class StartupExtensions
 		config(settings);
 
 		services.AddSingleton(settings);
-		services.AddAutoMapper(config =>
-		{
-			config.AddProfile<Mapping>();
-		});
 		services.AddTransient<IDbRepository, SqlDbRepository>();
 		if (!services.IsRegistered<IMemoryCache>())
 		{
@@ -33,17 +26,8 @@ public static class StartupExtensions
 
 	public async static Task UseTasksOnTimeMsSqlPersistence(this IServiceProvider serviceProvider)
 	{
-		var cfg = serviceProvider.GetRequiredService<MsSqlSettings>();
-		var migration = new DbMigration()
-		{
-			ConnectionString = cfg.ConnectionString,
-			SchemaName = "DistributedTasksOnTime",
-			EmbededTypeReference = typeof(StartupExtensions)
-		};
-
-		await migration.Start();
-
-		// await TerminateAllRunningTasks(serviceProvider);
+		var context = serviceProvider.GetRequiredService<MsSqlDbContext>();
+		await context.Database.MigrateAsync();
 	}
 
 	static async Task TerminateAllRunningTasks(IServiceProvider serviceProvider)

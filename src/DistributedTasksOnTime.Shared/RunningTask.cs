@@ -2,7 +2,7 @@
 
 public class RunningTask
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string TaskName { get; set; } = null!;
     public string HostKey { get; set; } = null!;
     public DateTime CreationDate { get; set; } = DateTime.Now;
