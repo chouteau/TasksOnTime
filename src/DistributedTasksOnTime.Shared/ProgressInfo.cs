@@ -2,7 +2,8 @@
 
 public class ProgressInfo
 {
-    public DateTime CreationDate { get; set; } = DateTime.Now;
+	public Guid Id { get; set; } = Guid.NewGuid();
+	public DateTime CreationDate { get; set; } = DateTime.Now;
     public Guid TaskId { get; set; }
     public ProgressType Type { get; set; }
     public string GroupName { get; set; }

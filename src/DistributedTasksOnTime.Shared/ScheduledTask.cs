@@ -4,6 +4,7 @@ namespace DistributedTasksOnTime;
 
 public class ScheduledTask
 {
+	public Guid Id { get; set; } = Guid.NewGuid();
 	public string Name { get; set; } = null!;
 	public ScheduledTaskTimePeriod Period { get; set; }
 	public int Interval { get; set; }
@@ -20,7 +21,6 @@ public class ScheduledTask
 	public string Description { get; set; }
 	public ProcessMode ProcessMode { get; set; }
 	public bool FromEditor { get; set; } = false;
-	[NotMapped]
     public int LastDurationInSeconds { get; set; }
 }
 

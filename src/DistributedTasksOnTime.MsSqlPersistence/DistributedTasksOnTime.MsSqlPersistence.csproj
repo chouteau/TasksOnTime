@@ -5,8 +5,9 @@
 		<Nullable>enable</Nullable>
 		<PackageId>DistributedTasksOnTime.MsSqlPersistence</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-		<Version>1.1.11.0</Version>
+		<Version>2.1.12.0</Version>
 		<PackageReleaseNotes>
+			2.1.12.0 : Use EF Migration instead of EFScriptableMigration
 			1.1.11.0 : All tables renamed with prefix ScheduledTask_
 			1.1.9.0 : Upgrade dotnet8
 			1.0.8.3 : Fix StartedCount
@@ -24,16 +25,13 @@
 			Persistence with sql server for DistributedTasksOnTime
 		</Description>
 	</PropertyGroup>
+
 	<ItemGroup>
-		<None Remove="Scripts\DistributedTasksOnTime\0001-CreateTables.sql" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="Scripts\DistributedTasksOnTime\0001-CreateTables.sql" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="EFScriptableMigration" Version="6.0.3" />
-		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
