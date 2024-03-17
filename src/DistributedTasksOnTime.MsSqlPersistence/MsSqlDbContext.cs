@@ -28,22 +28,15 @@ internal class MsSqlDbContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-		{
-			var idProperty = entityType.FindProperty("Id");
-			if (idProperty != null)
-			{
-				entityType.SetPrimaryKey(idProperty);
-			}
-		}
-
 		var hostRegistrationTable = modelBuilder.Entity<HostRegistrationInfo>().ToTable("DistributedTask_HostRegistration");
+		hostRegistrationTable.HasKey(p => p.Id);
 		hostRegistrationTable.Ignore(p => p.Key);
 		hostRegistrationTable.Ignore(p => p.TaskList);
 		hostRegistrationTable.Property(p => p.HostName).HasMaxLength(200);
 		hostRegistrationTable.Property(p => p.MachineName).HasMaxLength(200);
 
 		var progressInfoTable = modelBuilder.Entity<ProgressInfo>().ToTable("DistributedTask_ProgressInfo");
+		progressInfoTable.HasKey(p => p.Id);
 		progressInfoTable.Property(p => p.GroupName).HasMaxLength(200);
 		progressInfoTable.Property(p => p.Subject).HasMaxLength(500);
 		progressInfoTable.Property(p => p.Body).HasMaxLength(1024);
@@ -56,12 +49,14 @@ internal class MsSqlDbContext : DbContext
 		progressInfoTable.Ignore(p => p.EntityId);
 
 		var runningTaskTable = modelBuilder.Entity<RunningTask>().ToTable("DistributedTask_RunningTask");
+		runningTaskTable.HasKey(p => p.Id);
 		runningTaskTable.Ignore(p => p.ProgressLogs);
 		runningTaskTable.Property(p => p.TaskName).HasMaxLength(200);
 		runningTaskTable.Property(p => p.HostKey).HasMaxLength(200);
 		runningTaskTable.Property(p => p.ErrorStack).HasMaxLength(5000);
 
 		var scheduledTaskTable = modelBuilder.Entity<ScheduledTask>().ToTable("DistributedTask_ScheduledTask");
+		scheduledTaskTable.HasKey(p => p.Id);
 		scheduledTaskTable.Ignore(p => p.FromEditor);
 		scheduledTaskTable.Property(p => p.Parameters)
 			.HasConversion(
