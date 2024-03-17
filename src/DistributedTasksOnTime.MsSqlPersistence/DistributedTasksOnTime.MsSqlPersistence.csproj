@@ -35,10 +35,9 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 	</ItemGroup>
+
 	<ItemGroup>
-		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
-			<PrivateAssets>all</PrivateAssets>
-		</ProjectReference>
+	  <Content Remove="bin\Debug\net8.0\\DistributedTasksOnTime.Shared.dll" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
@@ -46,5 +45,8 @@
 			<PackagePath>lib\net8.0</PackagePath>
 			<Pack>true</Pack>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
 	</ItemGroup>
 </Project>
