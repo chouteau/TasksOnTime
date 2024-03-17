@@ -5,8 +5,9 @@
 		<Nullable>enable</Nullable>
 		<PackageId>DistributedTasksOnTime.SqlitePersistence</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-		<Version>1.2.15.0</Version>
+		<Version>1.2.16.0</Version>
 		<PackageReleaseNotes>
+			1.2.16.0 : Update Shared entities
 			1.2.14.0 : Upgrade dotnet8
 			1.1.13.2 : Fix StartedCount
 			1.1.12.1 : Update from editor save all properties except nextrunningdate
