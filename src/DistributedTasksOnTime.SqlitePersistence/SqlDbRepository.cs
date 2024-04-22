@@ -159,7 +159,7 @@ namespace DistributedTasksOnTime.SqlitePersistence
             return list!;
         }
 
-        public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
+        public async Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false)
         {
             var db = _dbContextFactory.CreateDbContext();
 			var query = from rt in db.RunningTasks
@@ -172,21 +172,6 @@ namespace DistributedTasksOnTime.SqlitePersistence
 
 			var data = await query.ToListAsync();
 			var result = _mapper.Map<List<RunningTask>>(data);
-            if (withProgress)
-            {
-                var taskIdList = result.Select(i => i.Id).Distinct().ToList();
-                var progressList = await db.ProgressInfos
-                                            .Where(i => taskIdList.Contains(i.TaskId))
-                                            .OrderBy(i => i.CreationDate)
-                                            .ToListAsync();
-
-                foreach (var progressData in progressList)
-                {
-                    var runningTask = result.Single(i => i.Id == progressData.TaskId);
-                    var progress = _mapper.Map<ProgressInfo>(progressData);
-                    runningTask.ProgressLogs.Add(progress);
-                }
-            }
             return result;
         }
 
@@ -223,6 +208,14 @@ namespace DistributedTasksOnTime.SqlitePersistence
             db.ProgressInfos.Add(data);
             await db.SaveChangesAsync();
         }
+
+        public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId)
+		{
+			var db = _dbContextFactory.CreateDbContext();
+			var data = await db.ProgressInfos.Where(i => i.TaskId == RunningTaskId).ToListAsync();
+			var result = _mapper.Map<List<ProgressInfo>>(data);
+			return result.OrderByDescending(i => i.CreationDate).ToList();
+		}
 
         public Task PersistAll()
         {

@@ -116,7 +116,7 @@ internal class FileDbRepository : IDbRepository
         }
     }
 
-    public Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
+    public Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false)
 	{
 		return Task.FromResult(RunningTaskList!.Select(i => i.Value).ToList());
     }
@@ -166,7 +166,13 @@ internal class FileDbRepository : IDbRepository
 
     }
 
-    public Task SaveProgressInfo(ProgressInfo progressInfo)
+	public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId)
+	{
+        await Task.Yield();
+        throw new NotImplementedException();
+	}
+
+	public Task SaveProgressInfo(ProgressInfo progressInfo)
     {
         // Do nothing
         return Task.CompletedTask;

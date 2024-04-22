@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DistributedTasksOnTime.MsSqlPersistence;
@@ -145,7 +146,7 @@ internal class SqlDbRepository(
 		return list!;
 	}
 
-	public async Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false)
+	public async Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false)
 	{
 		var db = dbContextFactory.CreateDbContext();
 		var query = from rt in db.RunningTasks
@@ -157,20 +158,6 @@ internal class SqlDbRepository(
 		}
 
 		var list = await query.ToListAsync();
-		if (withProgress)
-		{
-			var taskIdList = list.Select(i => i.Id).Distinct().ToList();
-			var progressList = await db.ProgressInfos
-										.Where(i => taskIdList.Contains(i.TaskId))
-										.OrderBy(i => i.CreationDate)
-										.ToListAsync();
-
-			foreach (var progressData in progressList)
-			{
-				var runningTask = list.Single(i => i.Id == progressData.TaskId);
-				runningTask.ProgressLogs.Add(progressData);
-			}
-		}
 		return list;
 	}
 
@@ -210,6 +197,13 @@ internal class SqlDbRepository(
 		var db = dbContextFactory.CreateDbContext();
 		db.ProgressInfos.Add(progressInfo);
 		await db.SaveChangesAsync();
+	}
+
+	public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId)
+	{
+		var db = dbContextFactory.CreateDbContext();
+		var result = await db.ProgressInfos.Where(i => i.TaskId == RunningTaskId).ToListAsync();
+		return result.OrderByDescending(i => i.CreationDate).ToList();
 	}
 
 	public Task PersistAll()

@@ -9,6 +9,7 @@
 	<table class="table table-bordered table-condensed table-hover">
 		<thead>
 				<tr>
+					<th style="width:20px;" ></th>
 					<th>CreationDate</th>
 					<th>RunningDate</th>
 					<th>FailedDate</th>
@@ -22,6 +23,16 @@
 			@foreach(var running in runningTaskList.OrderByDescending(i => i.CreationDate))
 			{
 				<tr class="table-secondary">
+					<td>
+						@if (!running.IsExpanded)
+						{
+							<button class="btn btn-primary" @onclick="@(() => Expand(running, true))">+</button>
+						}
+						else
+						{
+							<button class="btn btn-secondary" @onclick="@(() => Expand(running, false))">-</button>
+						}
+					</td>
 					<td>@running.CreationDate</td>
 					<td>@running.RunningDate</td>
 					<td>@running.FailedDate</td>
@@ -33,12 +44,13 @@
 				@if (running.ErrorStack != null)
 				{
 					<tr class="table-danger">
-						<td colspan="7">@(new MarkupString(running.ErrorStack.Replace(System.Environment.NewLine, "<br/>")))</td>
+						<td colspan="8">@(new MarkupString(running.ErrorStack.Replace(System.Environment.NewLine, "<br/>")))</td>
 					</tr>
 				}
-				@foreach(var log in running.ProgressLogs.OrderByDescending(i => i.CreationDate))
+				@foreach (var log in running.ProgressInfoList.OrderByDescending(i => i.CreationDate))
 				{
 					<tr>
+						<td></td>
 						<td>
 							@log.CreationDate
 						</td>

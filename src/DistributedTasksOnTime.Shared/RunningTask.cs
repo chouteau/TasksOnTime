@@ -1,4 +1,6 @@
-﻿namespace DistributedTasksOnTime;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DistributedTasksOnTime;
 
 public class RunningTask
 {
@@ -12,8 +14,8 @@ public class RunningTask
     public DateTime? CanceledDate { get; set; }
     public DateTime? TerminatedDate { get; set; }
     public DateTime? FailedDate { get; set; }
+    public DateTime? LastUpdate { get; set; }
     public string ErrorStack { get; set; }
     public bool IsForced { get; set; }
-    public List<ProgressInfo> ProgressLogs { get; set; } = new();
 }
 
