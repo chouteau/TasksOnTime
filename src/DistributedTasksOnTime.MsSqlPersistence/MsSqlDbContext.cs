@@ -50,7 +50,7 @@ internal class MsSqlDbContext : DbContext
 
 		var runningTaskTable = modelBuilder.Entity<RunningTask>().ToTable("DistributedTask_RunningTask");
 		runningTaskTable.HasKey(p => p.Id);
-		runningTaskTable.Ignore(p => p.ProgressLogs);
+		runningTaskTable.Ignore(p => p.LastUpdate);
 		runningTaskTable.Property(p => p.TaskName).HasMaxLength(200);
 		runningTaskTable.Property(p => p.HostKey).HasMaxLength(200);
 		runningTaskTable.Property(p => p.ErrorStack).HasMaxLength(5000);

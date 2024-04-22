@@ -37,6 +37,7 @@ builder.Services.AddTasksOnTimeMsSqlPersistence(config =>
 
 builder.Services.AddArianeBus(config =>
 {
+	config.PrefixName = "dtot.";
 	config.BusConnectionString = dtotSettings.AzureBusConnectionString;
 });
 

@@ -68,7 +68,8 @@ var host= Host.CreateDefaultBuilder(args)
 					services.AddDistributedTasksOnTimeClient(clientSettings);
 
 					services.AddArianeBus(config =>
-					{ 
+					{
+						config.PrefixName = "dtot.";
 						config.BusConnectionString = clientSettings.AzureBusConnectionString;
 					});
 

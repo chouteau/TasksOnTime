@@ -22,7 +22,7 @@ public interface ITasksOrchestrator
 	Task<int>  GetScheduledTaskCount();
 	Task SaveScheduledTask(ScheduledTask scheduledTask);
 	Task<int> GetRunningTaskCount();
-	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false, bool withHistory = false);
+	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withHistory = false);
 	Task ResetRunningTasks();
 	Task<IEnumerable<ScheduledTask>> GetScheduledTaskList();
 }

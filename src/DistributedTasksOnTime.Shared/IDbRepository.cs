@@ -8,10 +8,11 @@ public interface IDbRepository
     Task<List<ScheduledTask>> GetScheduledTaskList();
 	Task SaveScheduledTask(ScheduledTask scheduledTask);
     Task DeleteScheduledTask(string name);
-    Task<List<RunningTask>> GetRunningTaskList(bool withProgress = false, bool withHistory = false);
+    Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false);
     Task SaveRunningTask(RunningTask task);
     Task ResetRunningTasks();
     Task PersistAll();
     Task SaveProgressInfo(ProgressInfo progressInfo);
+    Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId);
 }
 

@@ -62,7 +62,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
     public async Task NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo)
 	{
-        var runningTask = (await DbRepository.GetRunningTaskList(true)).SingleOrDefault(i => i.Id == distributedTaskInfo.Id);
+        var runningTask = (await DbRepository.GetRunningTaskList(withHistory: false)).SingleOrDefault(i => i.Id == distributedTaskInfo.Id);
         if (runningTask == null) // <- pas normal
 		{
             Logger.LogWarning("Running task not found with id {Id} {TaskName} {State} {Subject}", 
@@ -138,7 +138,6 @@ internal class TasksOrchestrator : ITasksOrchestrator
             else
 			{
                 SanitizeProgressInfo(distributedTaskInfo.ProgressInfo);
-                runningTask.ProgressLogs.Add(distributedTaskInfo.ProgressInfo);
                 await DbRepository.SaveProgressInfo(distributedTaskInfo.ProgressInfo);
             }
 		}
@@ -149,6 +148,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             _checkTaskIsRunningList.Remove(distributedTaskInfo.Id, out var checkTaskIsRunning);
         }
 
+        runningTask.LastUpdate = DateTime.Now;
         await DbRepository.SaveRunningTask(runningTask);
 
         OnRunningTaskChanged?.Invoke(distributedTaskInfo.State, runningTask);
@@ -292,13 +292,13 @@ internal class TasksOrchestrator : ITasksOrchestrator
         return await DbRepository.GetScheduledTaskList();
     }
 
-    public async Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withProgress = false, bool withHistory = false)
+    public async Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withHistory = false)
     {
         if (taskName == null)
         {
-            return await DbRepository.GetRunningTaskList(withProgress, withHistory);
+            return await DbRepository.GetRunningTaskList(withHistory: withHistory);
         }
-        return (await DbRepository.GetRunningTaskList(withProgress, withHistory)).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
+        return (await DbRepository.GetRunningTaskList(withHistory: withHistory)).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
     }
 
     public async Task ResetRunningTasks()
@@ -360,7 +360,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
 
     public async Task TerminateOldTasks()
     {
-		var runningTasks = await DbRepository.GetRunningTaskList(false, true);
+		var runningTasks = await DbRepository.GetRunningTaskList(withHistory: true);
 
         // 1 - Recherche des taches en cours non terminées en doublons 
         var oldNotTerminatedTask = from rt in runningTasks
@@ -388,12 +388,12 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
 
         var scheduledTasks = await DbRepository.GetScheduledTaskList();
-        runningTasks = await DbRepository.GetRunningTaskList(true, false);
+        runningTasks = await DbRepository.GetRunningTaskList(withHistory: false);
 
         foreach (var runningTask in runningTasks)
         {
             // On verifie que la tache en cours à bien de l'activité
-            if (runningTask.ProgressLogs.Exists(i => i.CreationDate > DateTime.Now.AddMinutes(-1)))
+            if (runningTask.LastUpdate > DateTime.Now.AddMinutes(-1))
             {
                 continue;
             }
