@@ -6,7 +6,7 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-		<Version>1.5.42.0</Version>
+		<Version>1.5.43.0</Version>
 		<PackageReleaseNotes>
 			1.5.42.0 : Lazyloading for progressinfo
 			1.4.41.0 : Update Shared entities

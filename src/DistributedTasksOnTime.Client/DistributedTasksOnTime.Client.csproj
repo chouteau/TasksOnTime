@@ -5,7 +5,7 @@
 		<PackageId>DistributedTasksOnTime.Client</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
 		<Nullable>disable</Nullable>
-		<Version>1.5.40.0</Version>
+		<Version>1.5.41.0</Version>
 		<PackageReleaseNotes>
 			1.5.40.0 : Lazyloading for progressinfo
 			1.4.39.0 : Update Shared entities
@@ -39,13 +39,6 @@
 		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
 			<BuildAction>None</BuildAction>
 			<PackagePath>lib\net8.0</PackagePath>
-			<Pack>true</Pack>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="$(OutputPath)\DistributedTasksOnTime.Shared.dll">
-			<BuildAction>None</BuildAction>
-			<PackagePath>lib/net8.0</PackagePath>
 			<Pack>true</Pack>
 		</Content>
 	</ItemGroup>
