@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<PackageId>DistributedTasksOnTime.MsSqlPersistence</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-		<Version>2.2.16.0</Version>
+		<Version>2.2.17.0</Version>
 		<PackageReleaseNotes>
 			2.2.15.0 : Lazyloading for progressinfo
 			2.1.14.0 : History limitation
