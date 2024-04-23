@@ -6,7 +6,7 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-		<Version>1.5.44.0</Version>
+		<Version>1.5.45.0</Version>
 		<PackageReleaseNotes>
 			1.5.42.0 : Lazyloading for progressinfo
 			1.4.41.0 : Update Shared entities
@@ -48,7 +48,11 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj" />
-	  <ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj" />
+		<ProjectReference Include="..\DistributedTasksOnTime.Orchestrator\DistributedTasksOnTime.Orchestrator.csproj">
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\DistributedTasksOnTime.Shared\DistributedTasksOnTime.Shared.csproj">
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
 	</ItemGroup>
 </Project>
