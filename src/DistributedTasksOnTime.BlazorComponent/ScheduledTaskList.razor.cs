@@ -9,8 +9,7 @@ public partial class ScheduledTaskList
 	[Inject] 
 	DistributedTasksOnTime.Orchestrator.DistributedTasksOnTimeServerSettings Settings { get; set; }
 
-
-	List<TaskInfo> taskInfoList = new();
+	List<ScheduledTaskInfo> scheduledTaskInfoList = new();
 	ConfirmDialog confirmDeleteTask;
 	Toast toast;
 
@@ -37,7 +36,7 @@ public partial class ScheduledTaskList
 			{
 				await InvokeAsync(() =>
 				{
-					var current = taskInfoList.Find(i => i.ScheduledTask.Name == r.TaskName);
+					var current = scheduledTaskInfoList.Find(i => i.ScheduledTask.Name == r.TaskName);
 					if (current != null)
 					{
 						current.LastRunningTask = r;
@@ -58,25 +57,21 @@ public partial class ScheduledTaskList
 		var scheduledTaskList = await TasksOrchestrator.GetScheduledTaskList();
 		foreach (var scheduledTask in scheduledTaskList)
 		{
-			var taskInfo = taskInfoList.Find(i => i.ScheduledTask.Name == scheduledTask.Name);
+			var taskInfo = scheduledTaskInfoList.Find(i => i.ScheduledTask.Name == scheduledTask.Name);
 			if (taskInfo != null)
 			{
 				taskInfo.ScheduledTask = scheduledTask;
 			}
 			else
 			{
-				taskInfo = new TaskInfo
+				taskInfo = new ScheduledTaskInfo
 				{
 					ScheduledTask = scheduledTask
 				};
-				taskInfoList.Add(taskInfo);
+				scheduledTaskInfoList.Add(taskInfo);
 			}
 
-			var history = await TasksOrchestrator.GetRunningTaskList(taskInfo.ScheduledTask.Name);
-			if (history.Any())
-			{
-				taskInfo.LastRunningTask = history.Last();
-			}
+			taskInfo.LastRunningTask = await TasksOrchestrator.GetLastRunningTask(taskInfo.ScheduledTask.Name);
 		}
 	}
 

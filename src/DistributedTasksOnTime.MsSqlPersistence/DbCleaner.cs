@@ -32,7 +32,7 @@ internal class DbCleaner(
 
 	private async Task CleanOldDatas()
 	{
-		var db = dbContextFactory.CreateDbContext();
+		var db = await dbContextFactory.CreateDbContextAsync();
 
 		var timeout = DateTime.Today.AddDays(settings.DayCountOfRentention * -1);
 		var runningQuery = from runningTask in db.RunningTasks

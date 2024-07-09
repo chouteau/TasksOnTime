@@ -265,7 +265,7 @@ internal class TasksOrchestrator : ITasksOrchestrator
             && !runningTask.TerminatedDate.HasValue
             && !scheduledTask.AllowMultipleInstance)
 		{
-            Logger.LogWarning("force task {taskName} canceled because task is already started and not completed ", taskName);
+            Logger.LogWarning("force task {TaskName} canceled because task is already started and not completed ", taskName);
             return;
         }
 
@@ -300,6 +300,17 @@ internal class TasksOrchestrator : ITasksOrchestrator
         }
         return (await DbRepository.GetRunningTaskList(withHistory: withHistory)).Where(i => i.TaskName.Equals(taskName, StringComparison.InvariantCultureIgnoreCase));
     }
+
+    public async Task<RunningTask> GetLastRunningTask(string taskName)
+    {
+        if (taskName == null)
+        {
+            return null;
+        }
+        var last = await DbRepository.GetLastRunningTask(taskName);
+        return last ?? new RunningTask();
+    }
+
 
     public async Task ResetRunningTasks()
     {
