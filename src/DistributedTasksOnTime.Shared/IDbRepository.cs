@@ -9,6 +9,7 @@ public interface IDbRepository
 	Task SaveScheduledTask(ScheduledTask scheduledTask);
     Task DeleteScheduledTask(string name);
     Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false);
+    Task<RunningTask?> GetLastRunningTask(string taskName);
     Task SaveRunningTask(RunningTask task);
     Task ResetRunningTasks();
     Task PersistAll();

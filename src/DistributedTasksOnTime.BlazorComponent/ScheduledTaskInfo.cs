@@ -1,6 +1,6 @@
 ﻿namespace DistributedTasksOnTime.BlazorComponent;
 
-public class TaskInfo
+public class ScheduledTaskInfo
 {
 	public DistributedTasksOnTime.ScheduledTask ScheduledTask { get; set; }
 	public DistributedTasksOnTime.RunningTask LastRunningTask { get; set; }

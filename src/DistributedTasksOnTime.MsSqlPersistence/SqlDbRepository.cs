@@ -148,7 +148,7 @@ internal class SqlDbRepository(
 
 	public async Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false)
 	{
-		var db = dbContextFactory.CreateDbContext();
+		var db = await dbContextFactory.CreateDbContextAsync();
 		var query = from rt in db.RunningTasks
 					select rt;
 
@@ -161,7 +161,19 @@ internal class SqlDbRepository(
 		return list;
 	}
 
-	public async Task SaveRunningTask(RunningTask task)
+    public async Task<RunningTask?> GetLastRunningTask(string taskName)
+    {
+        var db = await dbContextFactory.CreateDbContextAsync();
+        var query = from rt in db.RunningTasks
+					where taskName.Equals(rt.TaskName)
+					orderby rt.RunningDate descending
+                    select rt;
+
+        var last = await query.FirstOrDefaultAsync();
+        return last;
+    }
+
+    public async Task SaveRunningTask(RunningTask task)
 	{
 		var db = dbContextFactory.CreateDbContext();
 		var data = await db.RunningTasks.SingleOrDefaultAsync(i => i.Id == task.Id);

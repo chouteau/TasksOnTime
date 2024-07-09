@@ -6,8 +6,9 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<PackageId>DistributedTasksOnTime.BlazorComponent</PackageId>
 		<PackageProjectUrl>https://github.com/chouteau/TasksOnTime</PackageProjectUrl>
-		<Version>1.5.45.0</Version>
+		<Version>1.5.46.0</Version>
 		<PackageReleaseNotes>
+			1.5.46.0 : Last running taks (Orchestrator)
 			1.5.42.0 : Lazyloading for progressinfo
 			1.4.41.0 : Update Shared entities
 			1.4.40.0 : Autostart Orchestrator

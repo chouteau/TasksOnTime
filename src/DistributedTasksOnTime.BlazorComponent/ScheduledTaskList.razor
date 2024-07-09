@@ -19,7 +19,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			@foreach (var item in taskInfoList.OrderBy(i => i.ScheduledTask.Name))
+			@foreach (var item in scheduledTaskInfoList.OrderBy(i => i.ScheduledTask.Name))
 			{
 				var cssState = item.LastRunningTask != null && !item.LastRunningTask.TerminatedDate.HasValue ? "table-success" : "";
 				if (item.LastRunningTask != null && item.LastRunningTask.FailedDate.HasValue)

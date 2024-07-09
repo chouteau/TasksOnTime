@@ -121,6 +121,11 @@ internal class FileDbRepository : IDbRepository
 		return Task.FromResult(RunningTaskList!.Select(i => i.Value).ToList());
     }
 
+    public Task<RunningTask?> GetLastRunningTask(string taskName)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task SaveRunningTask(RunningTask task)
 	{
 		RunningTaskList.AddOrUpdate(task.Id, task, (key, oldValue) => task);

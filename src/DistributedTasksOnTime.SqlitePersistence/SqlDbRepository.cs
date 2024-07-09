@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
+
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DistributedTasksOnTime.SqlitePersistence
 {
@@ -172,6 +175,19 @@ namespace DistributedTasksOnTime.SqlitePersistence
 
 			var data = await query.ToListAsync();
 			var result = _mapper.Map<List<RunningTask>>(data);
+            return result;
+        }
+
+        public async Task<RunningTask?> GetLastRunningTask(string taskName)
+        {
+            var db = await _dbContextFactory.CreateDbContextAsync();
+            var query = from rt in db.RunningTasks
+                        where taskName.Equals(rt.TaskName)
+                        orderby rt.RunningDate descending
+                        select rt;
+
+            var last = await query.FirstOrDefaultAsync();
+            var result = _mapper.Map<RunningTask>(last);
             return result;
         }
 
