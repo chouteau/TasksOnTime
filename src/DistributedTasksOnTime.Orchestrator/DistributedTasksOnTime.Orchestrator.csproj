@@ -3,9 +3,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.5.25.0</Version>
+    <Version>1.5.26.0</Version>
     <PackageReleaseNotes>
-			1.5.25.0 : Last running taks 
+			1.5.26.0 : Implement CancellationToken
+			1.5.25.0 : Last running taks
 			1.5.24.0 : Lazy loading form progressinfo
 			1.4.23.0 : Autostart Orchestrator
 			1.4.22.0 : Upgrade dotnet8

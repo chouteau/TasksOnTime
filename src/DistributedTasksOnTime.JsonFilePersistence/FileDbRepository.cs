@@ -42,29 +42,29 @@ internal class FileDbRepository : IDbRepository
     protected PersistenceSettings Settings { get; }
     protected ILogger Logger { get; }
 
-    public Task<List<HostRegistrationInfo>> GetHostRegistrationList()
+    public Task<List<HostRegistrationInfo>> GetHostRegistrationList(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(HostList!.Select(i => i.Value).ToList());
     }
 
-    public Task<List<ScheduledTask>> GetScheduledTaskList()
+    public Task<List<ScheduledTask>> GetScheduledTaskList(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(ScheduledTaskList!.Select(i => i.Value).ToList());
     }
 
-    public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
+    public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo, CancellationToken cancellationToken = default)
     {
         HostList.AddOrUpdate(hostRegistrationInfo.Key, hostRegistrationInfo, (k, old) => hostRegistrationInfo);
         await PersistHostRegistrationList();
     }
 
-    public async Task DeleteHostRegistration(string key)
+    public async Task DeleteHostRegistration(string key, CancellationToken cancellationToken = default)
     {
         HostList.TryRemove(key, out var item);
         await PersistHostRegistrationList();
     }
 
-    public async Task PersistHostRegistrationList()
+    public async Task PersistHostRegistrationList(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -84,19 +84,19 @@ internal class FileDbRepository : IDbRepository
         }
     }
 
-    public async Task SaveScheduledTask(ScheduledTask scheduledTask)
+    public async Task SaveScheduledTask(ScheduledTask scheduledTask, CancellationToken cancellationToken = default)
     {
-        ScheduledTaskList.AddOrUpdate(scheduledTask.Name, scheduledTask, (k, old) => scheduledTask);
+        ScheduledTaskList.AddOrUpdate(scheduledTask.Name!, scheduledTask, (k, old) => scheduledTask);
         await PersistScheduledTaskList();
     }
 
-    public async Task DeleteScheduledTask(string taskName)
+    public async Task DeleteScheduledTask(string taskName, CancellationToken cancellationToken = default)
     {
         ScheduledTaskList.TryRemove(taskName, out var scheduledTask); 
         await PersistScheduledTaskList();
     }
 
-    public async Task PersistScheduledTaskList()
+    public async Task PersistScheduledTaskList(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -116,29 +116,29 @@ internal class FileDbRepository : IDbRepository
         }
     }
 
-    public Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false)
+    public Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false, CancellationToken cancellationToken = default)
 	{
 		return Task.FromResult(RunningTaskList!.Select(i => i.Value).ToList());
     }
 
-    public Task<RunningTask?> GetLastRunningTask(string taskName)
+    public Task<RunningTask?> GetLastRunningTask(string taskName, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task SaveRunningTask(RunningTask task)
+    public Task SaveRunningTask(RunningTask task, CancellationToken cancellationToken = default)
 	{
 		RunningTaskList.AddOrUpdate(task.Id, task, (key, oldValue) => task);
         return Task.CompletedTask;
 	}
 
-    public Task ResetRunningTasks()
+    public Task ResetRunningTasks(CancellationToken cancellationToken = default)
     {
         RunningTaskList.Clear();
         return Task.CompletedTask;
     }
 
-	public async Task PersistAll()
+	public async Task PersistAll(CancellationToken cancellationToken = default)
 	{
         await PersistScheduledTaskList();
         await PersistHostRegistrationList();
@@ -163,7 +163,7 @@ internal class FileDbRepository : IDbRepository
             var list = JsonSerializer.Deserialize<List<ScheduledTask>>(content, _options);
             foreach (var item in list!)
             {
-                ScheduledTaskList.TryAdd(item.Name, item);
+                ScheduledTaskList.TryAdd(item.Name!, item);
             }
 
             Logger.LogTrace("Load {0} existing scheduled task", list.Count);
@@ -171,16 +171,15 @@ internal class FileDbRepository : IDbRepository
 
     }
 
-	public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId)
+	public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId, CancellationToken cancellationToken = default)
 	{
         await Task.Yield();
         throw new NotImplementedException();
 	}
 
-	public Task SaveProgressInfo(ProgressInfo progressInfo)
+	public Task SaveProgressInfo(ProgressInfo progressInfo, CancellationToken cancellationToken = default)
     {
         // Do nothing
         return Task.CompletedTask;
     }
 }
-

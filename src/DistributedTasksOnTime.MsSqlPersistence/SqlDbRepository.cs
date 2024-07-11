@@ -13,11 +13,11 @@ internal class SqlDbRepository(
 	private const string CACHE_REGISTRATIONS = "hostregistrations";
 	private const string CACHE_SCHEDULEDTASKS = "scheduledtasks";
 
-	public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo)
+	public async Task SaveHostRegistration(HostRegistrationInfo hostRegistrationInfo, CancellationToken cancellationToken = default)
 	{
-		using var db = await dbContextFactory.CreateDbContextAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-		var data = db.HostRegistrations.SingleOrDefault(i => (i.MachineName + "||" + i.HostName).Equals(hostRegistrationInfo.Key));
+		var data = await db.HostRegistrations.SingleOrDefaultAsync(i => (i.MachineName + "||" + i.HostName).Equals(hostRegistrationInfo.Key), cancellationToken);
 		if (data == null)
 		{
 			db.HostRegistrations!.Add(hostRegistrationInfo);
@@ -31,38 +31,38 @@ internal class SqlDbRepository(
 
 		// TODO: Supprimer les taches planifiées qui existent mais ne sont plus référencées
 
-		var updatecount = await db.SaveChangesAsync();
+		var updatecount = await db.SaveChangesAsync(cancellationToken);
 		if (updatecount > 0)
 		{
 			cache.Remove(CACHE_REGISTRATIONS);
 		}
 	}
 
-	public async Task DeleteHostRegistration(string key)
+	public async Task DeleteHostRegistration(string key, CancellationToken cancellationToken = default)
 	{
-		using var db = dbContextFactory.CreateDbContext();
-		var existing = await db.HostRegistrations.SingleOrDefaultAsync(i => $"{i.MachineName}||{i.HostName}".Equals(key));
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		var existing = await db.HostRegistrations.SingleOrDefaultAsync(i => $"{i.MachineName}||{i.HostName}".Equals(key), cancellationToken);
 		if (existing != null)
 		{
 			db.Remove(existing!);
 			db.Entry(existing).State = EntityState.Deleted;
 		}
-		var updatecount = await db.SaveChangesAsync();
+		var updatecount = await db.SaveChangesAsync(cancellationToken);
 		if (updatecount > 0)
 		{
 			cache.Remove(CACHE_REGISTRATIONS);
 		}
 	}
 
-	public async Task<List<HostRegistrationInfo>> GetHostRegistrationList()
+	public async Task<List<HostRegistrationInfo>> GetHostRegistrationList(CancellationToken cancellationToken = default)
 	{
 		cache.TryGetValue(CACHE_REGISTRATIONS, out List<HostRegistrationInfo>? list);
 		if (list != null)
 		{
 			return list;
 		}
-		var db = dbContextFactory.CreateDbContext();
-		list = await db.HostRegistrations.ToListAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		list = await db.HostRegistrations.ToListAsync(cancellationToken);
 		if (list != null)
 		{
 			cache.Set(CACHE_REGISTRATIONS, list);
@@ -70,12 +70,12 @@ internal class SqlDbRepository(
 		return list!;
 	}
 
-	public async Task SaveScheduledTask(ScheduledTask scheduledTask)
+	public async Task SaveScheduledTask(ScheduledTask scheduledTask, CancellationToken cancellationToken = default)
 	{
-		var db = dbContextFactory.CreateDbContext();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
 
 		var name = scheduledTask.Name;
-		var data = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
+		var data = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name!.Equals(name), cancellationToken);
 		if (data == null)
 		{
 			db.ScheduledTasks!.Add(scheduledTask);
@@ -107,38 +107,38 @@ internal class SqlDbRepository(
 			db.Entry(data).State = EntityState.Modified;
 		}
 
-		var updatecount = await db.SaveChangesAsync();
+		var updatecount = await db.SaveChangesAsync(cancellationToken);
 		if (updatecount > 0)
 		{
 			cache.Remove(CACHE_SCHEDULEDTASKS);
 		}
 	}
 
-	public async Task DeleteScheduledTask(string name)
+	public async Task DeleteScheduledTask(string name, CancellationToken cancellationToken = default)
 	{
-		var db = dbContextFactory.CreateDbContext();
-		var existing = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name.Equals(name));
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		var existing = await db.ScheduledTasks.SingleOrDefaultAsync(i => i.Name!.Equals(name), cancellationToken);
 		if (existing != null)
 		{
 			db.Remove(existing!);
 			db.Entry(existing).State = EntityState.Deleted;
 		}
-		var updatecount = await db.SaveChangesAsync();
+		var updatecount = await db.SaveChangesAsync(cancellationToken);
 		if (updatecount > 0)
 		{
 			cache.Remove(CACHE_SCHEDULEDTASKS);
 		}
 	}
 
-	public async Task<List<ScheduledTask>> GetScheduledTaskList()
+	public async Task<List<ScheduledTask>> GetScheduledTaskList(CancellationToken cancellationToken = default)
 	{
 		cache.TryGetValue(CACHE_SCHEDULEDTASKS, out List<ScheduledTask>? list);
 		if (list != null)
 		{
 			return list;
 		}
-		var db = dbContextFactory.CreateDbContext();
-		list = await db.ScheduledTasks.ToListAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		list = await db.ScheduledTasks.ToListAsync(cancellationToken);
 		if (list != null)
 		{
 			cache.Set(CACHE_SCHEDULEDTASKS, list);
@@ -146,9 +146,9 @@ internal class SqlDbRepository(
 		return list!;
 	}
 
-	public async Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false)
+	public async Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false, CancellationToken cancellationToken = default)
 	{
-		var db = await dbContextFactory.CreateDbContextAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
 		var query = from rt in db.RunningTasks
 					select rt;
 
@@ -157,26 +157,26 @@ internal class SqlDbRepository(
 			query = query.Where(i => !i.TerminatedDate.HasValue);
 		}
 
-		var list = await query.ToListAsync();
+		var list = await query.ToListAsync(cancellationToken);
 		return list;
 	}
 
-    public async Task<RunningTask?> GetLastRunningTask(string taskName)
+    public async Task<RunningTask?> GetLastRunningTask(string taskName, CancellationToken cancellationToken = default)
     {
-        var db = await dbContextFactory.CreateDbContextAsync();
+        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var query = from rt in db.RunningTasks
 					where taskName.Equals(rt.TaskName)
 					orderby rt.RunningDate descending
                     select rt;
 
-        var last = await query.FirstOrDefaultAsync();
+        var last = await query.FirstOrDefaultAsync(cancellationToken);
         return last;
     }
 
-    public async Task SaveRunningTask(RunningTask task)
+    public async Task SaveRunningTask(RunningTask task, CancellationToken cancellationToken = default)
 	{
-		var db = dbContextFactory.CreateDbContext();
-		var data = await db.RunningTasks.SingleOrDefaultAsync(i => i.Id == task.Id);
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		var data = await db.RunningTasks.SingleOrDefaultAsync(i => i.Id == task.Id, cancellationToken);
 		if (data == null)
 		{
 			db.RunningTasks!.Add(task);
@@ -194,31 +194,30 @@ internal class SqlDbRepository(
 			db.RunningTasks!.Attach(data);
 			db.Entry(data).State = EntityState.Modified;
 		}
-		await db.SaveChangesAsync();
+		await db.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task ResetRunningTasks()
+	public async Task ResetRunningTasks(CancellationToken cancellationToken = default)
 	{
-		var db = dbContextFactory.CreateDbContext();
-		await db.RunningTasks.ExecuteDeleteAsync();
-		await db.SaveChangesAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		await db.RunningTasks.ExecuteDeleteAsync(cancellationToken);
 	}
 
-	public async Task SaveProgressInfo(ProgressInfo progressInfo)
+	public async Task SaveProgressInfo(ProgressInfo progressInfo, CancellationToken cancellationToken = default)
 	{
-		var db = dbContextFactory.CreateDbContext();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
 		db.ProgressInfos.Add(progressInfo);
-		await db.SaveChangesAsync();
+		await db.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId)
+	public async Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId, CancellationToken cancellationToken = default)
 	{
-		var db = dbContextFactory.CreateDbContext();
-		var result = await db.ProgressInfos.Where(i => i.TaskId == RunningTaskId).ToListAsync();
+		using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+		var result = await db.ProgressInfos.Where(i => i.TaskId == RunningTaskId).ToListAsync(cancellationToken);
 		return result.OrderByDescending(i => i.CreationDate).ToList();
 	}
 
-	public Task PersistAll()
+	public Task PersistAll(CancellationToken cancellationToken = default)
 	{
 		// Do nothing
 		return Task.CompletedTask;

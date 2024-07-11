@@ -2,18 +2,18 @@
 
 public interface IDbRepository
 {
-	Task<List<DistributedTasksOnTime.HostRegistrationInfo>> GetHostRegistrationList();
-	Task SaveHostRegistration(DistributedTasksOnTime.HostRegistrationInfo hostRegistrationInfo);
-    Task DeleteHostRegistration(string key);
-    Task<List<ScheduledTask>> GetScheduledTaskList();
-	Task SaveScheduledTask(ScheduledTask scheduledTask);
-    Task DeleteScheduledTask(string name);
-    Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false);
-    Task<RunningTask?> GetLastRunningTask(string taskName);
-    Task SaveRunningTask(RunningTask task);
-    Task ResetRunningTasks();
-    Task PersistAll();
-    Task SaveProgressInfo(ProgressInfo progressInfo);
-    Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId);
+	Task<List<DistributedTasksOnTime.HostRegistrationInfo>> GetHostRegistrationList(CancellationToken cancellationToken = default);
+	Task SaveHostRegistration(DistributedTasksOnTime.HostRegistrationInfo hostRegistrationInfo, CancellationToken cancellationToken = default);
+    Task DeleteHostRegistration(string key, CancellationToken cancellationToken = default);
+    Task<List<ScheduledTask>> GetScheduledTaskList(CancellationToken cancellationToken = default);
+	Task SaveScheduledTask(ScheduledTask scheduledTask, CancellationToken cancellationToken = default);
+    Task DeleteScheduledTask(string name, CancellationToken cancellationToken = default);
+    Task<List<RunningTask>> GetRunningTaskList(bool withHistory = false, CancellationToken cancellationToken = default);
+    Task<RunningTask?> GetLastRunningTask(string taskName, CancellationToken cancellationToken = default);
+    Task SaveRunningTask(RunningTask task, CancellationToken cancellationToken = default);
+    Task ResetRunningTasks(CancellationToken cancellationToken = default);
+    Task PersistAll(CancellationToken cancellationToken = default);
+    Task SaveProgressInfo(ProgressInfo progressInfo, CancellationToken cancellationToken = default);
+    Task<List<ProgressInfo>> GetProgressInfoList(Guid RunningTaskId, CancellationToken cancellationToken = default);
 }
 
