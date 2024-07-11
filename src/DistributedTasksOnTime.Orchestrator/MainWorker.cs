@@ -19,7 +19,7 @@ public class MainWorker : BackgroundService
 
 	public override async Task StartAsync(CancellationToken cancellationToken)
 	{
-		await TasksOrchestrator.Start();
+		await TasksOrchestrator.Start(cancellationToken);
 		await base.StartAsync(cancellationToken);
 	}
 
@@ -29,12 +29,12 @@ public class MainWorker : BackgroundService
 		{
 			if (Settings.Enable)
 			{
-				await TasksOrchestrator.EnqueueNextTasks(DateTime.Now);
+				await TasksOrchestrator.EnqueueNextTasks(DateTime.Now, stoppingToken);
 			}
 
 			if (_garbadgeTimeout < DateTime.Now)
 			{
-                await TasksOrchestrator.TerminateOldTasks();
+                await TasksOrchestrator.TerminateOldTasks(stoppingToken);
 				_garbadgeTimeout = DateTime.Now.AddMinutes(1);
             }
             await Task.Delay(Settings.TimerInSecond * 1000, stoppingToken);
@@ -43,7 +43,7 @@ public class MainWorker : BackgroundService
 
 	public override async Task StopAsync(CancellationToken cancellationToken)
 	{
-		await TasksOrchestrator.Stop();
+		await TasksOrchestrator.Stop(cancellationToken);
 		await base.StopAsync(cancellationToken);
 	}
 

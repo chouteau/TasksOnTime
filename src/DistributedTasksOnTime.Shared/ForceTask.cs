@@ -2,6 +2,6 @@
 
 public class ForceTask
 {
-    public string TaskName { get; set; }
+    public string? TaskName { get; set; } = default!;
     public Dictionary<string, string> Parameters { get; set; } = new();
 }

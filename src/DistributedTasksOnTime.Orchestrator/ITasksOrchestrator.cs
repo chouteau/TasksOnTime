@@ -6,25 +6,25 @@ public interface ITasksOrchestrator
 	event Action<TaskState, RunningTask> OnRunningTaskChanged;
 	event Action<string> OnScheduledTaskStarted;
 
-	Task Start();
-	Task Stop();
-	Task RegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo);
-	Task UnRegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo);
-	Task EnqueueNextTasks(DateTime now);
-	Task NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo);
-	Task<bool> ContainsTask(string taskName);
-	Task CancelTask(string taskName);
-	Task DeleteTask(string taskName);
-	Task TerminateTask(string taskName);
-	Task TerminateOldTasks();
+	Task Start(CancellationToken cancellationToken = default);
+	Task Stop(CancellationToken cancellationToken = default);
+	Task RegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo, CancellationToken cancellationToken = default);
+	Task UnRegisterHost(DistributedTasksOnTime.HostRegistrationInfo hostInfo, CancellationToken cancellationToken = default);
+	Task EnqueueNextTasks(DateTime now, CancellationToken cancellationToken = default);
+	Task NotifyRunningTask(DistributedTasksOnTime.DistributedTaskInfo distributedTaskInfo, CancellationToken cancellationToken = default);
+	Task<bool> ContainsTask(string taskName, CancellationToken cancellationToken = default);
+	Task CancelTask(string taskName, CancellationToken cancellationToken = default);
+	Task DeleteTask(string taskName, CancellationToken cancellationToken = default);
+	Task TerminateTask(string taskName, CancellationToken cancellationToken = default);
+	Task TerminateOldTasks(CancellationToken cancellationToken = default);
 
-	Task ForceTask(string taskName, Dictionary<string, string> parameters);
-	Task<int>  GetScheduledTaskCount();
-	Task SaveScheduledTask(ScheduledTask scheduledTask);
-	Task<int> GetRunningTaskCount();
-	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withHistory = false);
-    Task<RunningTask> GetLastRunningTask(string taskName);
-    Task ResetRunningTasks();
-	Task<IEnumerable<ScheduledTask>> GetScheduledTaskList();
+	Task ForceTask(string taskName, Dictionary<string, string> parameters, CancellationToken cancellationToken = default);
+	Task<int>  GetScheduledTaskCount(CancellationToken cancellationToken = default);
+	Task SaveScheduledTask(ScheduledTask scheduledTask, CancellationToken cancellationToken = default);
+	Task<int> GetRunningTaskCount(CancellationToken cancellationToken = default);
+	Task<IEnumerable<RunningTask>> GetRunningTaskList(string taskName = null, bool withHistory = false, CancellationToken cancellationToken = default);
+    Task<RunningTask> GetLastRunningTask(string taskName, CancellationToken cancellationToken = default);
+    Task ResetRunningTasks(CancellationToken cancellationToken = default);
+	Task<IEnumerable<ScheduledTask>> GetScheduledTaskList(CancellationToken cancellationToken = default);
 }
 
